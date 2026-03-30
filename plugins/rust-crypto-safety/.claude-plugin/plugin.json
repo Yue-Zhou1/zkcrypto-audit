@@ -1,0 +1,8 @@
+{
+  "name": "rust-crypto-safety",
+  "version": "0.1.0",
+  "description": "Audits Rust cryptographic implementations for constant-time behavior, zeroization, panic and overflow hazards, unsafe code soundness, feature-flag risk, and dependency hygiene.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

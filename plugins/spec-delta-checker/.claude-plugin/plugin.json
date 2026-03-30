@@ -1,0 +1,8 @@
+{
+  "name": "spec-delta-checker",
+  "version": "0.1.0",
+  "description": "Checks cryptographic implementations against their reference specifications or papers and treats implementation deltas as first-class audit targets.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

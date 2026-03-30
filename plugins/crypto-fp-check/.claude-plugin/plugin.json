@@ -1,0 +1,8 @@
+{
+  "name": "crypto-fp-check",
+  "version": "0.1.0",
+  "description": "Verifies suspected ZK and cryptographic findings before reporting by applying explicit verification gates, severity discipline, and PoC requirements.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

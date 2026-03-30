@@ -1,0 +1,7 @@
+# Runtime requirement: Python 3.10+ (scripts use PEP 604 union syntax).
+# Core — no external dependencies, stdlib only
+
+# Optional — for semantic similarity search
+# Uncomment if you want --similar queries:
+# sentence-transformers>=2.2.0
+# numpy>=1.24.0

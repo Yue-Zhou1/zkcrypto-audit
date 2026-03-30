@@ -1,0 +1,8 @@
+{
+  "name": "zkbugs-index",
+  "version": "0.1.0",
+  "description": "Queryable index of real-world ZKP vulnerabilities from community-confirmed upstream sources and organization findings. Provides fast lookup by DSL, vulnerability type, and semantic similarity for use during ZK circuit audits.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

@@ -1,0 +1,17 @@
+# Routing Matrix
+
+Use this matrix to choose the right skill after `crypto-audit-context`.
+
+| Situation | Route |
+|---|---|
+| The code claims to follow an RFC, paper, or reference implementation | `spec-delta-checker` |
+| The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
+| The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
+| The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
+| The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
+| The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
+| The issue is verified and needs report prose | `crypto-report-writer` |
+| The issue is verified and may need prior-art lookup or index storage | `zkbugs-index` |
+
+Multiple routes can apply. Prefer running `spec-delta-checker` alongside the
+relevant domain auditor when the code is adapting a standard construction.

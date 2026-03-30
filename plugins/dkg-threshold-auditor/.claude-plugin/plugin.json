@@ -1,0 +1,8 @@
+{
+  "name": "dkg-threshold-auditor",
+  "version": "0.1.0",
+  "description": "Audits DKG, threshold-signature, and FROST/MuSig-style protocols for rogue-key, nonce-binding, share-verification, session-isolation, and reconstruction bugs.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "name": "zkcrypto-audit",
+  "owner": {
+    "name": "Yue Zhou"
+  },
+  "metadata": {
+    "version": "0.1.0",
+    "description": "Claude Code plugins for staged, evidence-driven audits of zero-knowledge systems and cryptographic protocols.",
+    "repository": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+    "homepage": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+    "license": "MIT",
+    "keywords": [
+      "zk",
+      "crypto",
+      "audit",
+      "security",
+      "zero-knowledge"
+    ]
+  },
+  "plugins": [
+    {
+      "name": "crypto-audit-router",
+      "version": "0.1.0",
+      "description": "Routes end-to-end ZK and cryptographic audits across context building, spec-delta review, domain auditors, verification, reporting, and index usage.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/crypto-audit-router"
+    },
+    {
+      "name": "audit-common",
+      "version": "0.1.0",
+      "description": "Shared severity, testing-evidence, and finding-contract references for ZK and cryptographic audit skills.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/audit-common"
+    },
+    {
+      "name": "crypto-audit-context",
+      "version": "0.1.0",
+      "description": "Builds initial audit context for ZK and cryptographic code before vulnerability hunting by applying dimensional analysis, threat-model mapping, and audit prioritization.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/crypto-audit-context"
+    },
+    {
+      "name": "spec-delta-checker",
+      "version": "0.1.0",
+      "description": "Checks cryptographic implementations against their reference specifications or papers and treats implementation deltas as first-class audit targets.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/spec-delta-checker"
+    },
+    {
+      "name": "zk-circuit-auditor",
+      "version": "0.1.0",
+      "description": "Audits ZK circuit and verifier implementations for soundness, transcript, setup, and recursion bugs across Groth16, PLONKish, Halo2, Circom, Noir, and related proof systems.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/zk-circuit-auditor"
+    },
+    {
+      "name": "ecc-pairing-auditor",
+      "version": "0.1.0",
+      "description": "Audits elliptic-curve, pairing, and BLS verification code for point-validation, subgroup, cofactor, pairing-equation, DST, and batch-verification bugs.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/ecc-pairing-auditor"
+    },
+    {
+      "name": "dkg-threshold-auditor",
+      "version": "0.1.0",
+      "description": "Audits DKG, threshold-signature, and FROST/MuSig-style protocols for rogue-key, nonce-binding, share-verification, session-isolation, and reconstruction bugs.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/dkg-threshold-auditor"
+    },
+    {
+      "name": "rust-crypto-safety",
+      "version": "0.1.0",
+      "description": "Audits Rust cryptographic implementations for constant-time behavior, zeroization, panic and overflow hazards, unsafe code soundness, feature-flag risk, and dependency hygiene.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/rust-crypto-safety"
+    },
+    {
+      "name": "crypto-fp-check",
+      "version": "0.1.0",
+      "description": "Verifies suspected ZK and cryptographic findings before reporting by applying explicit verification gates, severity discipline, and PoC requirements.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/crypto-fp-check"
+    },
+    {
+      "name": "crypto-report-writer",
+      "version": "0.1.0",
+      "description": "Writes crypto audit findings and summaries using the framework severity model and a consistent test-evidence section for ZK and cryptographic reviews.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/crypto-report-writer"
+    },
+    {
+      "name": "zkbugs-index",
+      "version": "0.1.0",
+      "description": "Queryable index of real-world ZKP vulnerabilities from community-confirmed upstream sources and organization findings. Provides fast lookup by DSL, vulnerability type, and semantic similarity for use during ZK circuit audits.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/zkbugs-index"
+    }
+  ]
+}
