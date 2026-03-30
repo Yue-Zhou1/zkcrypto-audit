@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Ensure local Claude settings are not tracked
+        run: |
+          if git ls-files --error-unmatch .claude/settings.local.json >/dev/null 2>&1; then
+            echo "ERROR: .claude/settings.local.json must not be tracked."
+            exit 1
+          fi
+
+      - name: Run unit tests
+        run: |
+          python3 -m unittest discover -s tests -q
+
+      - name: Verify Python sources compile
+        run: |
+          python3 -m py_compile \
+            plugins/zkbugs-index/scripts/_shared.py \
+            plugins/zkbugs-index/scripts/build_index.py \
+            plugins/zkbugs-index/scripts/query_index.py \
+            plugins/zkbugs-index/scripts/contribute_bug.py \
+            tests/test_crypto_audit_plugin_scaffolding.py \
+            tests/test_zkbugs_index_cli.py

@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    name: Verify release candidate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Ensure local Claude settings are not tracked
+        run: |
+          if git ls-files --error-unmatch .claude/settings.local.json >/dev/null 2>&1; then
+            echo "ERROR: .claude/settings.local.json must not be tracked."
+            exit 1
+          fi
+
+      - name: Run unit tests
+        run: |
+          python3 -m unittest discover -s tests -q
+
+      - name: Verify Python sources compile
+        run: |
+          python3 -m py_compile \
+            plugins/zkbugs-index/scripts/_shared.py \
+            plugins/zkbugs-index/scripts/build_index.py \
+            plugins/zkbugs-index/scripts/query_index.py \
+            plugins/zkbugs-index/scripts/contribute_bug.py \
+            tests/test_crypto_audit_plugin_scaffolding.py \
+            tests/test_zkbugs_index_cli.py
+
+  publish:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create GitHub release for tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          title="zkcrypto-audit ${tag}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release ${tag} already exists. Skipping create."
+          else
+            gh release create "$tag" --title "$title" --generate-notes
+          fi

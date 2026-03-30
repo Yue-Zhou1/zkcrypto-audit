@@ -178,12 +178,21 @@ python3 -m unittest -v \
   tests.test_crypto_audit_plugin_scaffolding
 
 python3 -m py_compile \
+  plugins/zkbugs-index/scripts/_shared.py \
   plugins/zkbugs-index/scripts/build_index.py \
   plugins/zkbugs-index/scripts/query_index.py \
   plugins/zkbugs-index/scripts/contribute_bug.py \
   tests/test_zkbugs_index_cli.py \
   tests/test_crypto_audit_plugin_scaffolding.py
 ```
+
+To enable the repository-managed pre-push guard locally:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+This runs the same unittest and compile checks before each push.
 
 ## Current Status
 

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+echo "[pre-push] Running local verification checks..."
+
+if git ls-files --error-unmatch .claude/settings.local.json >/dev/null 2>&1; then
+  echo "ERROR: .claude/settings.local.json is tracked. Remove it from version control." >&2
+  exit 1
+fi
+
+if git diff --cached --name-only -- .claude/settings.local.json | grep -q .; then
+  echo "ERROR: .claude/settings.local.json is staged. Unstage it before pushing." >&2
+  exit 1
+fi
+
+python3 -m unittest discover -s tests -q
+
+python3 -m py_compile \
+  plugins/zkbugs-index/scripts/_shared.py \
+  plugins/zkbugs-index/scripts/build_index.py \
+  plugins/zkbugs-index/scripts/query_index.py \
+  plugins/zkbugs-index/scripts/contribute_bug.py \
+  tests/test_crypto_audit_plugin_scaffolding.py \
+  tests/test_zkbugs_index_cli.py
+
+echo "[pre-push] Checks passed."

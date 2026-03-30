@@ -1,4 +1,5 @@
 import json
+import os
 import unittest
 from pathlib import Path
 
@@ -7,6 +8,38 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
+    def test_repo_has_pre_push_hook_for_local_guardrails(self) -> None:
+        hook_path = REPO_ROOT / ".githooks" / "pre-push"
+        self.assertTrue(hook_path.exists())
+        self.assertTrue(os.access(hook_path, os.X_OK), hook_path.as_posix())
+
+        hook_text = hook_path.read_text()
+        self.assertIn("python3 -m unittest discover -s tests -q", hook_text)
+        self.assertIn("python3 -m py_compile", hook_text)
+        self.assertIn(".claude/settings.local.json", hook_text)
+
+    def test_repo_has_ci_and_release_workflows(self) -> None:
+        ci_path = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+        release_path = REPO_ROOT / ".github" / "workflows" / "release.yml"
+
+        self.assertTrue(ci_path.exists())
+        self.assertTrue(release_path.exists())
+
+        ci_text = ci_path.read_text()
+        self.assertIn("python-version", ci_text)
+        self.assertIn("3.10", ci_text)
+        self.assertIn("3.11", ci_text)
+        self.assertIn("3.12", ci_text)
+        self.assertIn("python3 -m unittest discover -s tests -q", ci_text)
+        self.assertIn("python3 -m py_compile", ci_text)
+        self.assertIn(".claude/settings.local.json", ci_text)
+
+        release_text = release_path.read_text()
+        self.assertIn("tags:", release_text)
+        self.assertIn("v*", release_text)
+        self.assertIn("gh release create", release_text)
+        self.assertIn("python3 -m unittest discover -s tests -q", release_text)
+
     def test_reviewed_skills_define_rationalizations_to_reject(self) -> None:
         expectations = {
             REPO_ROOT
