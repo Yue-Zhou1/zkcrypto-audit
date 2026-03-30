@@ -39,41 +39,62 @@ and less likely to drift into vague "looks suspicious" output.
 
 ## Installation
 
-This repository is a **plugin collection** of sibling plugins under `plugins/`,
-not a single root plugin. It now also ships a root
-`.claude-plugin/marketplace.json`, so Claude Code can add the repository as one
-marketplace while still installing individual plugins from `plugins/`.
-For OpenAI Codex discovery, the repository also ships flat compatibility stubs
-under `.codex/skills/` that point to each canonical plugin skill.
+For most users, follow this 3-step setup in Claude Code.
 
-For local development from the repo root:
+### 1) Add the marketplace (one time)
+
+```bash
+/plugin marketplace add Yue-Zhou1/zkcrypto-audit
+```
+
+### 2) Install plugins
+
+Open the plugin menu:
+
+```bash
+/plugin menu
+```
+
+Install these plugins:
+
+- `crypto-audit-router` (install this first)
+- `audit-common`
+- `crypto-audit-context`
+- `spec-delta-checker`
+- at least one domain auditor (choose one): `zk-circuit-auditor`,
+  `ecc-pairing-auditor`, `dkg-threshold-auditor`, or `rust-crypto-safety`
+- `crypto-fp-check`
+- `crypto-report-writer`
+- `zkbugs-index`
+
+If you prefer command-based install, start with:
+
+```bash
+/plugin install crypto-audit-router@zkcrypto-audit
+```
+
+### 3) Verify installation
+
+In a new chat, ask:
+
+```text
+Use crypto-audit-router to run a staged crypto security review.
+```
+
+`crypto-audit-router` orchestrates the workflow but does not auto-install
+sibling plugins. Install the full list above for end-to-end coverage.
+
+### Local development (this repo checked out locally)
+
+From the repo root:
 
 ```bash
 /plugin marketplace add ./
-/plugin install crypto-audit-router@zkcrypto-audit
+/plugin menu
 ```
 
-After publishing the repository on GitHub:
-
-```bash
-/plugin marketplace add <owner>/<repo>
-/plugin install crypto-audit-router@zkcrypto-audit
-```
-
-For the default end-to-end workflow, install at least:
-
-- `plugins/crypto-audit-router`
-- `plugins/audit-common`
-- `plugins/crypto-audit-context`
-- `plugins/spec-delta-checker`
-- one or more domain auditors under `plugins/`
-- `plugins/crypto-fp-check`
-- `plugins/crypto-report-writer`
-- `plugins/zkbugs-index`
-
-`crypto-audit-router` is the top-level router plugin and is designed to route
-across those sibling plugins, so the stack works best when they are available
-together.
+For OpenAI Codex, this repository includes compatibility stubs under
+`.codex/skills/`.
 
 ## Runtime Requirements
 
@@ -162,43 +183,6 @@ The canonical workflow is documented in
 - Keep Critical and High findings tied to strong evidence, including PoC support
   where required by the workflow.
 
-## Verification
-
-The repository currently uses focused Python tests to pin plugin scaffolding,
-README expectations, and `zkbugs-index` behavior:
-
-- `tests/test_crypto_audit_plugin_scaffolding.py`
-- `tests/test_zkbugs_index_cli.py`
-
-Typical verification commands:
-
-```bash
-python3 -m unittest -v \
-  tests.test_zkbugs_index_cli \
-  tests.test_crypto_audit_plugin_scaffolding
-
-python3 -m py_compile \
-  plugins/zkbugs-index/scripts/_shared.py \
-  plugins/zkbugs-index/scripts/build_index.py \
-  plugins/zkbugs-index/scripts/query_index.py \
-  plugins/zkbugs-index/scripts/contribute_bug.py \
-  tests/test_zkbugs_index_cli.py \
-  tests/test_crypto_audit_plugin_scaffolding.py
-```
-
-To enable the repository-managed pre-push guard locally:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-This runs the same unittest and compile checks before each push.
-
-Releases can be published either by pushing a `v*` tag or by running the
-`Release` workflow manually via GitHub Actions (`workflow_dispatch`).
-The release workflow uses `CHANGELOG.md` as the source of truth for release
-notes and fails if the target version section is missing or empty.
-
 ## Current Status
 
 - The repository currently ships as a collection of individual plugins under
@@ -213,16 +197,13 @@ notes and fails if the target version section is missing or empty.
 
 ## Versioning
 
-This collection follows Semantic Versioning for plugin manifests and marketplace
-metadata.
+This project follows Semantic Versioning (`MAJOR.MINOR.PATCH`).
 
-- Patch (`x.y.Z`): wording, references, and low-risk fixes that do not change
-  workflow contracts.
-- Minor (`x.Y.z`): new skills, new workflow steps, or schema-compatible
-  contract additions.
-- Major (`X.y.z`): breaking workflow/output-contract changes.
+- Patch: wording updates, references, and low-risk fixes.
+- Minor: new skills, workflow expansions, or backward-compatible contract additions.
+- Major: breaking changes to workflow contracts or expected output structure.
 
-Release notes are tracked in `CHANGELOG.md`.
+Release notes for each published version are tracked in `CHANGELOG.md`.
 
 ## Contributing
 
