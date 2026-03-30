@@ -194,6 +194,9 @@ git config core.hooksPath .githooks
 
 This runs the same unittest and compile checks before each push.
 
+Releases can be published either by pushing a `v*` tag or by running the
+`Release` workflow manually via GitHub Actions (`workflow_dispatch`).
+
 ## Current Status
 
 - The repository currently ships as a collection of individual plugins under

@@ -4,6 +4,22 @@ on:
   push:
     tags:
       - "v*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release tag (for example: v0.1.0)"
+        required: true
+        type: string
+      draft:
+        description: "Create as draft release"
+        required: true
+        default: false
+        type: boolean
+      prerelease:
+        description: "Mark as prerelease"
+        required: true
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -54,10 +70,33 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="${GITHUB_REF_NAME}"
+          event_name="${{ github.event_name }}"
+          if [ "$event_name" = "workflow_dispatch" ]; then
+            tag="${{ github.event.inputs.version }}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ "$tag" != v* ]]; then
+            echo "ERROR: Release tag must start with 'v'. Got: $tag"
+            exit 1
+          fi
+
           title="zkcrypto-audit ${tag}"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release ${tag} already exists. Skipping create."
           else
-            gh release create "$tag" --title "$title" --generate-notes
+            cmd=(gh release create "$tag" --title "$title" --generate-notes)
+
+            if [ "$event_name" = "workflow_dispatch" ]; then
+              if [ "${{ github.event.inputs.draft }}" = "true" ]; then
+                cmd+=(--draft)
+              fi
+              if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
+                cmd+=(--prerelease)
+              fi
+              cmd+=(--target "${GITHUB_SHA}")
+            fi
+
+            "${cmd[@]}"
           fi

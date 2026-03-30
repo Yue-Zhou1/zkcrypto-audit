@@ -37,6 +37,9 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         release_text = release_path.read_text()
         self.assertIn("tags:", release_text)
         self.assertIn("v*", release_text)
+        self.assertIn("workflow_dispatch:", release_text)
+        self.assertIn("inputs:", release_text)
+        self.assertIn("version:", release_text)
         self.assertIn("gh release create", release_text)
         self.assertIn("python3 -m unittest discover -s tests -q", release_text)
 
