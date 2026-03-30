@@ -196,6 +196,8 @@ This runs the same unittest and compile checks before each push.
 
 Releases can be published either by pushing a `v*` tag or by running the
 `Release` workflow manually via GitHub Actions (`workflow_dispatch`).
+The release workflow uses `CHANGELOG.md` as the source of truth for release
+notes and fails if the target version section is missing or empty.
 
 ## Current Status
 

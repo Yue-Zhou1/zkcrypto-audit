@@ -13,13 +13,17 @@ on:
       draft:
         description: "Create as draft release"
         required: true
-        default: false
+        default: true
         type: boolean
       prerelease:
         description: "Mark as prerelease"
         required: true
         default: false
         type: boolean
+      release_notes:
+        description: "Optional custom release notes (if empty, generate notes automatically)"
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -71,8 +75,15 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           event_name="${{ github.event_name }}"
+          draft_flag="true"
+          prerelease_flag="false"
+          release_notes=""
+
           if [ "$event_name" = "workflow_dispatch" ]; then
             tag="${{ github.event.inputs.version }}"
+            draft_flag="${{ github.event.inputs.draft }}"
+            prerelease_flag="${{ github.event.inputs.prerelease }}"
+            release_notes="${{ github.event.inputs.release_notes }}"
           else
             tag="${GITHUB_REF_NAME}"
           fi
@@ -81,20 +92,53 @@ jobs:
             echo "ERROR: Release tag must start with 'v'. Got: $tag"
             exit 1
           fi
+          version="${tag#v}"
+
+          notes_file="$(mktemp)"
+          if ! awk -v ver="$version" '
+            BEGIN { in_section = 0; found = 0 }
+            $0 ~ "^## \\[" ver "\\]" { in_section = 1; found = 1; print; next }
+            in_section && $0 ~ "^## \\[" { exit }
+            in_section { print }
+            END {
+              if (found == 0) {
+                exit 2
+              }
+            }
+          ' CHANGELOG.md > "$notes_file"; then
+            echo "ERROR: Missing changelog entry for ${version} in CHANGELOG.md"
+            exit 1
+          fi
+
+          if [ -z "$(tail -n +2 "$notes_file" | tr -d '[:space:]')" ]; then
+            echo "ERROR: Changelog section for ${version} is empty in CHANGELOG.md"
+            exit 1
+          fi
+
+          if [ -n "$release_notes" ]; then
+            {
+              echo
+              echo "---"
+              echo
+              echo "$release_notes"
+            } >> "$notes_file"
+          fi
 
           title="zkcrypto-audit ${tag}"
           if gh release view "$tag" >/dev/null 2>&1; then
             echo "Release ${tag} already exists. Skipping create."
           else
-            cmd=(gh release create "$tag" --title "$title" --generate-notes)
+            cmd=(gh release create "$tag" --title "$title")
+
+            if [ "$draft_flag" = "true" ]; then
+              cmd+=(--draft)
+            fi
+            if [ "$prerelease_flag" = "true" ]; then
+              cmd+=(--prerelease)
+            fi
+            cmd+=(--notes-file "$notes_file")
 
             if [ "$event_name" = "workflow_dispatch" ]; then
-              if [ "${{ github.event.inputs.draft }}" = "true" ]; then
-                cmd+=(--draft)
-              fi
-              if [ "${{ github.event.inputs.prerelease }}" = "true" ]; then
-                cmd+=(--prerelease)
-              fi
               cmd+=(--target "${GITHUB_SHA}")
             fi
 

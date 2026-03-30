@@ -40,6 +40,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("workflow_dispatch:", release_text)
         self.assertIn("inputs:", release_text)
         self.assertIn("version:", release_text)
+        self.assertIn("release_notes:", release_text)
+        self.assertIn("--draft", release_text)
+        self.assertIn("--notes", release_text)
+        self.assertIn("CHANGELOG.md", release_text)
+        self.assertIn("--notes-file", release_text)
+        self.assertIn("Missing changelog entry", release_text)
         self.assertIn("gh release create", release_text)
         self.assertIn("python3 -m unittest discover -s tests -q", release_text)
 
