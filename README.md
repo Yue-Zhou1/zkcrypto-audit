@@ -195,6 +195,16 @@ The canonical workflow is documented in
 - The root README is the entry point for the collection and its marketplace
   install flow.
 
+## Versioning
+
+This project follows Semantic Versioning (`MAJOR.MINOR.PATCH`).
+
+- Patch: wording updates, references, and low-risk fixes.
+- Minor: new skills, workflow expansions, or backward-compatible contract additions.
+- Major: breaking changes to workflow contracts or expected output structure.
+
+Release notes for each published version are tracked in `CHANGELOG.md`.
+
 ## Contributing
 
 Contributions should preserve the staged workflow of the framework: focused
