@@ -1,0 +1,23 @@
+[
+  {
+    "id": "zkbugs/Consensys/gnark/Unsoundness_in_variable_comparison_/_non-unique_binary_decomposition",
+    "dsl": "gnark",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/Consensys/gnark/security/advisories/GHSA-498w-5j49-vqjg",
+      "commit": "",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

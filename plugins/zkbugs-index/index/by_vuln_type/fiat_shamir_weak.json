@@ -1,0 +1,44 @@
+[
+  {
+    "id": "zkbugs/openvm-org/openvm/GHSA-4w7p-8f9q-f4g2",
+    "dsl": "plonky3",
+    "vuln_type": "fiat_shamir_weak",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Fiat-Shamir",
+    "location": {
+      "repo": "https://github.com/openvm-org/openvm/security/advisories/GHSA-4w7p-8f9q-f4g2",
+      "commit": "7548bdf844db53c0a6fc9ed9f153c54422c6cfa4",
+      "file": "extensions/native/recursion/src/fri/mod.rs, extensions/native/recursion/src/fri/two_adic_pcs.rs",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "bdb4831fefed13b0741d3a052d434a9c995c6d5d",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/succinctlabs/sp1/ghsa-8m24-3cfx-9fjw",
+    "dsl": "plonky3",
+    "vuln_type": "fiat_shamir_weak",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Fiat-Shamir",
+    "location": {
+      "repo": "https://github.com/succinctlabs/sp1/security/advisories/GHSA-8m24-3cfx-9fjw",
+      "commit": "6512b56296c2c5e53b10cce1a741173a3d2dde68",
+      "file": "crates/recursion/circuit/src/stark.rs",
+      "line": 60
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "79884ffb1a2d10bfd2c272f864033577a052468a",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

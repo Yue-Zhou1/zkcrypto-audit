@@ -1,0 +1,170 @@
+[
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Behaviour_is_undefined_if_mmr_len_is_not_range_checked.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Behaviour_is_undefined_if_mmr_offset_is_not_range_checked.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Behaviour_is_undefined_if_peaks_len_is_not_range_checked.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Behaviour_is_undefined_if_position_is_not_range_checked.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Function_doesn\u2019t_ensure_that_\u201cy\u201d_is_a_power_of_two.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Implicitly_requires_\u201cvalue\u201d_to_fit_into_128+32=160_bits.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "af97dae8be5cca025f42da9334596de50762c855",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/HerodotusDev/offchain-evm-headers-processor/abdk_Missing_range_checks_for_negative_values",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Arithmetic Field Issues",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
+      "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "eb30c321f41880b35a7af069f7f52fd98d584616",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/starkware-libs/stark-perpetual/abdk_This_function_cannot_handle_the_case_when_n_risk_factor_segments_is_zero.",
+    "dsl": "cairo",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Input Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-perpetual.pdf",
+      "commit": "0xe6189aa",
+      "file": "execute_batch_utils.cairo",
+      "line": 78
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "3eb3a26366f412cf8d0643f65e33d8b2eb5904fc",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

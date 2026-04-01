@@ -26,11 +26,11 @@ WRITE → local_findings/   (always, for under-embargo work)
 WRITE → org findings repo (optional, for reported/fixed/disclosed findings)
 ```
 
-Both repos are **configurable** in `config/config.json`. The org repo is optional.
+Both repos are **configurable** in `config/zkbugs-sources.json`. The org repo is optional.
 
 ## Configuration
 
-Edit `config/config.json` before first use:
+Edit `config/zkbugs-sources.json` before first use:
 
 ```json
 {
@@ -57,7 +57,7 @@ Edit `config/config.json` before first use:
 
 ```bash
 cd {baseDir}/scripts
-python build_index.py --config ../config/config.json
+python build_index.py --config ../config/zkbugs-sources.json
 ```
 
 This clones the upstream repo (if not already cached), optionally loads the org
@@ -73,26 +73,30 @@ Query this index when:
 
 ## How to Query
 
-Always specify at least `--dsl` or `--vuln` to avoid a full-corpus scan.
+Read the index shard files directly — no script needed. The dataset is small
+(<200 entries) so the agent can filter and rank in-context.
 
-```bash
-# Exact match by DSL and vulnerability type
-python {baseDir}/scripts/query_index.py --dsl circom --vuln under_constrained --limit 5
+```
+# By DSL — read the shard for the target language
+Read: {baseDir}/index/by_dsl/circom.json
 
-# Keyword search on root cause text
-python {baseDir}/scripts/query_index.py --dsl halo2 --keyword "lookup table" --limit 3
+# By vulnerability type
+Read: {baseDir}/index/by_vuln_type/under_constrained.json
 
-# Org findings only
-python {baseDir}/scripts/query_index.py --source org --limit 20
+# Keyword search on root_cause across all entries in a DSL shard
+Grep: pattern="lookup table" path={baseDir}/index/by_dsl/halo2.json
 
-# Citable entries only (disclosed, safe for reports)
-python {baseDir}/scripts/query_index.py --dsl circom --vuln under_constrained --citable
-
-# Semantic similarity (requires sentence-transformers)
-python {baseDir}/scripts/query_index.py --similar "commitment polynomial evaluated at wrong point" --dsl halo2
+# Check manifest for available shards and entry counts
+Read: {baseDir}/index/manifest.json
 ```
 
-See `references/QUERY-PATTERNS.md` for the full query DSL and common patterns.
+After reading a shard, filter entries in-context by `vuln_type`, `source`,
+`disclosure_state`, or keyword match on `root_cause`. Rank by: reproduced
+(PoC available) > Soundness impact > severity (Critical > High > Medium > Low).
+
+Only cite entries with `"disclosure_state": "disclosed"` in client-facing reports.
+
+See `references/QUERY-PATTERNS.md` for common lookup patterns.
 
 ## When to Write
 
@@ -132,7 +136,7 @@ See `workflows/disclosure-lifecycle.md` for state transitions and promotion.
 ├─ Need to query?              → Read: references/QUERY-PATTERNS.md
 ├─ Need vulnerability types?   → Read: references/VULN-TAXONOMY.md
 ├─ Adding/promoting a finding? → Read: workflows/disclosure-lifecycle.md
-└─ Configuring repos?          → Edit: config/config.json
+└─ Configuring repos?          → Edit: config/zkbugs-sources.json
 ```
 
 ## When NOT to Use
@@ -146,7 +150,7 @@ See `workflows/disclosure-lifecycle.md` for state transitions and promotion.
 
 | Rationalization | Why it's wrong |
 |---|---|
-| "No match found, so this is novel" | Try `--similar` before concluding; root cause may be described differently |
+| "No match found, so this is novel" | Grep for root_cause keywords across DSL shards before concluding; root cause may be described differently |
 | "The upstream entry is old, probably fixed everywhere" | The same pattern recurs in new projects constantly |
 | "This is too minor to record" | If it passed FP-check at Medium+, it belongs in the index |
 | "I'll add it to the index later" | Findings lost between sessions are findings lost forever |

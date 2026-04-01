@@ -4,7 +4,7 @@
     "local_path": null,
     "branch": "main",
     "entry_glob": "**/*.json",
-    "exclude_paths": [".github", "node_modules", "package.json", "package-lock.json"]
+    "exclude_paths": [".github", ".vscode", "node_modules", "package.json", "package-lock.json", "reports"]
   },
   "org": {
     "repo_url": null,

@@ -30,7 +30,7 @@ from datetime import datetime, timezone
 from _shared import CANONICAL_VULN_TYPES, ensure_repo
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
-DEFAULT_CONFIG = SCRIPT_DIR.parent / "config" / "config.json"
+DEFAULT_CONFIG = SCRIPT_DIR.parent / "config" / "zkbugs-sources.json"
 DEFAULT_INDEX_DIR = SCRIPT_DIR.parent / "index"
 
 VALID_IMPACTS = {"Soundness", "Completeness", "Privacy", "DoS"}
