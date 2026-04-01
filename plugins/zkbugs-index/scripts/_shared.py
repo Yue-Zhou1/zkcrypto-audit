@@ -70,6 +70,9 @@ VULN_ALIASES: dict[str, str] = {
     # configuration_error
     "misconfiguration": "configuration_error",
     "wrong curve parameters": "configuration_error",
+    # soundness_error (upstream catch-all categories)
+    "computational issues": "soundness_error",
+    "backend issue": "soundness_error",
 }
 
 CANONICAL_VULN_TYPES = {

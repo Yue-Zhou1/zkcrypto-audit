@@ -55,4 +55,4 @@ All Phase 2 skills MUST use these keys when classifying findings.
 4. If no alias matches, attempt substring match (e.g., "constrained" → `under_constrained`)
 5. If still no match, set to `unknown` and log a warning — manual review needed
 
-The alias map is defined in `scripts/build_index.py:VULN_ALIASES`.
+The alias map is defined in `scripts/_shared.py:VULN_ALIASES`.

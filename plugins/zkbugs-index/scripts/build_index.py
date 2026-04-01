@@ -5,8 +5,8 @@ build_index.py — Build sharded indexes from upstream zkbugs repo and org findi
 Run once at install time, re-run with --rebuild when upstream updates.
 
 Usage:
-    python build_index.py --config ../config/config.json
-    python build_index.py --config ../config/config.json --rebuild
+    python build_index.py --config ../config/zkbugs-sources.json
+    python build_index.py --config ../config/zkbugs-sources.json --rebuild
     python build_index.py --upstream-path /local/path/to/zkbugs
     python build_index.py --diff-upstream
 """
@@ -24,7 +24,7 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 log = logging.getLogger(__name__)
 
 SCRIPT_DIR = pathlib.Path(__file__).resolve().parent
-DEFAULT_CONFIG = SCRIPT_DIR.parent / "config" / "config.json"
+DEFAULT_CONFIG = SCRIPT_DIR.parent / "config" / "zkbugs-sources.json"
 DEFAULT_INDEX_DIR = SCRIPT_DIR.parent / "index"
 
 def normalize_vuln_type(raw: str) -> str:
@@ -74,6 +74,33 @@ def ingest_upstream_entry(raw: dict, bug_key: str, source_file: str) -> dict | N
             log.warning(f"Skipping entry '{bug_key}' in {source_file}: missing '{field}'")
             return None
 
+    # Flatten upstream Location dict {Path, Function, Line} into canonical strings
+    raw_loc = raw.get("Location", "")
+    if isinstance(raw_loc, dict):
+        file_path = raw_loc.get("Path", "")
+        line = raw_loc.get("Line", "") or None
+        if line:
+            try:
+                line = int(line)
+            except (ValueError, TypeError):
+                line = None
+    else:
+        file_path = str(raw_loc)
+        line = None
+
+    # Flatten upstream Source dict into a source link string
+    raw_src = raw.get("Source", "")
+    if isinstance(raw_src, dict):
+        # Source keys: "Audit Report", "Bug Tracker", "GitHub Security Advisory"
+        # Each has {"Source Link": url, "Bug ID": id}
+        for _src_type, src_val in raw_src.items():
+            if isinstance(src_val, dict):
+                raw_src = src_val.get("Source Link", "")
+                break
+            else:
+                raw_src = str(src_val)
+                break
+
     return {
         "id":               f"zkbugs/{raw['Id']}",
         "dsl":              raw["DSL"].strip().lower(),
@@ -82,10 +109,10 @@ def ingest_upstream_entry(raw: dict, bug_key: str, source_file: str) -> dict | N
         "severity":         infer_severity(raw.get("Impact", "")),
         "root_cause":       raw.get("Root Cause", ""),
         "location": {
-            "repo":         raw.get("Source", ""),
-            "commit":       None,
-            "file":         raw.get("Location", ""),
-            "line":         None,
+            "repo":         raw_src,
+            "commit":       raw.get("Commit"),
+            "file":         file_path,
+            "line":         line,
         },
         "reproduced":       raw.get("Reproduced", False),
         "poc_available":    raw.get("Reproduced", False),
@@ -351,7 +378,7 @@ def load_config(config_path: pathlib.Path) -> dict:
     """Load and validate config file."""
     if not config_path.exists():
         log.error(f"Config not found: {config_path}")
-        log.error("Copy config/config.json and set your repo URLs.")
+        log.error("Copy config/zkbugs-sources.json and set your repo URLs.")
         sys.exit(1)
 
     with open(config_path) as f:
@@ -361,7 +388,7 @@ def load_config(config_path: pathlib.Path) -> dict:
 def main():
     parser = argparse.ArgumentParser(description="Build zkbugs-index from upstream repo and org findings")
     parser.add_argument("--config", type=pathlib.Path, default=DEFAULT_CONFIG,
-                        help="Path to config.json")
+                        help="Path to zkbugs-sources.json")
     parser.add_argument("--upstream-path", type=pathlib.Path, default=None,
                         help="Override: local path to upstream repo (skip clone)")
     parser.add_argument("--index-dir", type=pathlib.Path, default=None,

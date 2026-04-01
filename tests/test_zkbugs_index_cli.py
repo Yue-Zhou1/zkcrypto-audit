@@ -7,7 +7,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BUILD_INDEX = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "build_index.py"
-QUERY_INDEX = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "query_index.py"
 CONTRIBUTE_BUG = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "contribute_bug.py"
 
 
@@ -162,19 +161,11 @@ class ZkbugsIndexCliTests(unittest.TestCase):
 
         self._build_index()
 
-        query = run_cli(
-            str(QUERY_INDEX),
-            "--config",
-            str(self.config_path),
-            "--dsl",
-            "circom",
-            "--source",
-            "org",
-            "--format",
-            "json",
-        )
-        entries = json.loads(query.stdout)
-        self.assertEqual([entry["id"] for entry in entries], ["org/circom/demo/already-reported"])
+        shard_path = self.index_dir / "by_dsl" / "circom.json"
+        self.assertTrue(shard_path.exists())
+        entries = json.loads(shard_path.read_text())
+        org_entries = [e for e in entries if e.get("source") == "org"]
+        self.assertEqual([e["id"] for e in org_entries], ["org/circom/demo/already-reported"])
 
     def test_promote_reported_moves_entry_to_org_repo_and_rewrites_id(self) -> None:
         self._create_local_finding()
@@ -262,19 +253,11 @@ class ZkbugsIndexCliTests(unittest.TestCase):
         build = self._build_index()
         self.assertEqual(build.returncode, 0)
 
-        query = run_cli(
-            str(QUERY_INDEX),
-            "--config",
-            str(self.config_path),
-            "--dsl",
-            "circom",
-            "--source",
-            "upstream",
-            "--format",
-            "json",
-        )
-        entries = json.loads(query.stdout)
-        self.assertEqual([entry["id"] for entry in entries], ["zkbugs/example/circom/underconstrained"])
+        shard_path = self.index_dir / "by_dsl" / "circom.json"
+        self.assertTrue(shard_path.exists())
+        entries = json.loads(shard_path.read_text())
+        upstream_entries = [e for e in entries if e.get("upstream", False)]
+        self.assertEqual([e["id"] for e in upstream_entries], ["zkbugs/example/circom/underconstrained"])
 
 
 if __name__ == "__main__":

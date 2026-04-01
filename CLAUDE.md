@@ -27,7 +27,6 @@ python3 -m unittest discover -s tests -q
 python3 -m py_compile \
   plugins/zkbugs-index/scripts/_shared.py \
   plugins/zkbugs-index/scripts/build_index.py \
-  plugins/zkbugs-index/scripts/query_index.py \
   plugins/zkbugs-index/scripts/contribute_bug.py \
   tests/test_crypto_audit_plugin_scaffolding.py \
   tests/test_zkbugs_index_cli.py

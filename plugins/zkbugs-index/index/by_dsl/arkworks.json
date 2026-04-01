@@ -1,0 +1,107 @@
+[
+  {
+    "id": "zkbugs/arkworks-rs/r1cs-std/Enforce_mul_by_inverse",
+    "dsl": "arkworks",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/arkworks-rs/r1cs-std/pull/70",
+      "commit": "",
+      "file": "",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/penumbra-zone/penumbra/nccgroup_Invalid_Comparisons_on_Fixed-Point_Values_are_Accepted_by_the_Circuit_Verifier",
+    "dsl": "arkworks",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/nccgroup-penumbra.pdf",
+      "commit": "0xa43b594",
+      "file": "penumbra/crates/core/num/src/fixpoint.rs",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "954b3b2e678075baf1e06279ea41bb2823e540c76ddb80ba44b52476dfd3f55f",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/penumbra-zone/penumbra/zksecurity_Double_spending_due_to_incoming_viewing_key_(ivk)_derivation_not_constrained",
+    "dsl": "arkworks",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Out-of-Circuit Computation Not Being Constrained",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
+      "commit": "0xa43b594",
+      "file": "core/keys",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "e019839939968012ed2d24cf65bdd86d239b50e9",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/penumbra-zone/penumbra/zksecurity_Unsound_fixed-point_addition",
+    "dsl": "arkworks",
+    "vuln_type": "soundness_error",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
+      "commit": "0xa43b594",
+      "file": "core/num",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "ddab070acff5567f23eb36a4a877358f2c062d9b",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/penumbra-zone/penumbra/zksecurity_Unsound_fixed-point_multiplication",
+    "dsl": "arkworks",
+    "vuln_type": "soundness_error",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
+      "commit": "0xa43b594",
+      "file": "core/num",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "1fdbe1ea10a270180c035aeb8bb7f4a3ff25d99e",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

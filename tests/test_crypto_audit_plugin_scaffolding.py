@@ -215,11 +215,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
     def test_gitignore_covers_generated_zkbugs_index_artifacts(self) -> None:
         gitignore_text = (REPO_ROOT / ".gitignore").read_text()
         expected_entries = [
-            "plugins/zkbugs-index/index/by_dsl/",
-            "plugins/zkbugs-index/index/by_vuln_type/",
             "plugins/zkbugs-index/index/upstream_raw/",
             "plugins/zkbugs-index/index/local_findings/findings.json",
-            "plugins/zkbugs-index/index/manifest.json",
             "plugins/zkbugs-index/index/embeddings.npy",
             "plugins/zkbugs-index/index/embedding_ids.json",
             "plugins/zkbugs-index/.cache/",

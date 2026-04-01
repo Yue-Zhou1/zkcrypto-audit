@@ -1,0 +1,23 @@
+[
+  {
+    "id": "zkbugs/scroll-tech/poseidon-circuit/zellic_mpt_only_being_true_leads_to_overconstrained_circuits",
+    "dsl": "halo2",
+    "vuln_type": "over_constrained",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "Other Programming Errors",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll.pdf",
+      "commit": "0xf3ebc6af0e5049d2f45259ef79741f9c7d7794e1",
+      "file": "src/hash.rs",
+      "line": 11
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "912f5ed2c6cacd64a0006e868e3cb4b624acc019",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

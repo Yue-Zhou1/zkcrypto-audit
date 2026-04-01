@@ -1,0 +1,24 @@
+{
+  "count": 110,
+  "upstream_count": 110,
+  "org_count": 0,
+  "schema_version": "1.0",
+  "built_at": "2026-04-01T11:04:51.604849+00:00",
+  "by_dsl": {
+    "arkworks": 5,
+    "bellperson": 7,
+    "cairo": 8,
+    "circom": 41,
+    "gnark": 1,
+    "halo2": 35,
+    "pil": 2,
+    "plonky3": 8,
+    "risc0": 3
+  },
+  "by_vuln_type": {
+    "fiat_shamir_weak": 2,
+    "over_constrained": 1,
+    "soundness_error": 7,
+    "under_constrained": 100
+  }
+}
