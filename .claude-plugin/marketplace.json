@@ -172,6 +172,78 @@
       "source": "./plugins/gnark-auditor"
     },
     {
+      "name": "encryption-scheme-auditor",
+      "version": "0.1.0",
+      "description": "Audits encryption implementations for AEAD nonce handling, padding oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error side effects.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/encryption-scheme-auditor"
+    },
+    {
+      "name": "mpc-auditor",
+      "version": "0.1.0",
+      "description": "Audits MPC implementations for garbled-circuit integrity, OT misuse, share validation, Beaver triple authenticity, and transcript/session binding.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/mpc-auditor"
+    },
+    {
+      "name": "vdf-auditor",
+      "version": "0.1.0",
+      "description": "Audits VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation, and modulus/group setup integrity.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/vdf-auditor"
+    },
+    {
+      "name": "lattice-auditor",
+      "version": "0.1.0",
+      "description": "Audits lattice-based cryptography for LWE parameter selection, noise sampling correctness, rejection-sampling safety, and decryption failure probability assumptions.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/lattice-auditor"
+    },
+    {
+      "name": "fhe-auditor",
+      "version": "0.1.0",
+      "description": "Audits FHE implementations for noise-budget accounting, bootstrapping correctness, modulus switching safety, plaintext leakage, and key-switch parameter integrity.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/fhe-auditor"
+    },
+    {
+      "name": "side-channel-auditor",
+      "version": "0.1.0",
+      "description": "Audits implementations for timing, cache, memory-access, and power-analysis leakage patterns, including compiler and feature-flag regressions that break constant-time assumptions.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/side-channel-auditor"
+    },
+    {
+      "name": "dependency-auditor",
+      "version": "0.1.0",
+      "description": "Audits cryptographic dependency sets for known-vulnerable versions, security-significant feature flags, advisory coverage, transitive risk, and stale forks across arkworks, bellman, halo2, circomlib, and related ecosystems.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/dependency-auditor"
+    },
+    {
+      "name": "formal-verification-bridge",
+      "version": "0.1.0",
+      "description": "Bridges audit findings into external formal-verification tools such as Ecne, Picus, and Circomspect, with explicit environment checks and tool-specific handoff contracts.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/formal-verification-bridge"
+    },
+    {
       "name": "rust-crypto-safety",
       "version": "0.1.0",
       "description": "Audits Rust cryptographic implementations for constant-time behavior, zeroization, panic and overflow hazards, unsafe code soundness, feature-flag risk, and dependency hygiene.",

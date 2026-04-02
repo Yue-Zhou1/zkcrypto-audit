@@ -1,0 +1,8 @@
+{
+  "name": "lattice-auditor",
+  "version": "0.1.0",
+  "description": "Audits lattice-based cryptography for LWE parameter selection, noise sampling correctness, rejection-sampling safety, and decryption failure probability assumptions.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

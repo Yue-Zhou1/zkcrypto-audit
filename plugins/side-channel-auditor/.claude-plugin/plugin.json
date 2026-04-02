@@ -1,0 +1,8 @@
+{
+  "name": "side-channel-auditor",
+  "version": "0.1.0",
+  "description": "Audits implementations for timing, cache, memory-access, and power-analysis leakage patterns, including compiler and feature-flag regressions that break constant-time assumptions.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

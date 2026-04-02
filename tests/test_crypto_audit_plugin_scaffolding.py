@@ -937,6 +937,272 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("backend", workflow_text.lower())
         self.assertIn("witness", workflow_text.lower())
 
+    def test_encryption_scheme_auditor_extracts_decrypt_error_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "encryption-scheme-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "encryption-scheme-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("encryption-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("decrypt-error-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "encryption-scheme-auditor" / "references" / "encryption-checklist.md"
+        ).read_text()
+        self.assertIn("nonce", checklist_text.lower())
+        self.assertIn("associated-data", checklist_text.lower())
+        self.assertIn("padding", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "encryption-scheme-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("reused nonce under same key", patterns_text)
+        self.assertIn("plaintext released before tag check", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "encryption-scheme-auditor" / "workflows" / "decrypt-error-review.md"
+        ).read_text()
+        self.assertIn("decrypt", workflow_text.lower())
+        self.assertIn("tag", workflow_text.lower())
+        self.assertIn("nonce", workflow_text.lower())
+
+    def test_mpc_auditor_extracts_share_validation_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "mpc-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "mpc-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("mpc-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("share-validation-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "mpc-auditor" / "references" / "mpc-checklist.md"
+        ).read_text()
+        self.assertIn("participant authentication", checklist_text.lower())
+        self.assertIn("oblivious transfer", checklist_text.lower())
+        self.assertIn("share", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "mpc-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("unchecked share accepted into reconstruction", patterns_text)
+        self.assertIn("beaver triple not authenticated", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "mpc-auditor" / "workflows" / "share-validation-review.md"
+        ).read_text()
+        self.assertIn("offline", workflow_text.lower())
+        self.assertIn("online", workflow_text.lower())
+        self.assertIn("session", workflow_text.lower())
+
+    def test_vdf_auditor_extracts_challenge_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "vdf-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "vdf-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("vdf-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("challenge-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "vdf-auditor" / "references" / "vdf-checklist.md"
+        ).read_text()
+        self.assertIn("delay parameter", checklist_text.lower())
+        self.assertIn("challenge prime", checklist_text.lower())
+        self.assertIn("wesolowski", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "vdf-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("verifier accepts malformed proof exponent", patterns_text)
+        self.assertIn("challenge derived from incomplete transcript", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "vdf-auditor" / "workflows" / "challenge-review.md"
+        ).read_text()
+        self.assertIn("sequential", workflow_text.lower())
+        self.assertIn("challenge", workflow_text.lower())
+        self.assertIn("verifier", workflow_text.lower())
+
+    def test_lattice_auditor_extracts_parameter_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "lattice-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "lattice-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("lattice-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("parameter-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "lattice-auditor" / "references" / "lattice-checklist.md"
+        ).read_text()
+        self.assertIn("lwe", checklist_text.lower())
+        self.assertIn("rejection sampling", checklist_text.lower())
+        self.assertIn("decryption failure", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "lattice-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("rejection sampling bias leaks structure", patterns_text)
+        self.assertIn("decryption failure probability underestimated", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "lattice-auditor" / "workflows" / "parameter-review.md"
+        ).read_text()
+        self.assertIn("parameter", workflow_text.lower())
+        self.assertIn("sampling", workflow_text.lower())
+        self.assertIn("decapsulation", workflow_text.lower())
+
+    def test_fhe_auditor_extracts_noise_budget_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "fhe-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "fhe-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("fhe-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("noise-budget-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "fhe-auditor" / "references" / "fhe-checklist.md"
+        ).read_text()
+        self.assertIn("noise growth", checklist_text.lower())
+        self.assertIn("bootstrapping", checklist_text.lower())
+        self.assertIn("modulus", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "fhe-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("noise budget exhausted before claimed depth", patterns_text)
+        self.assertIn("modulus switch drops precision silently", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "fhe-auditor" / "workflows" / "noise-budget-review.md"
+        ).read_text()
+        self.assertIn("noise", workflow_text.lower())
+        self.assertIn("bootstrapping", workflow_text.lower())
+        self.assertIn("key-switch", workflow_text.lower())
+
+    def test_side_channel_auditor_extracts_constant_time_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "side-channel-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "side-channel-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("side-channel-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("constant-time-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "side-channel-auditor" / "references" / "side-channel-checklist.md"
+        ).read_text()
+        self.assertIn("secret-dependent branches", checklist_text.lower())
+        self.assertIn("table lookups", checklist_text.lower())
+        self.assertIn("cache", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "side-channel-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("branch on secret scalar bit", patterns_text)
+        self.assertIn("compiler optimization reintroduces branch", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "side-channel-auditor" / "workflows" / "constant-time-review.md"
+        ).read_text()
+        self.assertIn("constant-time", workflow_text.lower())
+        self.assertIn("dudect", workflow_text.lower())
+        self.assertIn("ctgrind", workflow_text.lower())
+
+    def test_dependency_auditor_extracts_advisory_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "dependency-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "dependency-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("dependency-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("advisory-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "dependency-auditor" / "references" / "dependency-checklist.md"
+        ).read_text()
+        self.assertIn("advisories", checklist_text.lower())
+        self.assertIn("feature-flag", checklist_text.lower())
+        self.assertIn("transitive", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "dependency-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("vulnerable version pinned transitively", patterns_text)
+        self.assertIn("feature flag disables subgroup checks", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "dependency-auditor" / "workflows" / "advisory-review.md"
+        ).read_text()
+        self.assertIn("dependency graph", workflow_text.lower())
+        self.assertIn("advisories", workflow_text.lower())
+        self.assertIn("fork", workflow_text.lower())
+
+    def test_formal_verification_bridge_extracts_tooling_matrix_and_handoff_contract(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "formal-verification-bridge"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "formal-verification-bridge" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("user-triggered", skill_text.lower())
+        self.assertIn("tooling-matrix.md", skill_text)
+        self.assertIn("handoff-contract.md", skill_text)
+        self.assertIn("export-review.md", skill_text)
+
+        tooling_text = (
+            plugin_root / "skills" / "formal-verification-bridge" / "references" / "tooling-matrix.md"
+        ).read_text()
+        self.assertIn("Ecne", tooling_text)
+        self.assertIn("Picus", tooling_text)
+        self.assertIn("Circomspect", tooling_text)
+
+        handoff_text = (
+            plugin_root / "skills" / "formal-verification-bridge" / "references" / "handoff-contract.md"
+        ).read_text()
+        self.assertIn("normalized artifact", handoff_text.lower())
+        self.assertIn("reproducible", handoff_text.lower())
+        self.assertIn("trust boundary", handoff_text.lower())
+
+        workflow_text = (
+            plugin_root / "skills" / "formal-verification-bridge" / "workflows" / "export-review.md"
+        ).read_text()
+        self.assertIn("tool availability", workflow_text.lower())
+        self.assertIn("export", workflow_text.lower())
+        self.assertIn("crypto-fp-check", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

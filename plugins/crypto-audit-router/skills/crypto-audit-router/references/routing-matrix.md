@@ -8,6 +8,13 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
 | The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
 | The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs | `gnark-auditor` |
+| The issue touches AEAD nonce handling, decrypt oracles, key derivation, associated-data binding, or encryption mode misuse | `encryption-scheme-auditor` |
+| The issue touches MPC transcripts, garbled circuits, oblivious transfer, share validation, or multi-party reconstruction | `mpc-auditor` |
+| The issue touches VDF sequentiality, Wesolowski or Pietrzak proof verification, delay parameters, or challenge derivation | `vdf-auditor` |
+| The issue touches LWE/RLWE parameters, noise sampling, rejection sampling, or decryption failure assumptions | `lattice-auditor` |
+| The issue touches FHE noise budgets, bootstrapping, modulus switching, key switching, or plaintext leakage | `fhe-auditor` |
+| The issue touches timing leaks, cache or power side channels, secret-dependent branching, or constant-time regressions | `side-channel-auditor` |
+| The issue touches cryptographic dependency versions, advisories, feature flags, transitive risk, or fork provenance | `dependency-auditor` |
 | The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation | `cairo-auditor` |
 | The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation | `noir-auditor` |
 | The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida) | `zkvm-auditor` |
