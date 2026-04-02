@@ -804,6 +804,40 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Leaf and internal node hash without domain separation", patterns_text)
         self.assertIn("Proof verification accepts empty path", patterns_text)
 
+    def test_fiat_shamir_auditor_extracts_transcript_binding_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "fiat-shamir-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "fiat-shamir-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("fiat-shamir-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("transcript-binding-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "fiat-shamir-auditor" / "references" / "fiat-shamir-checklist.md"
+        ).read_text()
+        self.assertIn("Transcript completeness", checklist_text)
+        self.assertIn("Domain separation", checklist_text)
+        self.assertIn("Challenge derivation order", checklist_text)
+        self.assertIn("Public input binding", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "fiat-shamir-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Frozen heart", patterns_text)
+        self.assertIn("Challenge derived before all commitments absorbed", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "fiat-shamir-auditor" / "workflows" / "transcript-binding-review.md"
+        ).read_text()
+        self.assertIn("transcript", workflow_text.lower())
+        self.assertIn("challenge", workflow_text.lower())
+        self.assertIn("binding", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

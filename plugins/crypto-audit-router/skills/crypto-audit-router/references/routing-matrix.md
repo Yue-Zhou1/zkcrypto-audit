@@ -13,6 +13,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches Poseidon, Rescue, MiMC, Pedersen, or other ZK-friendly hash parameters, sponge construction, or domain separation | `hash-function-auditor` |
 | The issue touches KZG, FRI, IPA, Pedersen commitments, polynomial degree bounds, or evaluation proofs | `commitment-scheme-auditor` |
 | The issue touches Merkle trees, inclusion proofs, sparse trees, or Merkle root computation | `merkle-tree-auditor` |
+| The issue touches Fiat-Shamir transcripts, challenge derivation, transcript completeness, or interactive-to-non-interactive transforms | `fiat-shamir-auditor` |
 | The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
 | The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
 | The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
