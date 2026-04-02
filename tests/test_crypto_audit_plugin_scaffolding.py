@@ -778,6 +778,32 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("KZG", workflow_text)
         self.assertIn("opening proof", workflow_text.lower())
 
+    def test_merkle_tree_auditor_extracts_proof_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "merkle-tree-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "merkle-tree-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("merkle-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("proof-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "merkle-tree-auditor" / "references" / "merkle-checklist.md"
+        ).read_text()
+        self.assertIn("Second-preimage resistance", checklist_text)
+        self.assertIn("Leaf-node domain separation", checklist_text)
+        self.assertIn("Sparse tree", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "merkle-tree-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Leaf and internal node hash without domain separation", patterns_text)
+        self.assertIn("Proof verification accepts empty path", patterns_text)
+
 
 if __name__ == "__main__":
     unittest.main()
