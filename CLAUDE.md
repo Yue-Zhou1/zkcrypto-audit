@@ -5,7 +5,7 @@ zero-knowledge systems and cryptographic protocols.
 
 ## Project Layout
 
-- `plugins/` contains the 11 published plugins and skill content.
+- `plugins/` contains the 20 published plugins and skill content.
 - `.claude-plugin/marketplace.json` is the root marketplace manifest.
 - `.codex/skills/` contains Codex discovery stubs pointing to canonical skills.
 - `tests/` contains scaffolding and CLI regression tests.
