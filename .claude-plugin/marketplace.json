@@ -73,6 +73,15 @@
       "source": "./plugins/cairo-auditor"
     },
     {
+      "name": "noir-auditor",
+      "version": "0.1.0",
+      "description": "Audits Noir circuits for unconstrained function boundary safety, oracle validation, Brillig/ACIR consistency, and witness generation soundness.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/noir-auditor"
+    },
+    {
       "name": "ecc-pairing-auditor",
       "version": "0.1.0",
       "description": "Audits elliptic-curve, pairing, and BLS verification code for point-validation, subgroup, cofactor, pairing-equation, DST, and batch-verification bugs.",

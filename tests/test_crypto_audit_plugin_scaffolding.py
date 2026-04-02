@@ -648,6 +648,38 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("hint function", hint_workflow_text.lower())
         self.assertIn("constraint enforcement", hint_workflow_text.lower())
 
+    def test_noir_auditor_extracts_unconstrained_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "noir-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "noir-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("noir-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("unconstrained-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "noir-auditor" / "references" / "noir-checklist.md"
+        ).read_text()
+        self.assertIn("Unconstrained function boundaries", checklist_text)
+        self.assertIn("Oracle safety", checklist_text)
+        self.assertIn("Brillig vs ACIR", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "noir-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Unconstrained function return trusted without assertion", patterns_text)
+        self.assertIn("Oracle result used in constrained context without binding", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "noir-auditor" / "workflows" / "unconstrained-review.md"
+        ).read_text()
+        self.assertIn("unconstrained function", workflow_text.lower())
+        self.assertIn("constrained assertion", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
