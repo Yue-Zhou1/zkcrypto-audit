@@ -1,8 +1,0 @@
-{
-  "name": "noir-auditor",
-  "version": "0.1.0",
-  "description": "Audits Noir circuits for unconstrained function boundary safety, oracle validation, Brillig/ACIR consistency, and witness generation soundness.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

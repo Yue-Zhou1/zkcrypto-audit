@@ -1,8 +1,0 @@
-{
-  "name": "gnark-auditor",
-  "version": "0.1.0",
-  "description": "Audits gnark circuits and Go witness flows for frontend/backend mismatch, public witness exposure, constraint API misuse, and serialization boundary errors.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

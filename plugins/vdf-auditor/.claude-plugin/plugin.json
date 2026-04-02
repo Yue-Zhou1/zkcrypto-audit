@@ -1,8 +1,0 @@
-{
-  "name": "vdf-auditor",
-  "version": "0.1.0",
-  "description": "Audits VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation, and modulus/group setup integrity.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

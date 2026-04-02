@@ -1,8 +1,0 @@
-{
-  "name": "zk-circuit-auditor",
-  "version": "0.1.0",
-  "description": "Audits ZK circuit and verifier implementations for soundness, transcript, setup, and recursion bugs across Groth16, PLONKish, Halo2, Circom, Noir, and related proof systems.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

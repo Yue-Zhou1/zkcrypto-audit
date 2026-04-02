@@ -1,8 +1,0 @@
-{
-  "name": "crypto-audit-router",
-  "version": "0.1.0",
-  "description": "Routes end-to-end ZK and cryptographic audits across context building, spec-delta review, domain auditors, verification, reporting, and index usage.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

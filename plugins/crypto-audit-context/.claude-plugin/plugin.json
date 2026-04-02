@@ -1,8 +1,0 @@
-{
-  "name": "crypto-audit-context",
-  "version": "0.1.0",
-  "description": "Builds initial audit context for ZK and cryptographic code before vulnerability hunting by applying dimensional analysis, threat-model mapping, and audit prioritization.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

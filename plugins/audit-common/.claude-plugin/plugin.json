@@ -1,8 +1,0 @@
-{
-  "name": "audit-common",
-  "version": "0.1.0",
-  "description": "Shared severity, testing-evidence, and finding-contract references for ZK and cryptographic audit skills.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

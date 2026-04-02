@@ -1,8 +1,0 @@
-{
-  "name": "fhe-auditor",
-  "version": "0.1.0",
-  "description": "Audits FHE implementations for noise-budget accounting, bootstrapping correctness, modulus switching safety, plaintext leakage, and key-switch parameter integrity.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}
