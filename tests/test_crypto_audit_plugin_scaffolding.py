@@ -865,6 +865,33 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Serialization roundtrip", patterns_text)
         self.assertIn("No-panic", patterns_text)
 
+    def test_fuzz_harness_gen_extracts_checklist_and_patterns(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "fuzz-harness-gen"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "fuzz-harness-gen" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("user-triggered", skill_text.lower())
+        self.assertIn("fuzz-checklist.md", skill_text)
+        self.assertIn("target-patterns.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "fuzz-harness-gen" / "references" / "fuzz-checklist.md"
+        ).read_text()
+        self.assertIn("cargo-fuzz", checklist_text)
+        self.assertIn("fuzz_target!", checklist_text)
+        self.assertIn("libfuzzer", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "fuzz-harness-gen" / "references" / "target-patterns.md"
+        ).read_text()
+        self.assertIn("Deserialization", patterns_text)
+        self.assertIn("Point decompression", patterns_text)
+        self.assertIn("Proof verification", patterns_text)
+
 
 if __name__ == "__main__":
     unittest.main()
