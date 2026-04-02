@@ -746,6 +746,38 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("sponge", workflow_text.lower())
         self.assertIn("absorption", workflow_text.lower())
 
+    def test_commitment_scheme_auditor_extracts_kzg_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "commitment-scheme-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "commitment-scheme-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("commitment-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("kzg-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "commitment-scheme-auditor" / "references" / "commitment-checklist.md"
+        ).read_text()
+        self.assertIn("Degree bound", checklist_text)
+        self.assertIn("Evaluation proof", checklist_text)
+        self.assertIn("Trusted setup", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "commitment-scheme-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Degree bound check missing", patterns_text)
+        self.assertIn("evaluation point reuse", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "commitment-scheme-auditor" / "workflows" / "kzg-review.md"
+        ).read_text()
+        self.assertIn("KZG", workflow_text)
+        self.assertIn("opening proof", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
