@@ -166,5 +166,47 @@
     "source": "upstream",
     "upstream": true,
     "added_at": null
+  },
+  {
+    "id": "external/cairo/zellic/nullifier-not-bound-to-state",
+    "dsl": "cairo",
+    "vuln_type": "missing_nullifier",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "nullifier uniqueness check omitted in state-update path allowing replay",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "contracts/state.cairo",
+      "line": 144
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  },
+  {
+    "id": "external/cairo/audit-contests/hint-input-not-validated",
+    "dsl": "cairo",
+    "vuln_type": "prover_input_injection",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "hint-provided value influenced constraints without binding check",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "hints/price_hint.cairo",
+      "line": 37
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
   }
 ]

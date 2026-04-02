@@ -61,3 +61,9 @@ fn verify_constraint_rejects_invalid_witness() {
     }
 }
 ```
+
+## Lightweight property fallback
+
+- Use `proptest` with `PROPTEST_CASES` for fast deterministic checks when Kani cannot run
+- Prefer simple algebraic/roundtrip invariants for fallback coverage
+- Promote failing `proptest` examples into dedicated Kani harnesses when environment permits

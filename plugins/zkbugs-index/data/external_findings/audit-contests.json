@@ -1,0 +1,82 @@
+[
+  {
+    "id": "external/halo2/audit-contests/range-check-gate-omitted",
+    "dsl": "halo2",
+    "vuln_type": "missing_range_check",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "range-check gate wiring omitted for a witness lane in custom lookup table",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "gates/range.rs",
+      "line": 64
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/cairo/audit-contests/hint-input-not-validated",
+    "dsl": "cairo",
+    "vuln_type": "prover_input_injection",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "hint-provided value influenced constraints without binding check",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "hints/price_hint.cairo",
+      "line": 37
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/circom/audit-contests/lookup-table-index-drift",
+    "dsl": "circom",
+    "vuln_type": "lookup_table_mismatch",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "lookup table index derivation diverged between prover and verifier circuits",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "lookup/table.circom",
+      "line": 52
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/gnark/audit-contests/missing-public-instance-binding",
+    "dsl": "gnark",
+    "vuln_type": "missing_public_input",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "critical instance value remained private and was not bound into verifier statement",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "verifier/instance.go",
+      "line": 27
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  }
+]

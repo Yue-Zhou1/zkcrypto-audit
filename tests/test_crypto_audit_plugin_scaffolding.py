@@ -21,9 +21,11 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
     def test_repo_has_ci_and_release_workflows(self) -> None:
         ci_path = REPO_ROOT / ".github" / "workflows" / "ci.yml"
         release_path = REPO_ROOT / ".github" / "workflows" / "release.yml"
+        zkbugs_rebuild_path = REPO_ROOT / ".github" / "workflows" / "zkbugs-rebuild.yml"
 
         self.assertTrue(ci_path.exists())
         self.assertTrue(release_path.exists())
+        self.assertTrue(zkbugs_rebuild_path.exists())
 
         ci_text = ci_path.read_text()
         self.assertIn("python-version", ci_text)
@@ -33,6 +35,14 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("python3 -m unittest discover -s tests -q", ci_text)
         self.assertIn("python3 -m py_compile", ci_text)
         self.assertIn(".claude/settings.local.json", ci_text)
+
+        zkbugs_rebuild_text = zkbugs_rebuild_path.read_text()
+        self.assertIn("schedule:", zkbugs_rebuild_text)
+        self.assertIn("workflow_dispatch:", zkbugs_rebuild_text)
+        self.assertIn(
+            "python3 plugins/zkbugs-index/scripts/build_index.py --config plugins/zkbugs-index/config/zkbugs-sources.json --diff-upstream",
+            zkbugs_rebuild_text,
+        )
 
         release_text = release_path.read_text()
         self.assertIn("tags:", release_text)
@@ -208,6 +218,44 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("local workspace", readme_text)
         self.assertIn("org findings", readme_text)
 
+    def test_session_state_workspace_schema_and_handoff_docs_exist(self) -> None:
+        sessions_readme = REPO_ROOT / "zk-findings" / "sessions" / "README.md"
+        schema_path = REPO_ROOT / "zk-findings" / "sessions" / "session-state-schema.json"
+        self.assertTrue(sessions_readme.exists())
+        self.assertTrue(schema_path.exists())
+
+        schema = json.loads(schema_path.read_text())
+        props = schema.get("properties", {})
+        self.assertIn("engagement_id", props)
+        self.assertIn("targets", props)
+        self.assertIn("trust_boundaries", props)
+        self.assertIn("open_findings", props)
+        self.assertIn("verified_findings", props)
+        self.assertIn("next_steps", props)
+
+        context_text = (
+            REPO_ROOT
+            / "plugins"
+            / "crypto-audit-context"
+            / "skills"
+            / "crypto-audit-context"
+            / "SKILL.md"
+        ).read_text().lower()
+        self.assertIn("session state", context_text)
+        self.assertIn("zk-findings/sessions", context_text)
+
+        flow_text = (
+            REPO_ROOT
+            / "plugins"
+            / "crypto-audit-router"
+            / "skills"
+            / "crypto-audit-router"
+            / "workflows"
+            / "full-audit-flow.md"
+        ).read_text().lower()
+        self.assertIn("session state", flow_text)
+        self.assertIn("handoff", flow_text)
+
     def test_gitignore_excludes_local_claude_settings(self) -> None:
         gitignore_text = (REPO_ROOT / ".gitignore").read_text()
         self.assertIn(".claude/settings.local.json", gitignore_text)
@@ -283,6 +331,38 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("from _shared import CANONICAL_VULN_TYPES, ensure_repo", contribute_text)
         self.assertNotIn("CANONICAL_VULN_TYPES = {", contribute_text)
         self.assertNotIn("def ensure_repo(", contribute_text)
+
+    def test_zkbugs_config_and_manifest_cover_supplemental_external_findings(self) -> None:
+        config = json.loads(
+            (REPO_ROOT / "plugins" / "zkbugs-index" / "config" / "zkbugs-sources.json").read_text()
+        )
+        supplemental_files = config.get("supplemental_files", [])
+        self.assertIn("./data/external_findings/trail-of-bits.json", supplemental_files)
+        self.assertIn("./data/external_findings/zellic.json", supplemental_files)
+        self.assertIn("./data/external_findings/audit-contests.json", supplemental_files)
+
+        for rel_path in supplemental_files:
+            file_path = REPO_ROOT / "plugins" / "zkbugs-index" / rel_path.removeprefix("./")
+            self.assertTrue(file_path.exists(), file_path.as_posix())
+
+        manifest = json.loads((REPO_ROOT / "plugins" / "zkbugs-index" / "index" / "manifest.json").read_text())
+        vuln_counts = manifest.get("by_vuln_type", {})
+        required_backfilled_types = [
+            "nonce_reuse",
+            "arithmetic_overflow",
+            "missing_range_check",
+            "missing_nullifier",
+            "trusted_setup_leak",
+            "prover_input_injection",
+            "lookup_table_mismatch",
+            "missing_public_input",
+            "privacy_leak",
+            "subgroup_attack",
+            "timing_side_channel",
+            "configuration_error",
+        ]
+        for vuln_type in required_backfilled_types:
+            self.assertGreater(vuln_counts.get(vuln_type, 0), 0, vuln_type)
 
     def test_audit_common_plugin_exists_with_shared_references(self) -> None:
         plugin_root = REPO_ROOT / "plugins" / "audit-common"
@@ -567,6 +647,9 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("## When to Use", skill_text)
         self.assertIn("## When NOT to Use", skill_text)
         self.assertIn("report-template.md", skill_text)
+        self.assertIn("client-report-template.md", skill_text)
+        self.assertIn("internal-report-template.md", skill_text)
+        self.assertIn("public-disclosure-template.md", skill_text)
 
         template_text = (
             plugin_root / "skills" / "crypto-report-writer" / "templates" / "report-template.md"
@@ -580,6 +663,46 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Differential testing", template_text)
         self.assertIn("Wycheproof", template_text)
         self.assertIn("compilable PoC", template_text)
+
+        client_template = (
+            plugin_root
+            / "skills"
+            / "crypto-report-writer"
+            / "templates"
+            / "client-report-template.md"
+        )
+        internal_template = (
+            plugin_root
+            / "skills"
+            / "crypto-report-writer"
+            / "templates"
+            / "internal-report-template.md"
+        )
+        disclosure_template = (
+            plugin_root
+            / "skills"
+            / "crypto-report-writer"
+            / "templates"
+            / "public-disclosure-template.md"
+        )
+        self.assertTrue(client_template.exists())
+        self.assertTrue(internal_template.exists())
+        self.assertTrue(disclosure_template.exists())
+
+        self.assertIn("executive summary", client_template.read_text().lower())
+        self.assertIn("investigation notes", internal_template.read_text().lower())
+        self.assertIn("disclosure timeline", disclosure_template.read_text().lower())
+
+    def test_collection_docs_reflect_final_plugin_count_and_todo_progress(self) -> None:
+        readme_text = (REPO_ROOT / "README.md").read_text()
+        claude_text = (REPO_ROOT / "CLAUDE.md").read_text()
+        todo_text = (REPO_ROOT / "TODO.md").read_text()
+
+        self.assertIn("plugins-29", readme_text)
+        self.assertIn("29 published plugins", claude_text)
+        self.assertIn("Phase 1: Auditor Expansion", todo_text)
+        self.assertIn("- [x] `formal-verification-bridge`", todo_text)
+        self.assertIn("- [x] Add report template variants (client/internal/public-disclosure)", todo_text)
 
     def test_crypto_audit_router_defines_end_to_end_routing(self) -> None:
         plugin_root = REPO_ROOT / "plugins" / "crypto-audit-router"
@@ -860,6 +983,9 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertNotIn("**Constant-time**", skill_text)
         self.assertIn("does not prove constant-time behavior", skill_text)
         self.assertIn("dudect", skill_text)
+        self.assertIn("side-channel-auditor", skill_text)
+        self.assertIn("KANI_TIMEOUT_SECONDS", skill_text)
+        self.assertIn("PROPTEST_CASES", skill_text)
 
         checklist_text = (
             plugin_root / "skills" / "kani-harness-gen" / "references" / "kani-checklist.md"
@@ -867,6 +993,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("cargo-kani", checklist_text)
         self.assertIn("#[kani::proof]", checklist_text)
         self.assertIn("kani::any()", checklist_text)
+        self.assertIn("KANI_TIMEOUT_SECONDS", checklist_text)
 
         patterns_text = (
             plugin_root / "skills" / "kani-harness-gen" / "references" / "harness-patterns.md"
@@ -874,6 +1001,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Field arithmetic", patterns_text)
         self.assertIn("Serialization roundtrip", patterns_text)
         self.assertIn("No-panic", patterns_text)
+        self.assertIn("proptest", patterns_text.lower())
 
     def test_fuzz_harness_gen_extracts_checklist_and_patterns(self) -> None:
         plugin_root = REPO_ROOT / "plugins" / "fuzz-harness-gen"
@@ -887,6 +1015,9 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("user-triggered", skill_text.lower())
         self.assertIn("fuzz-checklist.md", skill_text)
         self.assertIn("target-patterns.md", skill_text)
+        self.assertIn("FUZZ_TIME_LIMIT", skill_text)
+        self.assertIn("FUZZ_MAX_ITERS", skill_text)
+        self.assertIn("PROPTEST_CASES", skill_text)
 
         checklist_text = (
             plugin_root / "skills" / "fuzz-harness-gen" / "references" / "fuzz-checklist.md"
@@ -894,6 +1025,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("cargo-fuzz", checklist_text)
         self.assertIn("fuzz_target!", checklist_text)
         self.assertIn("libfuzzer", checklist_text.lower())
+        self.assertIn("FUZZ_TIME_LIMIT", checklist_text)
+        self.assertIn("FUZZ_MAX_ITERS", checklist_text)
 
         patterns_text = (
             plugin_root / "skills" / "fuzz-harness-gen" / "references" / "target-patterns.md"
@@ -903,6 +1036,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Proof verification", patterns_text)
         self.assertIn("mutated proof", patterns_text.lower())
         self.assertIn("circuit synthesize", patterns_text.lower())
+        self.assertIn("proptest", patterns_text.lower())
+
+    def test_todo_marks_kani_constant_time_as_superseded(self) -> None:
+        todo_text = (REPO_ROOT / "TODO.md").read_text()
+        self.assertIn("side-channel-auditor", todo_text)
+        self.assertNotIn("Constant-time verification (no secret-dependent branching)", todo_text)
 
     def test_gnark_auditor_extracts_frontend_backend_review_and_checklist(self) -> None:
         plugin_root = REPO_ROOT / "plugins" / "gnark-auditor"

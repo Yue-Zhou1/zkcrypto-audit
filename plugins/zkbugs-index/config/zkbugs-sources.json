@@ -11,6 +11,11 @@
     "local_path": null,
     "branch": "main"
   },
+  "supplemental_files": [
+    "./data/external_findings/trail-of-bits.json",
+    "./data/external_findings/zellic.json",
+    "./data/external_findings/audit-contests.json"
+  ],
   "index_dir": "./index",
   "cache_dir": "./.cache",
   "semantic_search": {

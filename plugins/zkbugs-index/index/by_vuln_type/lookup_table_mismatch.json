@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/circom/audit-contests/lookup-table-index-drift",
+    "dsl": "circom",
+    "vuln_type": "lookup_table_mismatch",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "lookup table index derivation diverged between prover and verifier circuits",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "lookup/table.circom",
+      "line": 52
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

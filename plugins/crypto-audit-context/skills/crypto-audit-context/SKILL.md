@@ -70,6 +70,10 @@ Review highest-risk code first:
 - Summarize the highest-risk paths
 - Name unresolved assumptions
 - Hand off to a domain auditor or verification skill
+- Initialize or update session state in `zk-findings/sessions/<engagement-id>.json`
+  using `zk-findings/sessions/session-state-schema.json`
+- Persist trust boundaries, open findings, and next-step routes so follow-on
+  conversations continue from the same state
 
 ## Output Contract
 
@@ -79,6 +83,7 @@ Produce a context handoff that includes:
 - Dimension-map anomalies and unresolved assumptions
 - Threat-model notes that the next skill must preserve
 - Recommended next skills, with a brief reason for each route
+- Session state path updated in `zk-findings/sessions/` for downstream handoffs
 
 ## Reference Index
 

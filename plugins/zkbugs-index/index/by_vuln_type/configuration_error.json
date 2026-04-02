@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/halo2/trail-of-bits/wrong-curve-configuration",
+    "dsl": "halo2",
+    "vuln_type": "configuration_error",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "prover and verifier selected inconsistent curve parameters in deployment config",
+    "location": {
+      "repo": "https://github.com/trailofbits/public-audit-reports",
+      "commit": null,
+      "file": "config/network.toml",
+      "line": 18
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "trail-of-bits",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

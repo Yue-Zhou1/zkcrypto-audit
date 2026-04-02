@@ -19,5 +19,47 @@
     "source": "upstream",
     "upstream": true,
     "added_at": null
+  },
+  {
+    "id": "external/gnark/trail-of-bits/missing-subgroup-check-in-g2",
+    "dsl": "gnark",
+    "vuln_type": "subgroup_attack",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "deserialized G2 points accepted without subgroup validation before pairing",
+    "location": {
+      "repo": "https://github.com/trailofbits/public-audit-reports",
+      "commit": null,
+      "file": "pairing/verify.go",
+      "line": 119
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "trail-of-bits",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  },
+  {
+    "id": "external/gnark/audit-contests/missing-public-instance-binding",
+    "dsl": "gnark",
+    "vuln_type": "missing_public_input",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "critical instance value remained private and was not bound into verifier statement",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "verifier/instance.go",
+      "line": 27
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
   }
 ]

@@ -61,5 +61,26 @@
     "source": "upstream",
     "upstream": true,
     "added_at": null
+  },
+  {
+    "id": "external/risc0/zellic/private-witness-logged",
+    "dsl": "risc0",
+    "vuln_type": "privacy_leak",
+    "impact": "Privacy",
+    "severity": "High",
+    "root_cause": "debug logging emitted private witness fragments during guest execution",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "guest/runtime.rs",
+      "line": 211
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
   }
 ]

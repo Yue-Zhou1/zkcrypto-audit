@@ -1,0 +1,116 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zkcrypto-audit.local/session-state-schema.json",
+  "title": "zkcrypto-audit session state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "engagement_id",
+    "targets",
+    "trust_boundaries",
+    "open_findings",
+    "verified_findings",
+    "next_steps"
+  ],
+  "properties": {
+    "engagement_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable local identifier for the engagement."
+    },
+    "targets": {
+      "type": "array",
+      "description": "Primary codebases/modules/protocols under review.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "trust_boundaries": {
+      "type": "array",
+      "description": "Boundary assumptions captured during context mapping.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "assumption"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "assumption": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "open_findings": {
+      "type": "array",
+      "description": "Findings still under domain review or verification.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "summary"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "owner_skill": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "verified_findings": {
+      "type": "array",
+      "description": "Findings that passed verification and are report-ready.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "severity", "summary"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "severity": {
+            "type": "string",
+            "minLength": 1
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "report_ref": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "next_steps": {
+      "type": "array",
+      "description": "Ordered checklist for the next handoff boundary.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  }
+}

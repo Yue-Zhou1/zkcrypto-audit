@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/circom/trail-of-bits/nonce-reuse-in-proof-session",
+    "dsl": "circom",
+    "vuln_type": "nonce_reuse",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "session nonce reused across proof attempts under the same proving key",
+    "location": {
+      "repo": "https://github.com/trailofbits/public-audit-reports",
+      "commit": null,
+      "file": "circuits/session.circom",
+      "line": 74
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "trail-of-bits",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

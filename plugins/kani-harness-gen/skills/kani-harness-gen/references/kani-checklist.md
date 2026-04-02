@@ -19,10 +19,12 @@
 - [ ] Field elements bounded to valid range via `kani::assume(x < MODULUS)`
 - [ ] Array sizes bounded to prevent unbounded unrolling
 - [ ] Recursion depth bounded by unwind annotation
-- [ ] Timeout set (default: 5 minutes per harness)
+- [ ] Timeout set via `KANI_TIMEOUT_SECONDS` (default: 300 seconds per harness)
+- [ ] Optional `PROPTEST_CASES` configured when using `proptest` fallback checks
 
 ## Interpretation
 
 - [ ] PASS means "property holds for all inputs within the bounds" — not universally
 - [ ] FAIL counterexample is a concrete input — usable as PoC
 - [ ] UNREACHABLE means the assume() preconditions excluded all inputs — check constraints
+- [ ] Constant-time concerns are routed to `side-channel-auditor`, not treated as Kani-proof obligations

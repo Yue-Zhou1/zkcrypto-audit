@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/cairo/zellic/nullifier-not-bound-to-state",
+    "dsl": "cairo",
+    "vuln_type": "missing_nullifier",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "nullifier uniqueness check omitted in state-update path allowing replay",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "contracts/state.cairo",
+      "line": 144
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

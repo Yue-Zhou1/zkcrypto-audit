@@ -17,7 +17,7 @@ Generate `cargo-fuzz` targets for Rust cryptographic libraries and applications.
 
 **This skill is user-triggered only.** It must never be auto-invoked by the
 audit router or any other skill. Fuzz runs can be expensive (default timeout:
-10 minutes per target).
+10 minutes per target via `FUZZ_TIME_LIMIT` and `FUZZ_MAX_ITERS`).
 
 ## When to Use
 
@@ -50,6 +50,12 @@ If not installed, inform the user and stop.
 4. **Hash and transcript APIs** — odd-length/context inputs should fail closed
 5. **Parser/state transitions** — random byte streams should not trigger UB or invariant breaks
 
+## Budget and Fallback Controls
+
+- Override fuzz run duration with `FUZZ_TIME_LIMIT` (default `600`)
+- Override fuzz iteration cap with `FUZZ_MAX_ITERS` when deterministic bounds are needed
+- Use optional `PROPTEST_CASES` for lightweight `proptest` checks when full fuzzing is unavailable
+
 ## Workflow
 
 ### Phase 1: Identify fuzz-worthy surfaces
@@ -62,13 +68,14 @@ If not installed, inform the user and stop.
 
 - Read `references/target-patterns.md` for templates
 - Generate `fuzz_target!` harnesses with minimal adapters
-- Seed corpus when available and set time/iteration bounds
+- Seed corpus when available and set `FUZZ_TIME_LIMIT` / `FUZZ_MAX_ITERS` bounds
 
 ### Phase 3: Execute and triage
 
-- Run `cargo fuzz run <target>` with a 10-minute default budget
+- Run `cargo fuzz run <target>` with `FUZZ_TIME_LIMIT` / `FUZZ_MAX_ITERS` budget controls
 - Classify crashes as panic/DoS vs logic/soundness implications
 - Preserve crash artifacts for reproducible PoC evidence
+- If fuzzing is unavailable, run bounded `proptest` checks (`PROPTEST_CASES`) and label evidence accordingly
 
 ## Output Contract
 

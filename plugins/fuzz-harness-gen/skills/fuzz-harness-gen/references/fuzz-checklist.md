@@ -15,8 +15,9 @@
 ## Sanitizers and bounds
 
 - [ ] Address and memory sanitizers enabled where supported
-- [ ] Timeout budget set (default: 10 minutes per target)
-- [ ] Iteration cap configured for deterministic CI reproduction
+- [ ] Timeout budget set via `FUZZ_TIME_LIMIT` (default: 600 seconds per target)
+- [ ] Iteration cap configured via `FUZZ_MAX_ITERS` for deterministic CI reproduction
+- [ ] Optional `PROPTEST_CASES` set when using lightweight `proptest` fallback
 
 ## Artifact handling
 
