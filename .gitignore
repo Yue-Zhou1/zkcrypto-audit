@@ -6,3 +6,4 @@ plugins/zkbugs-index/index/local_findings/findings.json
 plugins/zkbugs-index/index/embeddings.npy
 plugins/zkbugs-index/index/embedding_ids.json
 plugins/zkbugs-index/.cache/
+docs/
