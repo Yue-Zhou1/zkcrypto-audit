@@ -6,8 +6,8 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-BUILD_INDEX = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "build_index.py"
-CONTRIBUTE_BUG = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "contribute_bug.py"
+BUILD_INDEX = REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "build_index.py"
+CONTRIBUTE_BUG = REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "contribute_bug.py"
 
 
 def run_cli(*args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
