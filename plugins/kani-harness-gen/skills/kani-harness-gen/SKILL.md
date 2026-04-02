@@ -48,7 +48,13 @@ If not installed, inform the user and stop.
 2. **No-panic** — function does not panic for any input within type bounds
 3. **Serialization roundtrip** — `deserialize(serialize(x)) == x`
 4. **Constraint soundness** — satisfying witness implies valid statement
-5. **Constant-time** — no secret-dependent branching (via `kani::assume` on paths)
+5. **State invariants** — API pre/post-conditions and rejection behavior over bounded inputs
+
+## Limits
+
+- Kani does not prove constant-time behavior or model timing/microarchitectural side channels.
+- `kani::assume` constrains input space; it does not provide timing-side-channel guarantees.
+- For timing analysis, route to `rust-crypto-safety` and tools like `dudect`/`ctgrind`.
 
 ## Workflow
 

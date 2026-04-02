@@ -602,6 +602,13 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         ).read_text()
         self.assertIn("ecc-pairing-auditor", matrix_text)
         self.assertIn("zk-circuit-auditor", matrix_text)
+        self.assertIn("cairo-auditor", matrix_text)
+        self.assertIn("noir-auditor", matrix_text)
+        self.assertIn("zkvm-auditor", matrix_text)
+        self.assertIn("hash-function-auditor", matrix_text)
+        self.assertIn("commitment-scheme-auditor", matrix_text)
+        self.assertIn("merkle-tree-auditor", matrix_text)
+        self.assertIn("fiat-shamir-auditor", matrix_text)
         self.assertIn("dkg-threshold-auditor", matrix_text)
         self.assertIn("rust-crypto-safety", matrix_text)
         self.assertIn("spec-delta-checker", matrix_text)
@@ -850,6 +857,9 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("user-triggered", skill_text.lower())
         self.assertIn("kani-checklist.md", skill_text)
         self.assertIn("harness-patterns.md", skill_text)
+        self.assertNotIn("**Constant-time**", skill_text)
+        self.assertIn("does not prove constant-time behavior", skill_text)
+        self.assertIn("dudect", skill_text)
 
         checklist_text = (
             plugin_root / "skills" / "kani-harness-gen" / "references" / "kani-checklist.md"
@@ -891,6 +901,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Deserialization", patterns_text)
         self.assertIn("Point decompression", patterns_text)
         self.assertIn("Proof verification", patterns_text)
+        self.assertIn("mutated proof", patterns_text.lower())
+        self.assertIn("circuit synthesize", patterns_text.lower())
 
 
 if __name__ == "__main__":

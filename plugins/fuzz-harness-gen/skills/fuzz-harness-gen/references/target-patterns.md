@@ -30,8 +30,10 @@ fuzz_target!(|data: &[u8]| {
 #![no_main]
 use libfuzzer_sys::fuzz_target;
 
-fuzz_target!(|data: &[u8]| {
-    if let Ok(proof) = Proof::decode(data) {
+fuzz_target!(|(seed_proof: Vec<u8>, mutator: Vec<u8>)| {
+    // Prefer corpus-provided valid seeds so verifier paths are exercised often.
+    if let Ok(mut proof) = Proof::decode(&seed_proof) {
+        mutate_proof(&mut proof, &mutator); // mutated proof coverage
         let _ = verify_proof(&proof);
     }
 });
@@ -46,6 +48,19 @@ use libfuzzer_sys::fuzz_target;
 fuzz_target!(|data: &[u8]| {
     let _ = hash_to_curve(data);
     let _ = transcript_absorb(data);
+});
+```
+
+## Circuit synthesize with random inputs
+
+```rust
+#![no_main]
+use libfuzzer_sys::fuzz_target;
+
+fuzz_target!(|witness: Vec<u8>| {
+    if let Ok(inputs) = decode_random_witness(&witness) {
+        let _ = circuit_synthesize(inputs);
+    }
 });
 ```
 
