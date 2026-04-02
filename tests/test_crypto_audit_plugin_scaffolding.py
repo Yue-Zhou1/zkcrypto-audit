@@ -680,6 +680,39 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("unconstrained function", workflow_text.lower())
         self.assertIn("constrained assertion", workflow_text.lower())
 
+    def test_zkvm_auditor_extracts_precompile_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "zkvm-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "zkvm-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("zkvm-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("precompile-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "zkvm-auditor" / "references" / "zkvm-checklist.md"
+        ).read_text()
+        self.assertIn("Memory consistency", checklist_text)
+        self.assertIn("Continuation proof", checklist_text)
+        self.assertIn("Precompile safety", checklist_text)
+        self.assertIn("Guest-host boundary", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "zkvm-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Precompile output trusted without constraint verification", patterns_text)
+        self.assertIn("Memory access not enforced by memory consistency checks", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "zkvm-auditor" / "workflows" / "precompile-review.md"
+        ).read_text()
+        self.assertIn("precompile", workflow_text.lower())
+        self.assertIn("guest-host", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

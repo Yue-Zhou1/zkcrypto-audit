@@ -9,6 +9,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
 | The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation | `cairo-auditor` |
 | The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation | `noir-auditor` |
+| The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida) | `zkvm-auditor` |
 | The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
 | The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
 | The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
