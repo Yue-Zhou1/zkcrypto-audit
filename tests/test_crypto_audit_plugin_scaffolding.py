@@ -138,11 +138,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn(".codex/skills/", readme_text)
         self.assertIn("zk-findings/", readme_text)
 
-    def test_readme_documents_versioning_and_changelog(self) -> None:
+    def test_readme_keeps_contributing_and_acknowledgments(self) -> None:
         readme_text = (REPO_ROOT / "README.md").read_text()
-        self.assertIn("## Versioning", readme_text)
-        self.assertIn("CHANGELOG.md", readme_text)
+        self.assertIn("## Contributing", readme_text)
+        self.assertIn("## Acknowledgments", readme_text)
 
+    def test_release_workflow_matches_collection_version_and_changelog(self) -> None:
         changelog_path = REPO_ROOT / "CHANGELOG.md"
         self.assertTrue(changelog_path.exists())
         changelog_text = changelog_path.read_text()
