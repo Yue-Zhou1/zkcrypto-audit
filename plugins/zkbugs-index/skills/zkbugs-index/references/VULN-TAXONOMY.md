@@ -11,16 +11,16 @@ All Phase 2 skills MUST use these keys when classifying findings.
 |-----|-------------|---------------------------------------|
 | `under_constrained` | Signal/variable not fully constrained; malicious prover can set arbitrary value | "missing constraint", "unconstrained witness", "assigned but not constrained" |
 | `over_constrained` | Constraint system rejects valid inputs; completeness violation | "completeness violation", "false rejection" |
-| `fiat_shamir_weak` | Transcript incomplete, misordered, or missing domain separation | "frozen heart", "weak fiat-shamir", "incomplete transcript" |
+| `fiat_shamir_weak` | Transcript incomplete, misordered, or missing domain separation | "frozen heart", "weak fiat-shamir", "incomplete transcript", "missing challenge binding" |
 | `nonce_reuse` | Randomness reused across operations enabling key recovery | "deterministic nonce", "repeated randomness" |
 | `arithmetic_overflow` | Field/integer overflow or underflow in circuit arithmetic | "modular overflow", "wrap-around", "field overflow" |
 | `missing_range_check` | Value not bounded to expected bit-width or range | "range violation", "missing bounds check" |
 | `missing_nullifier` | Double-spend, replay, or duplicate action possible | "missing uniqueness check", "replay attack" |
 | `trusted_setup_leak` | Toxic waste exposure, SRS misuse, or ceremony flaw | "ceremony violation", "CRS misuse" |
-| `prover_input_injection` | Prover controls witness/advice values without validation | "malicious prover input", "unvalidated advice" |
+| `prover_input_injection` | Prover controls witness/advice values without validation | "malicious prover input", "unvalidated advice", "unvalidated hint", "hint not constrained" |
 | `lookup_table_mismatch` | Lookup argument references wrong table or incorrect entries | "table mismatch", "lookup misconfiguration" |
 | `missing_public_input` | Value that should be public is witness-only; verifier cannot check it | "hidden public input", "missing instance variable" |
-| `soundness_error` | General proof system soundness violation not covered above | "forgery", "fake proof" |
+| `soundness_error` | General proof system soundness violation not covered above | "forgery", "fake proof", "degree bound missing", "evaluation proof invalid", "second preimage", "leaf node confusion" |
 | `privacy_leak` | ZK property violated; proof reveals private information | "information leakage", "witness extraction" |
 | `subgroup_attack` | Missing curve point validation enabling small-subgroup attack | "missing subgroup check", "point validation" |
 | `timing_side_channel` | Secret-dependent timing in prover or verifier code | "variable-time operation", "timing leak" |
