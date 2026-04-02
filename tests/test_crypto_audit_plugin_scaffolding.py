@@ -614,6 +614,40 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("crypto-report-writer", flow_text)
         self.assertIn("zkbugs-index", flow_text)
 
+    def test_cairo_auditor_extracts_hint_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "cairo-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "cairo-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("cairo-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("hint-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "cairo-auditor" / "references" / "cairo-checklist.md"
+        ).read_text()
+        self.assertIn("Hint validation", checklist_text)
+        self.assertIn("felt252 overflow", checklist_text)
+        self.assertIn("Builtin misuse", checklist_text)
+        self.assertIn("Sierra-to-CASM soundness", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "cairo-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Unvalidated hint output trusted by constraints", patterns_text)
+        self.assertIn("felt252 arithmetic wrapping silently", patterns_text)
+        self.assertIn("assert_range_u128 missing", patterns_text)
+
+        hint_workflow_text = (
+            plugin_root / "skills" / "cairo-auditor" / "workflows" / "hint-review.md"
+        ).read_text()
+        self.assertIn("hint function", hint_workflow_text.lower())
+        self.assertIn("constraint enforcement", hint_workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()

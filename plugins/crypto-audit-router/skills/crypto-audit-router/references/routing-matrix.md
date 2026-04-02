@@ -7,6 +7,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The code claims to follow an RFC, paper, or reference implementation | `spec-delta-checker` |
 | The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
 | The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
+| The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation | `cairo-auditor` |
 | The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
 | The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
 | The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
