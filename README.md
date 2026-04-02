@@ -1,7 +1,7 @@
 # zkcrypto-audit
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-29-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F29_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -55,29 +55,23 @@ Open the plugin menu:
 /plugin menu
 ```
 
-Install these plugins:
+Install these category plugins:
 
-- `crypto-audit-router` (install this first)
-- `audit-common`
-- `crypto-audit-context`
-- `spec-delta-checker`
-- at least one domain auditor (choose one or more): `zk-circuit-auditor`,
-  `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `hash-function-auditor`,
-  `commitment-scheme-auditor`, `merkle-tree-auditor`,
-  `fiat-shamir-auditor`, `ecc-pairing-auditor`, `dkg-threshold-auditor`,
-  `gnark-auditor`, `encryption-scheme-auditor`, `mpc-auditor`,
-  `vdf-auditor`, `lattice-auditor`, `fhe-auditor`,
-  `side-channel-auditor`, `dependency-auditor`, or `rust-crypto-safety`
-- `crypto-fp-check`
-- `crypto-report-writer`
-- `zkbugs-index`
-- optional user-triggered proving/fuzz helpers: `kani-harness-gen`,
-  `fuzz-harness-gen`
+- `core-audit-flow` (install this first)
+- `zk-and-vm-auditors`
+- `crypto-primitive-auditors`
+- `protocol-auditors`
+- `post-quantum-auditors`
+- `implementation-safety`
+- `evidence-and-tooling`
+
+This 7-plugin install provides all 29 skills, including `crypto-audit-router`,
+domain auditors, and evidence tooling.
 
 If you prefer command-based install, start with:
 
 ```bash
-/plugin install crypto-audit-router@zkcrypto-audit
+/plugin install core-audit-flow@zkcrypto-audit
 ```
 
 ### 3) Verify installation
@@ -88,8 +82,8 @@ In a new chat, ask:
 Use crypto-audit-router to run a staged crypto security review.
 ```
 
-`crypto-audit-router` orchestrates the workflow but does not auto-install
-sibling plugins. Install the full list above for end-to-end coverage.
+`crypto-audit-router` is included in `core-audit-flow` and orchestrates the
+workflow. Install all 7 category plugins above for end-to-end coverage.
 
 ### Local development (this repo checked out locally)
 
@@ -106,10 +100,10 @@ For OpenAI Codex, this repository includes compatibility stubs under
 ## Runtime Requirements
 
 - Python 3.10+ is required for the `zkbugs-index` CLI scripts under
-  `plugins/zkbugs-index/scripts/` (they use PEP 604 union syntax like
+  `plugins/evidence-and-tooling/scripts/` (they use PEP 604 union syntax like
   `str | None`).
 - Optional semantic search dependencies are listed in
-  `plugins/zkbugs-index/scripts/requirements.txt`.
+  `plugins/evidence-and-tooling/scripts/requirements.txt`.
 
 ## Harness Runtime Controls
 
@@ -134,7 +128,7 @@ The intended default audit flow is:
 7. `zkbugs-index` for prior-art lookup or verified entry storage
 
 The canonical workflow is documented in
-`plugins/crypto-audit-router/skills/crypto-audit-router/workflows/full-audit-flow.md`.
+`plugins/core-audit-flow/skills/crypto-audit-router/workflows/full-audit-flow.md`.
 
 ## Which Auditor Should I Use?
 
@@ -166,98 +160,29 @@ The canonical workflow is documented in
 
 ## What's Inside
 
-### Shared Foundation
+The repository ships 7 category plugins that contain 29 total skills:
 
-- `plugins/audit-common`
-  Shared severity model, testing-evidence checklist, and finding contract.
-- `plugins/crypto-audit-context`
-  Builds audit context, trust-boundary maps, dimensional analysis, and review
-  priority.
-- `plugins/spec-delta-checker`
-  Treats implementation drift from papers or reference specs as a first-class
-  audit target.
-- `plugins/crypto-fp-check`
-  Applies verification gates and enforces evidence discipline before a finding
-  becomes reportable.
-- `plugins/crypto-report-writer`
-  Turns verified findings into report-ready prose with consistent evidence
-  framing.
-
-### Domain Auditors
-
-- `plugins/zk-circuit-auditor`
-  Reviews ZK circuits, transcripts, verifier logic, setup assumptions, batching,
-  and recursion paths.
-- `plugins/cairo-auditor`
-  Reviews Cairo/Starknet hints, felt252 arithmetic, builtin usage, and
-  Sierra/CASM soundness boundaries.
-- `plugins/noir-auditor`
-  Reviews Noir unconstrained-function boundaries, oracle binding, Brillig/ACIR
-  consistency, and witness-generation safety.
-- `plugins/zkvm-auditor`
-  Reviews zkVM guest programs for precompile safety, memory consistency,
-  continuation proof soundness, and guest-host boundary checks.
-- `plugins/hash-function-auditor`
-  Reviews ZK-friendly hash function parameterization, sponge construction,
-  domain separation, and algebraic attack resistance assumptions.
-- `plugins/commitment-scheme-auditor`
-  Reviews commitment schemes (KZG/FRI/IPA/Pedersen) for degree bounds,
-  opening-proof verification, and setup/batch-soundness assumptions.
-- `plugins/merkle-tree-auditor`
-  Reviews Merkle tree implementations for domain separation, sparse-tree
-  edge cases, and proof verification integrity.
-- `plugins/fiat-shamir-auditor`
-  Reviews Fiat-Shamir transforms for transcript completeness, challenge order,
-  and public-input/context binding.
-- `plugins/ecc-pairing-auditor`
-  Reviews elliptic-curve, pairing, and BLS code for point validation, subgroup,
-  DST, cofactor, and batch-verification bugs.
-- `plugins/dkg-threshold-auditor`
-  Reviews DKG and threshold-signature flows for rogue-key, nonce-binding,
-  share-verification, reconstruction, and session-isolation bugs.
-- `plugins/gnark-auditor`
-  Reviews gnark frontend/backend constraint alignment, witness visibility,
-  serialization boundaries, and API misuse risk.
-- `plugins/encryption-scheme-auditor`
-  Reviews AEAD nonce handling, decrypt-oracle behavior, AD binding, and KDF
-  misuse patterns in encryption implementations.
-- `plugins/mpc-auditor`
-  Reviews MPC setup/offline/online flows, transcript binding, OT correctness,
-  share verification, and reconstruction thresholds.
-- `plugins/vdf-auditor`
-  Reviews VDF sequentiality assumptions, challenge derivation, verifier
-  equations, and modulus/setup integrity.
-- `plugins/lattice-auditor`
-  Reviews lattice parameter provenance, noise/rejection sampling correctness,
-  and decryption-failure assumptions.
-- `plugins/fhe-auditor`
-  Reviews FHE noise budgets, bootstrapping correctness, modulus switching,
-  key-switch integrity, and plaintext leakage boundaries.
-- `plugins/side-channel-auditor`
-  Reviews timing/cache/memory/power leakage vectors and constant-time
-  regressions.
-- `plugins/dependency-auditor`
-  Reviews crypto dependency versions, advisory coverage, feature-flag
-  semantics, transitive risk, and fork provenance.
-- `plugins/rust-crypto-safety`
-  Reviews constant-time behavior, zeroization, `unsafe`, overflow, panic, and
-  dependency hygiene in Rust crypto code.
-
-### Orchestration and Indexing
-
-- `plugins/crypto-audit-router`
-  Chooses the audit sequence and preserves handoffs between phases.
-- `plugins/zkbugs-index`
-  Stores and queries prior art and local findings for reuse during ZK reviews.
-- `plugins/kani-harness-gen`
-  User-triggered Kani harness generator for formal property checking in Rust
-  crypto code.
-- `plugins/fuzz-harness-gen`
-  User-triggered cargo-fuzz target generator for crash and edge-case discovery
-  in Rust crypto APIs.
-- `plugins/formal-verification-bridge`
-  User-triggered bridge for exporting verified findings into external formal
-  tools such as Ecne, Picus, and Circomspect.
+- `plugins/core-audit-flow`
+  Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
+  `spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`.
+- `plugins/zk-and-vm-auditors`
+  Skills: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`,
+  `zkvm-auditor`, `gnark-auditor`.
+- `plugins/crypto-primitive-auditors`
+  Skills: `ecc-pairing-auditor`, `hash-function-auditor`,
+  `commitment-scheme-auditor`, `merkle-tree-auditor`, `fiat-shamir-auditor`,
+  `encryption-scheme-auditor`.
+- `plugins/protocol-auditors`
+  Skills: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`.
+- `plugins/post-quantum-auditors`
+  Skills: `lattice-auditor`, `fhe-auditor`.
+- `plugins/implementation-safety`
+  Skills: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`.
+- `plugins/evidence-and-tooling`
+  Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
+  `formal-verification-bridge`.
+  Includes: `scripts/`, `config/`, `index/`, and `data/` for zkbugs index
+  build/query workflows.
 - `zk-findings/`
   Local workspace for organization findings during development. Keep
   engagement-specific data here and out of versioned plugin content.
@@ -273,11 +198,12 @@ The canonical workflow is documented in
 
 ## Current Status
 
-- The repository currently ships as a collection of individual plugins under
-  `plugins/`.
+- The repository currently ships as 7 category plugins under `plugins/`,
+  containing 29 total skills.
 - The repository root now exposes a Claude Code marketplace catalog at
   `.claude-plugin/marketplace.json`.
-- Each plugin has its own `.claude-plugin/plugin.json` and skill content.
+- Each category plugin has its own `.claude-plugin/plugin.json` and multi-skill
+  content under `skills/`.
 - Codex compatibility stubs exist under `.codex/skills/` and mirror the plugin
   skill names.
 - The root README is the entry point for the collection and its marketplace

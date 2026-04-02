@@ -5,7 +5,7 @@ zero-knowledge systems and cryptographic protocols.
 
 ## Project Layout
 
-- `plugins/` contains the 29 published plugins and skill content.
+- `plugins/` contains 7 category plugins housing 29 audit skills.
 - `.claude-plugin/marketplace.json` is the root marketplace manifest.
 - `.codex/skills/` contains Codex discovery stubs pointing to canonical skills.
 - `tests/` contains scaffolding and CLI regression tests.
@@ -26,9 +26,9 @@ zero-knowledge systems and cryptographic protocols.
 ```bash
 python3 -m unittest discover -s tests -q
 python3 -m py_compile \
-  plugins/zkbugs-index/scripts/_shared.py \
-  plugins/zkbugs-index/scripts/build_index.py \
-  plugins/zkbugs-index/scripts/contribute_bug.py \
+  plugins/evidence-and-tooling/scripts/_shared.py \
+  plugins/evidence-and-tooling/scripts/build_index.py \
+  plugins/evidence-and-tooling/scripts/contribute_bug.py \
   tests/test_crypto_audit_plugin_scaffolding.py \
   tests/test_zkbugs_index_cli.py
 ```
