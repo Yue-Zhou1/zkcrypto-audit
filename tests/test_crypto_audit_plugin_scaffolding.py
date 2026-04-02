@@ -713,6 +713,39 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("precompile", workflow_text.lower())
         self.assertIn("guest-host", workflow_text.lower())
 
+    def test_hash_function_auditor_extracts_sponge_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "hash-function-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "hash-function-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("hash-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("sponge-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "hash-function-auditor" / "references" / "hash-checklist.md"
+        ).read_text()
+        self.assertIn("Parameter selection", checklist_text)
+        self.assertIn("Sponge construction", checklist_text)
+        self.assertIn("Domain separation", checklist_text)
+        self.assertIn("Algebraic attack resistance", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "hash-function-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("Poseidon round constants", patterns_text)
+        self.assertIn("Sponge capacity overflow", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "hash-function-auditor" / "workflows" / "sponge-review.md"
+        ).read_text()
+        self.assertIn("sponge", workflow_text.lower())
+        self.assertIn("absorption", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
