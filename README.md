@@ -31,14 +31,9 @@ report-ready evidence.
 Crypto and ZK reviews usually mix several different jobs at once: scoping, spec
 comparison, domain review, false-positive filtering, and reporting. When those
 jobs are blended together, the output becomes harder to trust and harder to
-reuse.
-
-This repository separates those jobs into focused plugins and skills with clear
+reuse. This repository separates those jobs into focused plugins and skills with clear
 handoffs. The goal is simple: make reviews easier to start, easier to follow,
 and easier to verify.
-
-The rule behind the repo is straightforward: verify what the code enforces, not
-what the docs claim.
 
 ## Installation
 
