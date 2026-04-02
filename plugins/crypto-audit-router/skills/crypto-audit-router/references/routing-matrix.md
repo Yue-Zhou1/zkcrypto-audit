@@ -7,6 +7,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The code claims to follow an RFC, paper, or reference implementation | `spec-delta-checker` |
 | The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
 | The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
+| The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs | `gnark-auditor` |
 | The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation | `cairo-auditor` |
 | The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation | `noir-auditor` |
 | The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida) | `zkvm-auditor` |

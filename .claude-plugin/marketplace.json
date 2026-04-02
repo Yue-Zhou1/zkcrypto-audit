@@ -163,6 +163,15 @@
       "source": "./plugins/dkg-threshold-auditor"
     },
     {
+      "name": "gnark-auditor",
+      "version": "0.1.0",
+      "description": "Audits gnark circuits and Go witness flows for frontend/backend mismatch, public witness exposure, constraint API misuse, and serialization boundary errors.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/gnark-auditor"
+    },
+    {
       "name": "rust-crypto-safety",
       "version": "0.1.0",
       "description": "Audits Rust cryptographic implementations for constant-time behavior, zeroization, panic and overflow hazards, unsafe code soundness, feature-flag risk, and dependency hygiene.",

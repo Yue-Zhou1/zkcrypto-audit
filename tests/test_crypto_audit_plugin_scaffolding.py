@@ -904,6 +904,39 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("mutated proof", patterns_text.lower())
         self.assertIn("circuit synthesize", patterns_text.lower())
 
+    def test_gnark_auditor_extracts_frontend_backend_review_and_checklist(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "gnark-auditor"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "gnark-auditor" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("gnark-checklist.md", skill_text)
+        self.assertIn("finding-patterns.md", skill_text)
+        self.assertIn("frontend-backend-review.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "gnark-auditor" / "references" / "gnark-checklist.md"
+        ).read_text()
+        self.assertIn("frontend/backend mismatch", checklist_text.lower())
+        self.assertIn("public witness", checklist_text.lower())
+        self.assertIn("constraint api misuse", checklist_text.lower())
+
+        patterns_text = (
+            plugin_root / "skills" / "gnark-auditor" / "references" / "finding-patterns.md"
+        ).read_text()
+        self.assertIn("frontend witness accepted but backend constraint omitted", patterns_text)
+        self.assertIn("secret value promoted to public witness", patterns_text)
+
+        workflow_text = (
+            plugin_root / "skills" / "gnark-auditor" / "workflows" / "frontend-backend-review.md"
+        ).read_text()
+        self.assertIn("frontend", workflow_text.lower())
+        self.assertIn("backend", workflow_text.lower())
+        self.assertIn("witness", workflow_text.lower())
+
 
 if __name__ == "__main__":
     unittest.main()
