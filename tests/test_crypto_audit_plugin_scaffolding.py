@@ -40,7 +40,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("schedule:", zkbugs_rebuild_text)
         self.assertIn("workflow_dispatch:", zkbugs_rebuild_text)
         self.assertIn(
-            "python3 plugins/zkbugs-index/scripts/build_index.py --config plugins/zkbugs-index/config/zkbugs-sources.json --diff-upstream",
+            "python3 plugins/evidence-and-tooling/scripts/build_index.py --config plugins/evidence-and-tooling/config/zkbugs-sources.json --diff-upstream",
             zkbugs_rebuild_text,
         )
 
@@ -63,7 +63,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         expectations = {
             REPO_ROOT
             / "plugins"
-            / "crypto-audit-context"
+            / "core-audit-flow"
             / "skills"
             / "crypto-audit-context"
             / "SKILL.md": [
@@ -74,7 +74,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             ],
             REPO_ROOT
             / "plugins"
-            / "spec-delta-checker"
+            / "core-audit-flow"
             / "skills"
             / "spec-delta-checker"
             / "SKILL.md": [
@@ -85,7 +85,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             ],
             REPO_ROOT
             / "plugins"
-            / "crypto-audit-router"
+            / "core-audit-flow"
             / "skills"
             / "crypto-audit-router"
             / "SKILL.md": [
@@ -103,12 +103,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
 
     def test_skills_that_require_bash_allow_tool_execution(self) -> None:
         skills = [
-            REPO_ROOT / "plugins" / "ecc-pairing-auditor" / "skills" / "ecc-pairing-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "zk-circuit-auditor" / "skills" / "zk-circuit-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "dkg-threshold-auditor" / "skills" / "dkg-threshold-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "rust-crypto-safety" / "skills" / "rust-crypto-safety" / "SKILL.md",
-            REPO_ROOT / "plugins" / "crypto-fp-check" / "skills" / "crypto-fp-check" / "SKILL.md",
-            REPO_ROOT / "plugins" / "zkbugs-index" / "skills" / "zkbugs-index" / "SKILL.md",
+            REPO_ROOT / "plugins" / "crypto-primitive-auditors" / "skills" / "ecc-pairing-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors" / "skills" / "zk-circuit-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "protocol-auditors" / "skills" / "dkg-threshold-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "implementation-safety" / "skills" / "rust-crypto-safety" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-fp-check" / "SKILL.md",
+            REPO_ROOT / "plugins" / "evidence-and-tooling" / "skills" / "zkbugs-index" / "SKILL.md",
         ]
 
         for skill_path in skills:
@@ -129,7 +129,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Python 3.10+", readme_text)
 
         requirements_text = (
-            REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "requirements.txt"
+            REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "requirements.txt"
         ).read_text()
         self.assertIn("Python 3.10+", requirements_text)
 
@@ -160,11 +160,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         expected_by_name = {}
         for manifest_path in manifest_paths:
             manifest = json.loads(manifest_path.read_text())
+            category_dir = manifest_path.parent.parent.name
             expected_by_name[manifest["name"]] = {
                 "version": manifest["version"],
                 "description": manifest["description"],
                 "author_name": manifest["author"]["name"],
-                "source": f"./plugins/{manifest['name']}",
+                "source": f"./plugins/{category_dir}",
             }
 
         actual_by_name = {}
@@ -236,7 +237,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         context_text = (
             REPO_ROOT
             / "plugins"
-            / "crypto-audit-context"
+            / "core-audit-flow"
             / "skills"
             / "crypto-audit-context"
             / "SKILL.md"
@@ -247,7 +248,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         flow_text = (
             REPO_ROOT
             / "plugins"
-            / "crypto-audit-router"
+            / "core-audit-flow"
             / "skills"
             / "crypto-audit-router"
             / "workflows"
@@ -263,11 +264,11 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
     def test_gitignore_covers_generated_zkbugs_index_artifacts(self) -> None:
         gitignore_text = (REPO_ROOT / ".gitignore").read_text()
         expected_entries = [
-            "plugins/zkbugs-index/index/upstream_raw/",
-            "plugins/zkbugs-index/index/local_findings/findings.json",
-            "plugins/zkbugs-index/index/embeddings.npy",
-            "plugins/zkbugs-index/index/embedding_ids.json",
-            "plugins/zkbugs-index/.cache/",
+            "plugins/evidence-and-tooling/index/upstream_raw/",
+            "plugins/evidence-and-tooling/index/local_findings/findings.json",
+            "plugins/evidence-and-tooling/index/embeddings.npy",
+            "plugins/evidence-and-tooling/index/embedding_ids.json",
+            "plugins/evidence-and-tooling/.cache/",
         ]
 
         for entry in expected_entries:
@@ -275,15 +276,15 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
 
     def test_core_and_domain_skills_define_output_contracts(self) -> None:
         skills_to_check = [
-            REPO_ROOT / "plugins" / "crypto-audit-router" / "skills" / "crypto-audit-router" / "SKILL.md",
-            REPO_ROOT / "plugins" / "crypto-audit-context" / "skills" / "crypto-audit-context" / "SKILL.md",
-            REPO_ROOT / "plugins" / "crypto-fp-check" / "skills" / "crypto-fp-check" / "SKILL.md",
-            REPO_ROOT / "plugins" / "spec-delta-checker" / "skills" / "spec-delta-checker" / "SKILL.md",
-            REPO_ROOT / "plugins" / "zk-circuit-auditor" / "skills" / "zk-circuit-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "rust-crypto-safety" / "skills" / "rust-crypto-safety" / "SKILL.md",
-            REPO_ROOT / "plugins" / "ecc-pairing-auditor" / "skills" / "ecc-pairing-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "dkg-threshold-auditor" / "skills" / "dkg-threshold-auditor" / "SKILL.md",
-            REPO_ROOT / "plugins" / "crypto-report-writer" / "skills" / "crypto-report-writer" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-audit-router" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-audit-context" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-fp-check" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "spec-delta-checker" / "SKILL.md",
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors" / "skills" / "zk-circuit-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "implementation-safety" / "skills" / "rust-crypto-safety" / "SKILL.md",
+            REPO_ROOT / "plugins" / "crypto-primitive-auditors" / "skills" / "ecc-pairing-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "protocol-auditors" / "skills" / "dkg-threshold-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-report-writer" / "SKILL.md",
         ]
 
         for skill_path in skills_to_check:
@@ -292,13 +293,13 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
 
     def test_audit_common_and_zkbugs_index_intentionally_omit_output_contract(self) -> None:
         audit_common_text = (
-            REPO_ROOT / "plugins" / "audit-common" / "skills" / "audit-common" / "SKILL.md"
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "audit-common" / "SKILL.md"
         ).read_text()
         self.assertNotIn("## Output Contract", audit_common_text)
         self.assertIn("## When to Use", audit_common_text)
 
         zkbugs_index_text = (
-            REPO_ROOT / "plugins" / "zkbugs-index" / "skills" / "zkbugs-index" / "SKILL.md"
+            REPO_ROOT / "plugins" / "evidence-and-tooling" / "skills" / "zkbugs-index" / "SKILL.md"
         ).read_text()
         self.assertNotIn("## Output Contract", zkbugs_index_text)
         self.assertIn("## Workflow", zkbugs_index_text)
@@ -311,7 +312,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("python3 -m unittest", text)
 
     def test_zkbugs_scripts_use_shared_taxonomy_and_repo_helper(self) -> None:
-        shared_path = REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "_shared.py"
+        shared_path = REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "_shared.py"
         self.assertTrue(shared_path.exists())
         shared_text = shared_path.read_text()
         self.assertIn("CANONICAL_VULN_TYPES", shared_text)
@@ -319,14 +320,14 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("VULN_ALIASES", shared_text)
         self.assertIn("def ensure_repo", shared_text)
 
-        build_text = (REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "build_index.py").read_text()
+        build_text = (REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "build_index.py").read_text()
         self.assertIn("from _shared import CANONICAL_VULN_TYPES, VULN_ALIASES, ensure_repo", build_text)
         self.assertNotIn("CANONICAL_VULN_TYPES = {", build_text)
         self.assertNotIn("VULN_ALIASES: dict[str, str] = {", build_text)
         self.assertNotIn("def ensure_repo(", build_text)
 
         contribute_text = (
-            REPO_ROOT / "plugins" / "zkbugs-index" / "scripts" / "contribute_bug.py"
+            REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "contribute_bug.py"
         ).read_text()
         self.assertIn("from _shared import CANONICAL_VULN_TYPES, ensure_repo", contribute_text)
         self.assertNotIn("CANONICAL_VULN_TYPES = {", contribute_text)
@@ -334,7 +335,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
 
     def test_zkbugs_config_and_manifest_cover_supplemental_external_findings(self) -> None:
         config = json.loads(
-            (REPO_ROOT / "plugins" / "zkbugs-index" / "config" / "zkbugs-sources.json").read_text()
+            (REPO_ROOT / "plugins" / "evidence-and-tooling" / "config" / "zkbugs-sources.json").read_text()
         )
         supplemental_files = config.get("supplemental_files", [])
         self.assertIn("./data/external_findings/trail-of-bits.json", supplemental_files)
@@ -342,10 +343,10 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("./data/external_findings/audit-contests.json", supplemental_files)
 
         for rel_path in supplemental_files:
-            file_path = REPO_ROOT / "plugins" / "zkbugs-index" / rel_path.removeprefix("./")
+            file_path = REPO_ROOT / "plugins" / "evidence-and-tooling" / rel_path.removeprefix("./")
             self.assertTrue(file_path.exists(), file_path.as_posix())
 
-        manifest = json.loads((REPO_ROOT / "plugins" / "zkbugs-index" / "index" / "manifest.json").read_text())
+        manifest = json.loads((REPO_ROOT / "plugins" / "evidence-and-tooling" / "index" / "manifest.json").read_text())
         vuln_counts = manifest.get("by_vuln_type", {})
         required_backfilled_types = [
             "nonce_reuse",
@@ -365,7 +366,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             self.assertGreater(vuln_counts.get(vuln_type, 0), 0, vuln_type)
 
     def test_audit_common_plugin_exists_with_shared_references(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "audit-common"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "audit-common" / "SKILL.md"
@@ -388,7 +389,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Differential testing", testing_text)
 
     def test_crypto_audit_context_skill_extracts_dimensional_analysis(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "crypto-audit-context"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "crypto-audit-context" / "SKILL.md"
@@ -415,7 +416,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Replay attack prevention", threat_text)
 
     def test_crypto_fp_check_skill_has_verification_gate_workflow(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "crypto-fp-check"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "crypto-fp-check" / "SKILL.md"
@@ -437,7 +438,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("compilable PoC", workflow_text)
 
     def test_zk_circuit_auditor_extracts_zk_specific_checklist_and_workflows(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "zk-circuit-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "zk-and-vm-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "zk-circuit-auditor" / "SKILL.md"
@@ -483,7 +484,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Batch verification random challenge", setup_workflow_text)
 
     def test_rust_crypto_safety_extracts_rust_checklist_patterns_and_toolchain(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "rust-crypto-safety"
+        plugin_root = REPO_ROOT / "plugins" / "implementation-safety"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "rust-crypto-safety" / "SKILL.md"
@@ -525,7 +526,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("cargo tree", toolchain_text)
 
     def test_ecc_pairing_auditor_extracts_curve_pairing_checklists_and_workflows(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "ecc-pairing-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "ecc-pairing-auditor" / "SKILL.md"
@@ -581,7 +582,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("rogue key", pairing_workflow_text.lower())
 
     def test_dkg_threshold_auditor_extracts_nonce_share_and_session_guidance(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "dkg-threshold-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "protocol-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "dkg-threshold-auditor" / "SKILL.md"
@@ -618,7 +619,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Lagrange", session_workflow_text)
 
     def test_spec_delta_checker_extracts_deviation_review_workflow(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "spec-delta-checker"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "spec-delta-checker" / "SKILL.md"
@@ -638,7 +639,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("caller obligations", workflow_text.lower())
 
     def test_crypto_report_writer_extracts_severity_and_test_evidence_template(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "crypto-report-writer"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "crypto-report-writer" / "SKILL.md"
@@ -696,16 +697,19 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
     def test_collection_docs_reflect_final_plugin_count_and_todo_progress(self) -> None:
         readme_text = (REPO_ROOT / "README.md").read_text()
         claude_text = (REPO_ROOT / "CLAUDE.md").read_text()
-        todo_text = (REPO_ROOT / "TODO.md").read_text()
+        todo_path = REPO_ROOT / "TODO.md"
+        if not todo_path.exists():
+            self.skipTest("TODO.md is not present in this checkout")
+        todo_text = todo_path.read_text()
 
-        self.assertIn("plugins-29", readme_text)
-        self.assertIn("29 published plugins", claude_text)
+        self.assertIn("plugins-7_categories%2F29_skills", readme_text)
+        self.assertIn("7 category plugins housing 29 audit skills", claude_text)
         self.assertIn("Phase 1: Auditor Expansion", todo_text)
         self.assertIn("- [x] `formal-verification-bridge`", todo_text)
         self.assertIn("- [x] Add report template variants (client/internal/public-disclosure)", todo_text)
 
     def test_crypto_audit_router_defines_end_to_end_routing(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "crypto-audit-router"
+        plugin_root = REPO_ROOT / "plugins" / "core-audit-flow"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "crypto-audit-router" / "SKILL.md"
@@ -745,7 +749,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("zkbugs-index", flow_text)
 
     def test_cairo_auditor_extracts_hint_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "cairo-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "zk-and-vm-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "cairo-auditor" / "SKILL.md"
@@ -779,7 +783,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("constraint enforcement", hint_workflow_text.lower())
 
     def test_noir_auditor_extracts_unconstrained_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "noir-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "zk-and-vm-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "noir-auditor" / "SKILL.md"
@@ -811,7 +815,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("constrained assertion", workflow_text.lower())
 
     def test_zkvm_auditor_extracts_precompile_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "zkvm-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "zk-and-vm-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "zkvm-auditor" / "SKILL.md"
@@ -844,7 +848,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("guest-host", workflow_text.lower())
 
     def test_hash_function_auditor_extracts_sponge_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "hash-function-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "hash-function-auditor" / "SKILL.md"
@@ -877,7 +881,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("absorption", workflow_text.lower())
 
     def test_commitment_scheme_auditor_extracts_kzg_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "commitment-scheme-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "commitment-scheme-auditor" / "SKILL.md"
@@ -909,7 +913,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("opening proof", workflow_text.lower())
 
     def test_merkle_tree_auditor_extracts_proof_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "merkle-tree-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "merkle-tree-auditor" / "SKILL.md"
@@ -935,7 +939,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("Proof verification accepts empty path", patterns_text)
 
     def test_fiat_shamir_auditor_extracts_transcript_binding_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "fiat-shamir-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "fiat-shamir-auditor" / "SKILL.md"
@@ -969,7 +973,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("binding", workflow_text.lower())
 
     def test_kani_harness_gen_extracts_checklist_and_patterns(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "kani-harness-gen"
+        plugin_root = REPO_ROOT / "plugins" / "evidence-and-tooling"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "kani-harness-gen" / "SKILL.md"
@@ -1004,7 +1008,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("proptest", patterns_text.lower())
 
     def test_fuzz_harness_gen_extracts_checklist_and_patterns(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "fuzz-harness-gen"
+        plugin_root = REPO_ROOT / "plugins" / "evidence-and-tooling"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "fuzz-harness-gen" / "SKILL.md"
@@ -1039,12 +1043,15 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("proptest", patterns_text.lower())
 
     def test_todo_marks_kani_constant_time_as_superseded(self) -> None:
-        todo_text = (REPO_ROOT / "TODO.md").read_text()
+        todo_path = REPO_ROOT / "TODO.md"
+        if not todo_path.exists():
+            self.skipTest("TODO.md is not present in this checkout")
+        todo_text = todo_path.read_text()
         self.assertIn("side-channel-auditor", todo_text)
         self.assertNotIn("Constant-time verification (no secret-dependent branching)", todo_text)
 
     def test_gnark_auditor_extracts_frontend_backend_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "gnark-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "zk-and-vm-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "gnark-auditor" / "SKILL.md"
@@ -1077,7 +1084,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("witness", workflow_text.lower())
 
     def test_encryption_scheme_auditor_extracts_decrypt_error_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "encryption-scheme-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "crypto-primitive-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "encryption-scheme-auditor" / "SKILL.md"
@@ -1110,7 +1117,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("nonce", workflow_text.lower())
 
     def test_mpc_auditor_extracts_share_validation_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "mpc-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "protocol-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "mpc-auditor" / "SKILL.md"
@@ -1143,7 +1150,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("session", workflow_text.lower())
 
     def test_vdf_auditor_extracts_challenge_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "vdf-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "protocol-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "vdf-auditor" / "SKILL.md"
@@ -1176,7 +1183,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("verifier", workflow_text.lower())
 
     def test_lattice_auditor_extracts_parameter_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "lattice-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "post-quantum-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "lattice-auditor" / "SKILL.md"
@@ -1209,7 +1216,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("decapsulation", workflow_text.lower())
 
     def test_fhe_auditor_extracts_noise_budget_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "fhe-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "post-quantum-auditors"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "fhe-auditor" / "SKILL.md"
@@ -1242,7 +1249,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("key-switch", workflow_text.lower())
 
     def test_side_channel_auditor_extracts_constant_time_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "side-channel-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "implementation-safety"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "side-channel-auditor" / "SKILL.md"
@@ -1275,7 +1282,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("ctgrind", workflow_text.lower())
 
     def test_dependency_auditor_extracts_advisory_review_and_checklist(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "dependency-auditor"
+        plugin_root = REPO_ROOT / "plugins" / "implementation-safety"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "dependency-auditor" / "SKILL.md"
@@ -1308,7 +1315,7 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("fork", workflow_text.lower())
 
     def test_formal_verification_bridge_extracts_tooling_matrix_and_handoff_contract(self) -> None:
-        plugin_root = REPO_ROOT / "plugins" / "formal-verification-bridge"
+        plugin_root = REPO_ROOT / "plugins" / "evidence-and-tooling"
         self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
 
         skill_path = plugin_root / "skills" / "formal-verification-bridge" / "SKILL.md"

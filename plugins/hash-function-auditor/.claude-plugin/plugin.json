@@ -1,8 +1,0 @@
-{
-  "name": "hash-function-auditor",
-  "version": "0.1.0",
-  "description": "Audits ZK-friendly hash functions (Poseidon, Rescue, MiMC, Pedersen) for parameter selection, sponge construction, domain separation, and algebraic attack resistance.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

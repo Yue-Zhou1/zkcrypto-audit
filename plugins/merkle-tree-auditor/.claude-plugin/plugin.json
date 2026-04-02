@@ -1,8 +1,0 @@
-{
-  "name": "merkle-tree-auditor",
-  "version": "0.1.0",
-  "description": "Audits Merkle tree implementations for second-preimage attacks, leaf-node domain separation, sparse tree edge cases, and proof verification soundness.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

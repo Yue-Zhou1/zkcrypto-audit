@@ -1,8 +1,0 @@
-{
-  "name": "crypto-report-writer",
-  "version": "0.1.0",
-  "description": "Writes crypto audit findings and summaries using the framework severity model and a consistent test-evidence section for ZK and cryptographic reviews.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

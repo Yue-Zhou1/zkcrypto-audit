@@ -1,8 +1,0 @@
-{
-  "name": "formal-verification-bridge",
-  "version": "0.1.0",
-  "description": "Bridges audit findings into external formal-verification tools such as Ecne, Picus, and Circomspect, with explicit environment checks and tool-specific handoff contracts.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

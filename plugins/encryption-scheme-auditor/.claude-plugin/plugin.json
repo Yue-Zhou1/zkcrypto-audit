@@ -1,8 +1,0 @@
-{
-  "name": "encryption-scheme-auditor",
-  "version": "0.1.0",
-  "description": "Audits encryption implementations for AEAD nonce handling, padding oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error side effects.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

@@ -1,8 +1,0 @@
-{
-  "name": "cairo-auditor",
-  "version": "0.1.0",
-  "description": "Audits Cairo and Starknet smart contracts for hint validation, felt252 overflow, builtin misuse, and Sierra-to-CASM soundness gaps.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

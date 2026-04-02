@@ -1,8 +1,0 @@
-{
-  "name": "dependency-auditor",
-  "version": "0.1.0",
-  "description": "Audits cryptographic dependency sets for known-vulnerable versions, security-significant feature flags, advisory coverage, transitive risk, and stale forks across arkworks, bellman, halo2, circomlib, and related ecosystems.",
-  "author": {
-    "name": "Yue Zhou"
-  }
-}

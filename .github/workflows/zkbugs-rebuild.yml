@@ -24,7 +24,7 @@ jobs:
       - name: Diff zkbugs upstream against committed index
         run: |
           set -euo pipefail
-          python3 plugins/zkbugs-index/scripts/build_index.py --config plugins/zkbugs-index/config/zkbugs-sources.json --diff-upstream | tee zkbugs-upstream-diff.txt
+          python3 plugins/evidence-and-tooling/scripts/build_index.py --config plugins/evidence-and-tooling/config/zkbugs-sources.json --diff-upstream | tee zkbugs-upstream-diff.txt
 
           if grep -Eq "NEW entries|entries REMOVED" zkbugs-upstream-diff.txt; then
             echo "ERROR: committed zkbugs index is stale relative to upstream"
