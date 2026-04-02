@@ -838,6 +838,33 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("challenge", workflow_text.lower())
         self.assertIn("binding", workflow_text.lower())
 
+    def test_kani_harness_gen_extracts_checklist_and_patterns(self) -> None:
+        plugin_root = REPO_ROOT / "plugins" / "kani-harness-gen"
+        self.assertTrue((plugin_root / ".claude-plugin" / "plugin.json").exists())
+
+        skill_path = plugin_root / "skills" / "kani-harness-gen" / "SKILL.md"
+        self.assertTrue(skill_path.exists())
+        skill_text = skill_path.read_text()
+        self.assertIn("## When to Use", skill_text)
+        self.assertIn("## When NOT to Use", skill_text)
+        self.assertIn("user-triggered", skill_text.lower())
+        self.assertIn("kani-checklist.md", skill_text)
+        self.assertIn("harness-patterns.md", skill_text)
+
+        checklist_text = (
+            plugin_root / "skills" / "kani-harness-gen" / "references" / "kani-checklist.md"
+        ).read_text()
+        self.assertIn("cargo-kani", checklist_text)
+        self.assertIn("#[kani::proof]", checklist_text)
+        self.assertIn("kani::any()", checklist_text)
+
+        patterns_text = (
+            plugin_root / "skills" / "kani-harness-gen" / "references" / "harness-patterns.md"
+        ).read_text()
+        self.assertIn("Field arithmetic", patterns_text)
+        self.assertIn("Serialization roundtrip", patterns_text)
+        self.assertIn("No-panic", patterns_text)
+
 
 if __name__ == "__main__":
     unittest.main()
