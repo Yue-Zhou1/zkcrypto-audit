@@ -64,6 +64,87 @@
       "source": "./plugins/zk-circuit-auditor"
     },
     {
+      "name": "cairo-auditor",
+      "version": "0.1.0",
+      "description": "Audits Cairo and Starknet smart contracts for hint validation, felt252 overflow, builtin misuse, and Sierra-to-CASM soundness gaps.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/cairo-auditor"
+    },
+    {
+      "name": "noir-auditor",
+      "version": "0.1.0",
+      "description": "Audits Noir circuits for unconstrained function boundary safety, oracle validation, Brillig/ACIR consistency, and witness generation soundness.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/noir-auditor"
+    },
+    {
+      "name": "zkvm-auditor",
+      "version": "0.1.0",
+      "description": "Audits zkVM programs for memory consistency, continuation proof soundness, precompile safety, and guest-host boundary violations across SP1, RISC Zero, and Valida.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/zkvm-auditor"
+    },
+    {
+      "name": "hash-function-auditor",
+      "version": "0.1.0",
+      "description": "Audits ZK-friendly hash functions (Poseidon, Rescue, MiMC, Pedersen) for parameter selection, sponge construction, domain separation, and algebraic attack resistance.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/hash-function-auditor"
+    },
+    {
+      "name": "commitment-scheme-auditor",
+      "version": "0.1.0",
+      "description": "Audits polynomial commitment schemes (KZG, FRI, IPA, Pedersen) for degree bound enforcement, evaluation proof verification, trusted setup provenance, and batch opening soundness.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/commitment-scheme-auditor"
+    },
+    {
+      "name": "merkle-tree-auditor",
+      "version": "0.1.0",
+      "description": "Audits Merkle tree implementations for second-preimage attacks, leaf-node domain separation, sparse tree edge cases, and proof verification soundness.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/merkle-tree-auditor"
+    },
+    {
+      "name": "fiat-shamir-auditor",
+      "version": "0.1.0",
+      "description": "Audits Fiat-Shamir transcript implementations for completeness, domain separation, challenge derivation order, and public input binding across interactive-to-non-interactive proof transforms.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/fiat-shamir-auditor"
+    },
+    {
+      "name": "kani-harness-gen",
+      "version": "0.1.0",
+      "description": "Generates Kani proof harnesses for Rust cryptographic code to formally verify field arithmetic, no-panic guarantees, serialization roundtrips, and constraint soundness. User-triggered only.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/kani-harness-gen"
+    },
+    {
+      "name": "fuzz-harness-gen",
+      "version": "0.1.0",
+      "description": "Generates cargo-fuzz targets for Rust cryptographic code to find crashes, panics, and edge cases in deserialization, point operations, proof verification, and hash functions. User-triggered only.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/fuzz-harness-gen"
+    },
+    {
       "name": "ecc-pairing-auditor",
       "version": "0.1.0",
       "description": "Audits elliptic-curve, pairing, and BLS verification code for point-validation, subgroup, cofactor, pairing-equation, DST, and batch-verification bugs.",
@@ -80,6 +161,87 @@
         "name": "Yue Zhou"
       },
       "source": "./plugins/dkg-threshold-auditor"
+    },
+    {
+      "name": "gnark-auditor",
+      "version": "0.1.0",
+      "description": "Audits gnark circuits and Go witness flows for frontend/backend mismatch, public witness exposure, constraint API misuse, and serialization boundary errors.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/gnark-auditor"
+    },
+    {
+      "name": "encryption-scheme-auditor",
+      "version": "0.1.0",
+      "description": "Audits encryption implementations for AEAD nonce handling, padding oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error side effects.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/encryption-scheme-auditor"
+    },
+    {
+      "name": "mpc-auditor",
+      "version": "0.1.0",
+      "description": "Audits MPC implementations for garbled-circuit integrity, OT misuse, share validation, Beaver triple authenticity, and transcript/session binding.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/mpc-auditor"
+    },
+    {
+      "name": "vdf-auditor",
+      "version": "0.1.0",
+      "description": "Audits VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation, and modulus/group setup integrity.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/vdf-auditor"
+    },
+    {
+      "name": "lattice-auditor",
+      "version": "0.1.0",
+      "description": "Audits lattice-based cryptography for LWE parameter selection, noise sampling correctness, rejection-sampling safety, and decryption failure probability assumptions.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/lattice-auditor"
+    },
+    {
+      "name": "fhe-auditor",
+      "version": "0.1.0",
+      "description": "Audits FHE implementations for noise-budget accounting, bootstrapping correctness, modulus switching safety, plaintext leakage, and key-switch parameter integrity.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/fhe-auditor"
+    },
+    {
+      "name": "side-channel-auditor",
+      "version": "0.1.0",
+      "description": "Audits implementations for timing, cache, memory-access, and power-analysis leakage patterns, including compiler and feature-flag regressions that break constant-time assumptions.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/side-channel-auditor"
+    },
+    {
+      "name": "dependency-auditor",
+      "version": "0.1.0",
+      "description": "Audits cryptographic dependency sets for known-vulnerable versions, security-significant feature flags, advisory coverage, transitive risk, and stale forks across arkworks, bellman, halo2, circomlib, and related ecosystems.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/dependency-auditor"
+    },
+    {
+      "name": "formal-verification-bridge",
+      "version": "0.1.0",
+      "description": "Bridges audit findings into external formal-verification tools such as Ecne, Picus, and Circomspect, with explicit environment checks and tool-specific handoff contracts.",
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/formal-verification-bridge"
     },
     {
       "name": "rust-crypto-safety",

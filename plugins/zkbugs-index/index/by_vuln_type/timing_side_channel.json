@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/arkworks/trail-of-bits/timing-variance-in-scalar-mul",
+    "dsl": "arkworks",
+    "vuln_type": "timing_side_channel",
+    "impact": "Privacy",
+    "severity": "High",
+    "root_cause": "secret-dependent branch in scalar multiplication leaked key-bit timing variance",
+    "location": {
+      "repo": "https://github.com/trailofbits/public-audit-reports",
+      "commit": null,
+      "file": "curves/scalar_mul.rs",
+      "line": 203
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "trail-of-bits",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

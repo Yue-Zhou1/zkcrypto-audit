@@ -1,0 +1,8 @@
+{
+  "name": "zkvm-auditor",
+  "version": "0.1.0",
+  "description": "Audits zkVM programs for memory consistency, continuation proof soundness, precompile safety, and guest-host boundary violations across SP1, RISC Zero, and Valida.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

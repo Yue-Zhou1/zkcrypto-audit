@@ -1,0 +1,8 @@
+{
+  "name": "kani-harness-gen",
+  "version": "0.1.0",
+  "description": "Generates Kani proof harnesses for Rust cryptographic code to formally verify field arithmetic, no-panic guarantees, serialization roundtrips, and constraint soundness. User-triggered only.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

@@ -23,6 +23,7 @@ VULN_ALIASES: dict[str, str] = {
     "frozen heart": "fiat_shamir_weak",
     "weak fiat-shamir": "fiat_shamir_weak",
     "incomplete transcript": "fiat_shamir_weak",
+    "missing challenge binding": "fiat_shamir_weak",
     "fiat-shamir": "fiat_shamir_weak",
     # nonce_reuse
     "deterministic nonce": "nonce_reuse",
@@ -48,6 +49,8 @@ VULN_ALIASES: dict[str, str] = {
     # prover_input_injection
     "malicious prover input": "prover_input_injection",
     "unvalidated advice": "prover_input_injection",
+    "unvalidated hint": "prover_input_injection",
+    "hint not constrained": "prover_input_injection",
     # lookup_table_mismatch
     "table mismatch": "lookup_table_mismatch",
     "lookup misconfiguration": "lookup_table_mismatch",
@@ -57,6 +60,10 @@ VULN_ALIASES: dict[str, str] = {
     # soundness_error
     "forgery": "soundness_error",
     "fake proof": "soundness_error",
+    "degree bound missing": "soundness_error",
+    "evaluation proof invalid": "soundness_error",
+    "second preimage": "soundness_error",
+    "leaf node confusion": "soundness_error",
     # privacy_leak
     "information leakage": "privacy_leak",
     "witness extraction": "privacy_leak",

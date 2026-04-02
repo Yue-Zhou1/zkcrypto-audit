@@ -58,7 +58,12 @@ class ZkbugsIndexCliTests(unittest.TestCase):
         }
         (self.upstream_dir / "sample.json").write_text(json.dumps(fixture, indent=2))
 
-    def _write_config(self, *, org_local_path: Path | None) -> None:
+    def _write_config(
+        self,
+        *,
+        org_local_path: Path | None,
+        supplemental_files: list[Path] | None = None,
+    ) -> None:
         config = {
             "upstream": {
                 "repo_url": None,
@@ -72,6 +77,7 @@ class ZkbugsIndexCliTests(unittest.TestCase):
                 "local_path": str(org_local_path) if org_local_path else None,
                 "branch": "main",
             },
+            "supplemental_files": [str(path) for path in (supplemental_files or [])],
             "index_dir": str(self.index_dir),
             "cache_dir": str(self.base / ".cache"),
             "semantic_search": {
@@ -80,6 +86,11 @@ class ZkbugsIndexCliTests(unittest.TestCase):
             },
         }
         self.config_path.write_text(json.dumps(config, indent=2))
+
+    def _write_supplemental_fixture(self, filename: str, entries: list[dict]) -> Path:
+        path = self.base / filename
+        path.write_text(json.dumps(entries, indent=2))
+        return path
 
     def _build_index(self) -> subprocess.CompletedProcess[str]:
         return run_cli(
@@ -258,6 +269,89 @@ class ZkbugsIndexCliTests(unittest.TestCase):
         entries = json.loads(shard_path.read_text())
         upstream_entries = [e for e in entries if e.get("upstream", False)]
         self.assertEqual([e["id"] for e in upstream_entries], ["zkbugs/example/circom/underconstrained"])
+
+    def test_build_index_loads_supplemental_findings_files(self) -> None:
+        supplemental = self._write_supplemental_fixture(
+            "supplemental-findings.json",
+            [
+                {
+                    "id": "external/noir/tob/nonce-reuse",
+                    "dsl": "noir",
+                    "vuln_type": "nonce_reuse",
+                    "impact": "Soundness",
+                    "severity": "High",
+                    "root_cause": "nonce reused in witness signing flow",
+                    "location": {
+                        "repo": "https://github.com/trailofbits/public-findings",
+                        "commit": None,
+                        "file": "noir/prover.nr",
+                        "line": 88,
+                    },
+                    "reproduced": False,
+                    "poc_available": False,
+                    "fix_commit": None,
+                    "disclosure_state": "disclosed",
+                    "source": "trail-of-bits",
+                    "upstream": False,
+                    "added_at": "2026-04-02T00:00:00+00:00",
+                }
+            ],
+        )
+        self._write_config(org_local_path=self.org_dir, supplemental_files=[supplemental])
+
+        self._build_index()
+
+        shard_path = self.index_dir / "by_vuln_type" / "nonce_reuse.json"
+        self.assertTrue(shard_path.exists())
+        entries = json.loads(shard_path.read_text())
+        entry = next(e for e in entries if e["id"] == "external/noir/tob/nonce-reuse")
+        self.assertEqual(entry["source"], "trail-of-bits")
+        self.assertFalse(entry["upstream"])
+
+    def test_build_index_skips_malformed_supplemental_file_without_aborting(self) -> None:
+        good_supplemental = self._write_supplemental_fixture(
+            "supplemental-good.json",
+            [
+                {
+                    "id": "external/halo2/contest/missing-range-check",
+                    "dsl": "halo2",
+                    "vuln_type": "missing_range_check",
+                    "impact": "Soundness",
+                    "severity": "High",
+                    "root_cause": "lookup gate omitted range bound",
+                    "location": {
+                        "repo": "https://github.com/example/contest-findings",
+                        "commit": None,
+                        "file": "halo2/range.rs",
+                        "line": 31,
+                    },
+                    "reproduced": False,
+                    "poc_available": False,
+                    "fix_commit": None,
+                    "disclosure_state": "disclosed",
+                    "source": "audit-contests",
+                    "upstream": False,
+                    "added_at": "2026-04-02T00:00:00+00:00",
+                }
+            ],
+        )
+        bad_supplemental = self.base / "supplemental-bad.json"
+        bad_supplemental.write_text("{")
+        self._write_config(
+            org_local_path=self.org_dir,
+            supplemental_files=[good_supplemental, bad_supplemental],
+        )
+
+        build = self._build_index()
+
+        self.assertEqual(build.returncode, 0)
+        self.assertIn("supplemental", build.stderr.lower())
+        self.assertIn("Skipping", build.stderr)
+
+        shard_path = self.index_dir / "by_vuln_type" / "missing_range_check.json"
+        self.assertTrue(shard_path.exists())
+        entries = json.loads(shard_path.read_text())
+        self.assertIn("external/halo2/contest/missing-range-check", {e["id"] for e in entries})
 
 
 if __name__ == "__main__":

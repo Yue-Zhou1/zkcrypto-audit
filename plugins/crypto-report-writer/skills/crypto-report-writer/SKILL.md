@@ -29,9 +29,14 @@ Final reporting skill for the crypto audit framework.
 
 ## Workflow
 
-Start from [templates/report-template.md](templates/report-template.md). Fill it
-with target-specific evidence only. Do not write around missing proof or test
-gaps; state them explicitly.
+Choose the report variant first, then fill it with verified evidence only:
+
+- [templates/client-report-template.md](templates/client-report-template.md) for client-facing delivery with concise executive and remediation language
+- [templates/internal-report-template.md](templates/internal-report-template.md) for engineering/internal circulation with investigation notes and rollout risk
+- [templates/public-disclosure-template.md](templates/public-disclosure-template.md) for external publication without private client context
+- [templates/report-template.md](templates/report-template.md) for generic/default findings when no specialized variant is required
+
+Do not write around missing proof or test gaps; state them explicitly.
 
 ## Reference Use
 

@@ -1,0 +1,8 @@
+{
+  "name": "mpc-auditor",
+  "version": "0.1.0",
+  "description": "Audits MPC implementations for garbled-circuit integrity, OT misuse, share validation, Beaver triple authenticity, and transcript/session binding.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

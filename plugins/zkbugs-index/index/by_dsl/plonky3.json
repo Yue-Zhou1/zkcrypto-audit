@@ -166,5 +166,26 @@
     "source": "upstream",
     "upstream": true,
     "added_at": null
+  },
+  {
+    "id": "external/plonky3/zellic/trusted-setup-material-exposed",
+    "dsl": "plonky3",
+    "vuln_type": "trusted_setup_leak",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "ceremony transcript handling leaked toxic-waste-derived material",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "setup/ceremony.rs",
+      "line": 96
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
   }
 ]

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/noir/zellic/arithmetic-wrap-in-field-adapter",
+    "dsl": "noir",
+    "vuln_type": "arithmetic_overflow",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "field adapter cast wrapped out-of-range value before constraint binding",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "adapters/field.nr",
+      "line": 57
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

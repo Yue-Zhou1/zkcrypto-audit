@@ -1,0 +1,82 @@
+[
+  {
+    "id": "external/noir/zellic/arithmetic-wrap-in-field-adapter",
+    "dsl": "noir",
+    "vuln_type": "arithmetic_overflow",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "field adapter cast wrapped out-of-range value before constraint binding",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "adapters/field.nr",
+      "line": 57
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/cairo/zellic/nullifier-not-bound-to-state",
+    "dsl": "cairo",
+    "vuln_type": "missing_nullifier",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "nullifier uniqueness check omitted in state-update path allowing replay",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "contracts/state.cairo",
+      "line": 144
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/plonky3/zellic/trusted-setup-material-exposed",
+    "dsl": "plonky3",
+    "vuln_type": "trusted_setup_leak",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "ceremony transcript handling leaked toxic-waste-derived material",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "setup/ceremony.rs",
+      "line": 96
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  },
+  {
+    "id": "external/risc0/zellic/private-witness-logged",
+    "dsl": "risc0",
+    "vuln_type": "privacy_leak",
+    "impact": "Privacy",
+    "severity": "High",
+    "root_cause": "debug logging emitted private witness fragments during guest execution",
+    "location": {
+      "repo": "https://github.com/zellic/public-reports",
+      "commit": null,
+      "file": "guest/runtime.rs",
+      "line": 211
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "zellic",
+    "added_at": "2026-04-02T00:00:00+00:00"
+  }
+]

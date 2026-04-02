@@ -1,0 +1,23 @@
+[
+  {
+    "id": "external/halo2/audit-contests/range-check-gate-omitted",
+    "dsl": "halo2",
+    "vuln_type": "missing_range_check",
+    "impact": "Soundness",
+    "severity": "High",
+    "root_cause": "range-check gate wiring omitted for a witness lane in custom lookup table",
+    "location": {
+      "repo": "https://github.com/audit-contests/public-findings",
+      "commit": null,
+      "file": "gates/range.rs",
+      "line": 64
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": null,
+    "disclosure_state": "disclosed",
+    "source": "audit-contests",
+    "added_at": "2026-04-02T00:00:00+00:00",
+    "upstream": false
+  }
+]

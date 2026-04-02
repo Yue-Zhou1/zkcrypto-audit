@@ -1,0 +1,8 @@
+{
+  "name": "commitment-scheme-auditor",
+  "version": "0.1.0",
+  "description": "Audits polynomial commitment schemes (KZG, FRI, IPA, Pedersen) for degree bound enforcement, evaluation proof verification, trusted setup provenance, and batch opening soundness.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

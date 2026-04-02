@@ -199,20 +199,34 @@ def load_local_findings(index_dir: pathlib.Path) -> list[dict]:
     return findings
 
 
-def ingest_org_entry(raw: dict, source_file: str) -> dict | None:
-    """Validate and normalize a canonical org finding entry."""
+def ingest_canonical_entry(
+    raw: dict,
+    source_file: str,
+    *,
+    default_source: str,
+    preserve_source: bool = False,
+) -> dict | None:
+    """Validate and normalize a canonical finding entry."""
     required_fields = ["id", "dsl", "vuln_type", "impact", "severity", "root_cause"]
     for field in required_fields:
         if field not in raw:
-            log.warning(f"Skipping org finding '{source_file}': missing '{field}'")
+            log.warning(f"Skipping finding '{source_file}': missing '{field}'")
             return None
 
     entry = dict(raw)
     entry["dsl"] = str(entry["dsl"]).strip().lower()
     entry["vuln_type"] = normalize_vuln_type(str(entry["vuln_type"]))
-    entry["source"] = "org"
+    if preserve_source and entry.get("source"):
+        entry["source"] = str(entry["source"]).strip()
+    else:
+        entry["source"] = default_source
     entry["upstream"] = False
     return entry
+
+
+def ingest_org_entry(raw: dict, source_file: str) -> dict | None:
+    """Validate and normalize a canonical org finding entry."""
+    return ingest_canonical_entry(raw, source_file, default_source="org")
 
 
 def parse_org_repo(repo_path: pathlib.Path) -> list[dict]:
@@ -240,6 +254,70 @@ def parse_org_repo(repo_path: pathlib.Path) -> list[dict]:
                 entry = ingest_org_entry(item, f"{rel}#{i}")
                 if entry:
                     findings.append(entry)
+
+    return findings
+
+
+def resolve_data_path(path_str: str, config_path: pathlib.Path) -> pathlib.Path:
+    """Resolve supplemental file path from absolute or repo-relative config values."""
+    path = pathlib.Path(path_str).expanduser()
+    if path.is_absolute():
+        return path
+
+    zkbugs_root_candidate = (SCRIPT_DIR.parent / path).resolve()
+    if zkbugs_root_candidate.exists():
+        return zkbugs_root_candidate
+
+    return (config_path.parent / path).resolve()
+
+
+def parse_supplemental_files(files: list[str], config_path: pathlib.Path) -> list[dict]:
+    """Load canonical findings from supplemental local JSON files."""
+    findings = []
+    for file_ref in files:
+        resolved = resolve_data_path(file_ref, config_path)
+        if not resolved.exists():
+            log.warning(f"Skipping supplemental file {resolved}: file does not exist")
+            continue
+
+        try:
+            with open(resolved) as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, UnicodeDecodeError) as e:
+            log.warning(f"Skipping supplemental file {resolved}: {e}")
+            continue
+
+        default_source = f"supplemental:{resolved.stem}"
+        rel_name = resolved.name
+
+        if isinstance(data, dict):
+            entry = ingest_canonical_entry(
+                data,
+                rel_name,
+                default_source=default_source,
+                preserve_source=True,
+            )
+            if entry:
+                findings.append(entry)
+        elif isinstance(data, list):
+            for i, item in enumerate(data):
+                if not isinstance(item, dict):
+                    log.warning(
+                        f"Skipping supplemental finding '{rel_name}#{i}': expected object"
+                    )
+                    continue
+                entry = ingest_canonical_entry(
+                    item,
+                    f"{rel_name}#{i}",
+                    default_source=default_source,
+                    preserve_source=True,
+                )
+                if entry:
+                    findings.append(entry)
+        else:
+            log.warning(
+                f"Skipping supplemental file {resolved}: expected object or list, got {type(data).__name__}"
+            )
 
     return findings
 
@@ -404,6 +482,7 @@ def main():
     config = load_config(args.config)
     upstream_cfg = config.get("upstream", {})
     org_cfg = config.get("org", {})
+    supplemental_files = config.get("supplemental_files", [])
     index_dir = pathlib.Path(args.index_dir or config.get("index_dir", DEFAULT_INDEX_DIR))
     if not index_dir.is_absolute():
         index_dir = (SCRIPT_DIR.parent / index_dir).resolve()
@@ -453,13 +532,17 @@ def main():
     elif org_cfg.get("repo_url") or org_cfg.get("local_path"):
         log.warning("Org findings repo configured but unavailable; continuing without it")
 
+    supplemental_findings = parse_supplemental_files(supplemental_files, args.config)
+    if supplemental_findings:
+        log.info(f"Loaded {len(supplemental_findings)} supplemental findings")
+
     # Load local findings (preserved across rebuilds)
     local_findings = load_local_findings(index_dir)
     if local_findings:
         log.info(f"Loaded {len(local_findings)} local/org findings")
 
     # Merge
-    all_bugs = upstream_bugs + org_findings + local_findings
+    all_bugs = upstream_bugs + org_findings + supplemental_findings + local_findings
 
     # Deduplicate by ID (local findings take precedence)
     seen_ids: dict[str, dict] = {}

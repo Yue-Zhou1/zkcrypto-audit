@@ -1,0 +1,8 @@
+{
+  "name": "fiat-shamir-auditor",
+  "version": "0.1.0",
+  "description": "Audits Fiat-Shamir transcript implementations for completeness, domain separation, challenge derivation order, and public input binding across interactive-to-non-interactive proof transforms.",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

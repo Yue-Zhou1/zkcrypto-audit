@@ -1,0 +1,39 @@
+name: zkbugs-index Diff Check
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  diff-upstream:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Diff zkbugs upstream against committed index
+        run: |
+          set -euo pipefail
+          python3 plugins/zkbugs-index/scripts/build_index.py --config plugins/zkbugs-index/config/zkbugs-sources.json --diff-upstream | tee zkbugs-upstream-diff.txt
+
+          if grep -Eq "NEW entries|entries REMOVED" zkbugs-upstream-diff.txt; then
+            echo "ERROR: committed zkbugs index is stale relative to upstream"
+            exit 1
+          fi
+
+      - name: Upload diff artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zkbugs-upstream-diff
+          path: zkbugs-upstream-diff.txt
