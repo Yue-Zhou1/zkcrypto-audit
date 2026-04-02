@@ -146,7 +146,14 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         changelog_path = REPO_ROOT / "CHANGELOG.md"
         self.assertTrue(changelog_path.exists())
         changelog_text = changelog_path.read_text()
-        self.assertIn("## [0.1.0]", changelog_text)
+
+        marketplace = json.loads((REPO_ROOT / ".claude-plugin" / "marketplace.json").read_text())
+        collection_version = marketplace["metadata"]["version"]
+
+        self.assertIn(f"## [{collection_version}]", changelog_text)
+
+        release_text = (REPO_ROOT / ".github" / "workflows" / "release.yml").read_text()
+        self.assertIn(f"Release tag (for example: v{collection_version})", release_text)
 
     def test_root_marketplace_lists_all_repo_plugins(self) -> None:
         marketplace_path = REPO_ROOT / ".claude-plugin" / "marketplace.json"
