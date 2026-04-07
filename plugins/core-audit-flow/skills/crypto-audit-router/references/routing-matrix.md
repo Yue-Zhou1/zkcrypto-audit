@@ -24,6 +24,8 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches Fiat-Shamir transcripts, challenge derivation, transcript completeness, or interactive-to-non-interactive transforms | `fiat-shamir-auditor` |
 | The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
 | The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
+| The codebase uses Ethereum crypto in Rust — secp256k1/ECDSA, keccak/EIP-712, BN254/BLS12-381 precompiles, KZG/EIP-4844, or alloy/ethers-rs API usage | `ethereum-crypto-auditor` |
+| The codebase uses folding schemes or IVC — Nova, HyperNova, ProtoStar, accumulator update, or cycle-of-curves logic | `folding-scheme-auditor` |
 | The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
 | The issue is verified and needs report prose | `crypto-report-writer` |
 | The issue is verified and may need prior-art lookup or index storage | `zkbugs-index` |
