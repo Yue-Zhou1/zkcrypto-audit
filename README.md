@@ -19,7 +19,7 @@ report-ready evidence.
 
 > **Important**
 >
-> This repository is designed to support human-in-the-lopp crypto and security review.
+> This repository is designed to support human-in-the-loop crypto and security review.
 > It should not be treated as an autonomous decision-maker.
 > Raw model output should not be delivered directly to clients or reused as
 > final findings without independent verification.
