@@ -4,7 +4,7 @@
     "name": "Yue Zhou"
   },
   "metadata": {
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Claude Code plugins for staged, evidence-driven audits of zero-knowledge systems and cryptographic protocols.",
     "repository": "https://github.com/Yue-Zhou1/zkcrypto-audit",
     "homepage": "https://github.com/Yue-Zhou1/zkcrypto-audit",
