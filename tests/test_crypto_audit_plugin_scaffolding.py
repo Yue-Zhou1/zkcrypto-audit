@@ -109,6 +109,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             REPO_ROOT / "plugins" / "implementation-safety" / "skills" / "rust-crypto-safety" / "SKILL.md",
             REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-fp-check" / "SKILL.md",
             REPO_ROOT / "plugins" / "evidence-and-tooling" / "skills" / "zkbugs-index" / "SKILL.md",
+            REPO_ROOT / "plugins" / "crypto-primitive-auditors" / "skills" / "ethereum-crypto-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors" / "skills" / "folding-scheme-auditor" / "SKILL.md",
         ]
 
         for skill_path in skills:
@@ -293,6 +295,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             REPO_ROOT / "plugins" / "crypto-primitive-auditors" / "skills" / "ecc-pairing-auditor" / "SKILL.md",
             REPO_ROOT / "plugins" / "protocol-auditors" / "skills" / "dkg-threshold-auditor" / "SKILL.md",
             REPO_ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-report-writer" / "SKILL.md",
+            REPO_ROOT / "plugins" / "crypto-primitive-auditors" / "skills" / "ethereum-crypto-auditor" / "SKILL.md",
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors" / "skills" / "folding-scheme-auditor" / "SKILL.md",
         ]
 
         for skill_path in skills_to_check:
@@ -1356,6 +1360,62 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("tool availability", workflow_text.lower())
         self.assertIn("export", workflow_text.lower())
         self.assertIn("crypto-fp-check", workflow_text.lower())
+
+    def test_new_skills_and_extensions_have_required_files(self) -> None:
+        # Layer 1: zk-circuit-auditor library pattern files
+        zk_refs = (
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors"
+            / "skills" / "zk-circuit-auditor" / "references"
+        )
+        for name in ["halo2-patterns.md", "arkworks-patterns.md", "plonky2-patterns.md"]:
+            self.assertTrue((zk_refs / name).exists(), name)
+        zk_skill_text = (
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors"
+            / "skills" / "zk-circuit-auditor" / "SKILL.md"
+        ).read_text()
+        self.assertIn("If the codebase uses halo2, arkworks, or plonky2/3", zk_skill_text)
+
+        # Layer 2: ethereum-crypto-auditor
+        eth = (
+            REPO_ROOT / "plugins" / "crypto-primitive-auditors"
+            / "skills" / "ethereum-crypto-auditor"
+        )
+        self.assertTrue((eth / "SKILL.md").exists())
+        for ref in ["ethereum-crypto-checklist.md", "finding-patterns.md"]:
+            self.assertTrue((eth / "references" / ref).exists(), ref)
+        for wf in ["secp256k1-ecdsa-review.md", "evm-precompile-review.md"]:
+            self.assertTrue((eth / "workflows" / wf).exists(), wf)
+
+        # Layer 3: folding-scheme-auditor
+        fold = (
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors"
+            / "skills" / "folding-scheme-auditor"
+        )
+        self.assertTrue((fold / "SKILL.md").exists())
+        for ref in ["folding-scheme-checklist.md", "finding-patterns.md"]:
+            self.assertTrue((fold / "references" / ref).exists(), ref)
+        self.assertTrue((fold / "workflows" / "accumulator-review.md").exists())
+
+        # Layer 4: side-channel-auditor zk-prover extension
+        sc_refs = (
+            REPO_ROOT / "plugins" / "implementation-safety"
+            / "skills" / "side-channel-auditor" / "references"
+        )
+        self.assertTrue((sc_refs / "zk-prover-patterns.md").exists())
+        sc_skill_text = (
+            REPO_ROOT / "plugins" / "implementation-safety"
+            / "skills" / "side-channel-auditor" / "SKILL.md"
+        ).read_text()
+        self.assertIn("If the codebase includes a ZK prover", sc_skill_text)
+        self.assertIn("zk-prover-patterns.md", sc_skill_text)
+
+    def test_routing_matrix_covers_new_skills(self) -> None:
+        routing_text = (
+            REPO_ROOT / "plugins" / "core-audit-flow" / "skills"
+            / "crypto-audit-router" / "references" / "routing-matrix.md"
+        ).read_text()
+        self.assertIn("ethereum-crypto-auditor", routing_text)
+        self.assertIn("folding-scheme-auditor", routing_text)
 
 
 if __name__ == "__main__":

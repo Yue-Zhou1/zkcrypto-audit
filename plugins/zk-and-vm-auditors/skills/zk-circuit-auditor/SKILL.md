@@ -41,6 +41,7 @@ Domain auditor for circuit soundness and verifier logic.
 ### Phase 1: Constraint and witness review
 
 - Read `references/zk-checklist.md`
+- If the codebase uses halo2, arkworks, or plonky2/3, read the corresponding library pattern file in `references/` before proceeding
 - Map every assigned witness value to its constraining equations
 - Flag unconstrained signals, non-native arithmetic width gaps, and lookup multiplicity edge cases
 
@@ -73,5 +74,8 @@ Produce a circuit-audit handoff that includes:
 
 - [references/zk-checklist.md](references/zk-checklist.md)
 - [references/finding-patterns.md](references/finding-patterns.md)
+- [references/halo2-patterns.md](references/halo2-patterns.md)
+- [references/arkworks-patterns.md](references/arkworks-patterns.md)
+- [references/plonky2-patterns.md](references/plonky2-patterns.md)
 - [workflows/transcript-review.md](workflows/transcript-review.md)
 - [workflows/setup-review.md](workflows/setup-review.md)

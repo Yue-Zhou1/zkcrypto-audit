@@ -53,6 +53,7 @@ Domain auditor for constant-time assumptions and microarchitectural leakage risk
 ### Phase 3: Pattern hunt
 
 - Read `references/finding-patterns.md`
+- If the codebase includes a ZK prover, read `references/zk-prover-patterns.md` before completing the pattern hunt
 - Prioritize secret-branch, table-index, optimization, and error-latency findings
 
 ### Phase 4: Handoff
@@ -73,4 +74,5 @@ Produce a side-channel-specific handoff that includes:
 
 - [references/side-channel-checklist.md](references/side-channel-checklist.md)
 - [references/finding-patterns.md](references/finding-patterns.md)
+- [references/zk-prover-patterns.md](references/zk-prover-patterns.md)
 - [workflows/constant-time-review.md](workflows/constant-time-review.md)
