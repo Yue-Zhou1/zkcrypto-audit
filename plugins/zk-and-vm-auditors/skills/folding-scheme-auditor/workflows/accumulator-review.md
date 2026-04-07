@@ -3,12 +3,12 @@
 ## Step 1: Identify the folding scheme variant
 
 ```bash
-grep -rn "Nova\|HyperNova\|ProtoStar\|RelaxedR1CS\|LCCCS\|CCCS\|RunningInstance\|Accumulator\|IVC\|folding" \
+grep -rni "Nova\|HyperNova\|ProtoStar\|Sonobe\|RelaxedR1CS\|LCCCS\|CCCS\|RunningInstance\|Accumulator\|IVC\|folding" \
   --include="*.rs" .
 ```
 
 Identify:
-- The folding scheme (Nova, HyperNova, ProtoStar, or custom)
+- The folding scheme (Nova, HyperNova, ProtoStar, Sonobe, or custom)
 - The cycle of curves in use (Pasta: Pallas/Vesta; BN254/Grumpkin; or other)
 - The step circuit type (R1CS, Plonkish, or custom)
 

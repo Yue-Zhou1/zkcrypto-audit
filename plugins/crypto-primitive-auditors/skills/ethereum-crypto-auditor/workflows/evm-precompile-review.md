@@ -7,10 +7,12 @@ grep -rn "ecrecover\|bn128\|alt_bn128\|pairing\|bls12_381\|kzg\|blob\|eip_4844\|
   --include="*.rs" .
 ```
 
-Also search for direct calls at precompile addresses (0x01–0x0a):
+Also search for direct calls at precompile addresses (0x01–0x0a) and common
+Rust calling conventions:
 
 ```bash
-grep -rn "0x0[0-9a-f]\b" --include="*.rs" .
+grep -rniE "\b0x0([1-9]|a)\b" --include="*.rs" .
+grep -rn "Address::from_low_u64_be\|PRECOMPILE\|precompile" --include="*.rs" .
 ```
 
 ## Step 2: BN254 input encoding (EIP-196/197)

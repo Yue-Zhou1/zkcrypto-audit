@@ -1369,6 +1369,11 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         )
         for name in ["halo2-patterns.md", "arkworks-patterns.md", "plonky2-patterns.md"]:
             self.assertTrue((zk_refs / name).exists(), name)
+        zk_skill_text = (
+            REPO_ROOT / "plugins" / "zk-and-vm-auditors"
+            / "skills" / "zk-circuit-auditor" / "SKILL.md"
+        ).read_text()
+        self.assertIn("If the codebase uses halo2, arkworks, or plonky2/3", zk_skill_text)
 
         # Layer 2: ethereum-crypto-auditor
         eth = (
@@ -1397,6 +1402,12 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             / "skills" / "side-channel-auditor" / "references"
         )
         self.assertTrue((sc_refs / "zk-prover-patterns.md").exists())
+        sc_skill_text = (
+            REPO_ROOT / "plugins" / "implementation-safety"
+            / "skills" / "side-channel-auditor" / "SKILL.md"
+        ).read_text()
+        self.assertIn("If the codebase includes a ZK prover", sc_skill_text)
+        self.assertIn("zk-prover-patterns.md", sc_skill_text)
 
     def test_routing_matrix_covers_new_skills(self) -> None:
         routing_text = (
