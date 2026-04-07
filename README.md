@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F29_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F31_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -73,7 +73,7 @@ Use crypto-audit-router to run a staged crypto security review.
 - A guided starting point through `crypto-audit-router`
 - A staged workflow for context, spec review, domain analysis, verification,
   and reporting
-- 7 plugin categories covering 29 skills across ZK systems, cryptographic
+- 7 plugin categories covering 31 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
 For OpenAI Codex, this repository also ships compatibility stubs under

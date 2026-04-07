@@ -714,8 +714,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             self.skipTest("TODO.md is not present in this checkout")
         todo_text = todo_path.read_text()
 
-        self.assertIn("plugins-7_categories%2F29_skills", readme_text)
-        self.assertIn("7 category plugins housing 29 audit skills", claude_text)
+        self.assertIn("plugins-7_categories%2F31_skills", readme_text)
+        self.assertIn("7 category plugins housing 31 audit skills", claude_text)
         self.assertIn("Phase 1: Auditor Expansion", todo_text)
         self.assertIn("- [x] `formal-verification-bridge`", todo_text)
         self.assertIn("- [x] Add report template variants (client/internal/public-disclosure)", todo_text)
