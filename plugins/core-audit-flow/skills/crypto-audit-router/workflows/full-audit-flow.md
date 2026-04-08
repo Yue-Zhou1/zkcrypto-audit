@@ -13,7 +13,12 @@ Maintain a local session state file at every handoff boundary:
 ## Phase 2: Select domain review
 
 - Use `spec-delta-checker` whenever a reference specification or paper governs the code
-- Route to one or more domain skills: `ecc-pairing-auditor`, `zk-circuit-auditor`, `dkg-threshold-auditor`, `rust-crypto-safety`
+- Consult `references/routing-matrix.md` to select the applicable domain skill(s); multiple may apply in parallel
+- **ZK and VM auditors**: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`
+- **Crypto primitive auditors**: `ecc-pairing-auditor`, `commitment-scheme-auditor`, `hash-function-auditor`, `fiat-shamir-auditor`, `merkle-tree-auditor`, `encryption-scheme-auditor`, `ethereum-crypto-auditor`
+- **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`
+- **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`
+- **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`
 - Preserve each domain skill's output contract instead of flattening everything into prose
 - Append open findings and unresolved assumptions to session state after each domain handoff
 
@@ -27,6 +32,7 @@ Maintain a local session state file at every handoff boundary:
 
 - Send verified findings to `crypto-report-writer`
 - Use `zkbugs-index` only for prior-art lookup or for verified, index-worthy findings
+- Optionally trigger `kani-harness-gen`, `fuzz-harness-gen`, or `formal-verification-bridge` for findings that benefit from machine-checked evidence (user-triggered only)
 - Record report/index references in session state and refresh `next_steps`
 
 ## Phase 5: Closeout
