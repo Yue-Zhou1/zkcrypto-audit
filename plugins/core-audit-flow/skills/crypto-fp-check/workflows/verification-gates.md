@@ -29,7 +29,7 @@ If attacker control or reachability is missing, classify as **FALSE POSITIVE**.
 ## Phase 4: Severity gate
 
 - Apply the shared severity framework consistently
-- Critical/High claims require a **runnable test written into the target project's test suite** that executes and produces output confirming the bug
+- Critical/High claims require a **runnable, compilable PoC test written into the target project's test suite** that executes and produces output confirming the bug
 - Medium/Low claims still need code evidence (file:line references); a runnable test is recommended but not required
 
 ### PoC test requirements (Critical/High)
