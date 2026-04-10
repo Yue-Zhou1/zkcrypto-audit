@@ -1,0 +1,239 @@
+{
+  "engagement_id": "cb-audit-2026-04-10",
+  "target": "commit-boost-client",
+  "repo": "https://github.com/Commit-Boost/commit-boost-client",
+  "version": "0.9.3",
+  "date": "2026-04-10",
+  "phase": "intake_complete",
+
+  "trust_boundaries": [
+    {
+      "id": "TB-1",
+      "location": "crates/common/src/signer/loader.rs:load_from_prysm_format",
+      "description": "PBKDF2-derived 32-byte key; only lower 16 bytes used for AES-128-CTR. Key is attacker-influenced via password file.",
+      "dimension_notes": "decryption_key[..16] used for key, decryption_key[16..] silently discarded — only 128 bits of entropy consumed from a 256-bit derivation"
+    },
+    {
+      "id": "TB-2",
+      "location": "crates/common/src/signer/store.rs:load_proxies (ERC2335 branch)",
+      "description": "Delegation signature loaded from .sig file on disk, deserialized as BlsSignature — NOT re-validated against the delegator public key during load.",
+      "dimension_notes": "trust_level: unverified → used as validated. If .sig file is tampered, the proxy signer operates with an invalid delegation."
+    },
+    {
+      "id": "TB-3",
+      "location": "crates/common/src/utils.rs:decode_jwt / validate_jwt",
+      "description": "decode_jwt extracts module_id with signature validation explicitly disabled (insecure_disable_signature_validation). A second call to validate_jwt then checks the signature. Race or call-order confusion could allow using a decoded-but-unvalidated module_id.",
+      "dimension_notes": "Separation of decode and validate is a design-level coupling risk; callers must always call both in correct order."
+    },
+    {
+      "id": "TB-4",
+      "location": "crates/common/src/signer/schemes/bls.rs:BlsSigner::secret / crates/common/src/signer/schemes/ecdsa.rs:EcdsaSigner::secret",
+      "description": "Raw secret key bytes returned as Vec<u8> / [u8;32] with no zeroize-on-drop. Used in ProxyStore::store_proxy_bls/ecdsa for key serialization to disk.",
+      "dimension_notes": "Key material persists in heap memory after use."
+    },
+    {
+      "id": "TB-5",
+      "location": "crates/common/src/signature.rs:compute_domain",
+      "description": "GENESIS_VALIDATORS_ROOT is hardcoded to [0;32]. This is intentional for builder domains but must also be correct for COMMIT_BOOST_DOMAIN usage.",
+      "dimension_notes": "Protocol context dimension: domain computed with zero GVR — cross-chain replay possible if domain separation relies solely on fork version."
+    },
+    {
+      "id": "TB-6",
+      "location": "crates/signer/src/service.rs:handle_request_signature",
+      "description": "No per-module restriction on which consensus pubkeys a module can request signatures for. Any module with a valid JWT can sign with any consensus key.",
+      "dimension_notes": "Authorization scope: module_id is verified but not checked against the requested pubkey's allowed signers."
+    },
+    {
+      "id": "TB-7",
+      "location": "crates/common/src/signer/store.rs:ProxyStore::File",
+      "description": "Plaintext proxy store writes raw secret bytes to disk as JSON. Explicitly marked 'do not use in prod' but present in codebase.",
+      "dimension_notes": "Production guard is documentation only, not enforced in code."
+    }
+  ],
+
+  "critical_paths": [
+    {
+      "id": "CP-1",
+      "name": "BLS signing pipeline (consensus)",
+      "entry": "handle_request_signature → LocalSigningManager::sign_consensus → ConsensusSigner::sign → sign_commit_boost_root → compute_domain + compute_signing_root → BlsSecretKey::sign",
+      "risk": "HIGH — domain construction and signing root are the last line of defense against cross-protocol replay"
+    },
+    {
+      "id": "CP-2",
+      "name": "Proxy delegation creation and validation",
+      "entry": "create_proxy_bls/ecdsa → ProxyDelegation.tree_hash_root → sign_consensus → SignedProxyDelegation",
+      "risk": "HIGH — delegation binds proxy key to consensus key; if domain or message encoding is wrong, delegations are forgeable"
+    },
+    {
+      "id": "CP-3",
+      "name": "ERC-2335 proxy key load path",
+      "entry": "ProxyStore::load_proxies (ERC2335) → load_bls_signer / load_ecdsa_signer → BlsProxySigner construction WITHOUT re-validating delegation signature",
+      "risk": "HIGH — .sig file tampering goes undetected"
+    },
+    {
+      "id": "CP-4",
+      "name": "Prysm keystore decryption",
+      "entry": "load_from_prysm_format → pbkdf2 → AES-128-CTR (lower 16 bytes of 32-byte key) → JSON parse → ConsensusSigner",
+      "risk": "MEDIUM — key derivation and IV handling need review; only 128 bits used from 256-bit PBKDF2 output"
+    },
+    {
+      "id": "CP-5",
+      "name": "JWT authentication flow",
+      "entry": "jwt_auth middleware → decode_jwt (no sig check) → validate_jwt (sig check) → module_id inserted into request extensions",
+      "risk": "MEDIUM — two-step auth with insecure decode-first is fragile; must verify no code path uses module_id between decode and validate"
+    },
+    {
+      "id": "CP-6",
+      "name": "ECDSA proxy signing",
+      "entry": "sign_proxy_ecdsa → EcdsaSigner::sign → compute_domain(COMMIT_BOOST_DOMAIN) → sign_hash_sync",
+      "risk": "MEDIUM — secp256k1 signing with COMMIT_BOOST_DOMAIN; verify EIP-712 / replay protection"
+    }
+  ],
+
+  "dimension_map_anomalies": [
+    {
+      "id": "DIM-1",
+      "location": "TB-2 / CP-3",
+      "description": "BlsSignature loaded from .sig file has trust_level=unverified but is used as validated. No call to SignedProxyDelegation::validate() in ERC2335 load path.",
+      "severity_hint": "HIGH"
+    },
+    {
+      "id": "DIM-2",
+      "location": "TB-1 / CP-4",
+      "description": "PBKDF2 produces 32 bytes; only decryption_key[..16] fed to AES-128-CTR. This is correct (AES-128 takes 16-byte key) but discards the upper half silently — worth confirming this matches the Prysm spec and is not a truncation bug.",
+      "severity_hint": "MEDIUM"
+    },
+    {
+      "id": "DIM-3",
+      "location": "TB-5 / CP-1",
+      "description": "GENESIS_VALIDATORS_ROOT = [0;32]. compute_domain uses this for all domains. Any chain where GVR differs means COMMIT_BOOST_DOMAIN is the same across all chains that share a fork_version, enabling cross-chain replay of signed proxy delegations.",
+      "severity_hint": "MEDIUM"
+    },
+    {
+      "id": "DIM-4",
+      "location": "TB-6",
+      "description": "SignRequest::Consensus carries only a pubkey + object_root. The signer service verifies the JWT module_id but does not check that module_id is authorized to sign with that consensus pubkey. Any module can request a consensus signature for any key.",
+      "severity_hint": "HIGH"
+    },
+    {
+      "id": "DIM-5",
+      "location": "TB-4",
+      "description": "BlsSigner::secret() returns [u8;32] and EcdsaSigner::secret() returns Vec<u8>. Neither type implements zeroize::Zeroize or Drop with zeroize. Key bytes may linger in heap/stack after use.",
+      "severity_hint": "MEDIUM"
+    }
+  ],
+
+  "threat_model_notes": [
+    "Replay prevention: SignedProxyDelegation binds delegator+proxy pubkeys and uses COMMIT_BOOST_DOMAIN. However GVR=0 means the domain is identical across all Ethereum networks sharing the same fork_version byte, enabling cross-network replay of signed delegations.",
+    "Key authentication chain: consensus_signers map is populated from SignerLoader (file / validators_dir). No chain-of-trust verification at signer service startup — keys are trusted once loaded. Delegation signatures are verified at creation but NOT at load time for ERC2335.",
+    "CSPRNG: BlsSigner::new_random() → BlsSecretKey::random(); EcdsaSigner::new_random() → PrivateKeySigner::random(). Both use OS-backed RNG via rand 0.9 with os_rng feature. Acceptable.",
+    "Downgrade resistance: No protocol version negotiation in the signing API. Not applicable here.",
+    "Authorization scope: JWT identifies the module but does not restrict which keys the module can use — all consensus keys are available to any authenticated module."
+  ],
+
+  "open_findings": [],
+
+  "verified_findings": [
+    {
+      "id": "F-01",
+      "title": "ERC-2335 proxy delegation not re-validated on load",
+      "severity": "Medium",
+      "location": "crates/common/src/signer/store.rs:354-369",
+      "description": "BlsProxySigner is constructed with a delegation loaded from .sig file without calling validate(). A tampered .sig file installs an invalid delegation silently.",
+      "verdict": "TRUE POSITIVE",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-01"
+    },
+    {
+      "id": "F-02",
+      "title": "Any authenticated module can request consensus key signatures",
+      "severity": "High",
+      "location": "crates/signer/src/service.rs:278-281",
+      "description": "handle_request_signature dispatches SignRequest::Consensus without checking that the requesting module_id is authorized for the requested pubkey. module_id is available in the Extension but never passed to sign_consensus.",
+      "verdict": "TRUE POSITIVE",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-02"
+    },
+    {
+      "id": "F-03",
+      "title": "GVR=0 enables cross-chain replay for custom chain deployments",
+      "severity": "Medium (custom chains only; named chains unaffected)",
+      "location": "crates/common/src/constants.rs:2, crates/common/src/signature.rs:40",
+      "description": "GENESIS_VALIDATORS_ROOT=[0;32] used in all domain computations. Named chains safe (distinct fork_versions). Two Chain::Custom deployments sharing the same fork_version produce identical COMMIT_BOOST_DOMAINs, enabling cross-chain replay.",
+      "verdict": "TRUE POSITIVE (scoped)",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-03"
+    },
+    {
+      "id": "F-04",
+      "title": "BLS and ECDSA secret bytes not zeroized after use",
+      "severity": "Medium",
+      "location": "crates/common/src/signer/schemes/bls.rs:31-35, crates/common/src/signer/schemes/ecdsa.rs:80-83, crates/common/src/signer/store.rs:88,103,125,140",
+      "description": "secret() returns raw key bytes with no ZeroizeOnDrop. Bytes/Vec locals in store.rs not zeroized after serialization. Both signer types derive Clone without zeroize.",
+      "verdict": "TRUE POSITIVE",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-04"
+    },
+    {
+      "id": "F-05",
+      "title": "Prysm keystore decryption lacks MAC/checksum verification",
+      "severity": "High",
+      "location": "crates/common/src/signer/loader.rs:232-279, crates/common/src/signer/types.rs:46-125",
+      "description": "PrysmKeystore struct omits the crypto.checksum field. AES-128-CTR decryption proceeds without any integrity check. Attacker-crafted ciphertext in the keystore file can substitute arbitrary BLS keys as consensus signers.",
+      "verdict": "TRUE POSITIVE",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-05"
+    },
+    {
+      "id": "F-06",
+      "title": "Prysm PBKDF2 iteration count attacker-controllable, no minimum enforced",
+      "severity": "Medium",
+      "location": "crates/common/src/signer/loader.rs:254-257",
+      "description": "keystore.c read from attacker-controllable JSON file with no bounds check. c=1 degrades KDF to single HMAC call; c=u32::MAX causes DoS hang.",
+      "verdict": "TRUE POSITIVE",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-06"
+    },
+    {
+      "id": "F-07",
+      "title": "verify_ecdsa_signature does not reject zero address (latent)",
+      "severity": "Low",
+      "location": "crates/common/src/signer/schemes/ecdsa.rs:109-117",
+      "description": "No check that recovered != Address::ZERO. Currently only used in tests; latent risk for future callers.",
+      "verdict": "TRUE POSITIVE (latent)",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#F-07"
+    },
+    {
+      "id": "DEP-01",
+      "title": "blstrs_plus is an untagged internal fork of blstrs",
+      "severity": "Informational",
+      "location": "Cargo.toml:90 (commit c4ea6b21)",
+      "description": "Fork at git commit with no version tag; divergence from upstream blstrs 0.7.1 unaudited. No exploitable bug found in current usage.",
+      "verdict": "TRUE POSITIVE (informational)",
+      "report_ref": "zk-findings/sessions/cb-audit-2026-04-10-report.md#DEP-01"
+    },
+    {
+      "id": "NF-01",
+      "title": "JWT two-step auth (decode before validate) — FALSE POSITIVE",
+      "severity": "N/A",
+      "location": "crates/signer/src/service.rs:206-228",
+      "description": "check_jwt_auth correctly sequences decode→lookup→validate. module_id not used for any security decision before validation. Standard multi-key JWT pattern.",
+      "verdict": "FALSE POSITIVE"
+    },
+    {
+      "id": "NF-02",
+      "title": "Prysm AES-128-CTR key truncation (32→16 bytes) — FALSE POSITIVE",
+      "severity": "N/A",
+      "location": "crates/common/src/signer/loader.rs:261",
+      "description": "AES-128-CTR uses first 16 bytes of 32-byte PBKDF2 output. This is correct per EIP-2335 spec for AES-128.",
+      "verdict": "FALSE POSITIVE"
+    }
+  ],
+
+  "phase": "complete",
+
+  "next_steps": [
+    "Remediate F-02 (HIGH): Add module authorization check before consensus key signing",
+    "Remediate F-05 (HIGH): Add checksum/MAC verification to Prysm keystore load path",
+    "Remediate F-01 (MEDIUM): Call SignedProxyDelegation::validate() in ERC-2335 load path",
+    "Remediate F-03 (MEDIUM): Add genesis_validators_root to Chain::Custom for domain separation",
+    "Remediate F-04 (MEDIUM): Wrap secret() returns in Zeroizing<>; add ZeroizeOnDrop to signer types",
+    "Remediate F-06 (MEDIUM): Add minimum/maximum bounds check on Prysm PBKDF2 c parameter",
+    "Remediate F-07 (LOW): Add zero-address guard in verify_ecdsa_signature",
+    "Address DEP-01 (INFO): Tag blstrs_plus fork; track upstream security patches"
+  ]
+}

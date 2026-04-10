@@ -29,15 +29,33 @@ If attacker control or reachability is missing, classify as **FALSE POSITIVE**.
 ## Phase 4: Severity gate
 
 - Apply the shared severity framework consistently
-- Critical/High claims require a **compilable PoC** or an equivalently strong executable proof
-- Medium/Low claims still need code evidence, but may not need a full PoC if exploitability is indirect
+- Critical/High claims require a **runnable test written into the target project's test suite** that executes and produces output confirming the bug
+- Medium/Low claims still need code evidence (file:line references); a runnable test is recommended but not required
 
-If the claim cannot satisfy the Critical/High PoC requirement, either lower the
-severity or hold the finding as unverified.
+### PoC test requirements (Critical/High)
+
+A valid PoC is a test function that:
+1. Is written in the target project's native test framework (`#[test]`/`#[tokio::test]` for Rust, `pytest` for Python, etc.)
+2. Lives inside the affected crate/module, not in a standalone script
+3. **Asserts the bug is present** — passes while the vulnerability exists, fails after a correct fix
+4. Produces actual test runner output (e.g., `test poc_f02_... ok`) — not just a source file
+
+Name the function `poc_<finding-id>_<short-description>` so it is filterable.
+
+### If the target cannot compile in the audit environment
+
+Document the exact build blocker. Then choose one:
+- **Option A:** Provide a reduced reproducer in a sibling crate that can compile and run
+- **Option B:** Provide exhaustive structural evidence (every referenced symbol verified via `Grep`/`Read`) and mark severity as `pending_poc` until the client runs the test
+
+Do not claim High/Critical with only "PoC written but not executed." That is still a hypothesis.
+
+If the claim cannot satisfy the PoC requirement through either option, lower the severity
+ceiling to Medium or hold the finding as unverified.
 
 ## Final Verdict
 
-- **TRUE POSITIVE** — trigger path, impact, and severity are all supported by evidence
+- **TRUE POSITIVE** — trigger path, impact, severity, and PoC artifact are all supported by evidence
 - **FALSE POSITIVE** — one or more required gates failed
 
-Record which gate failed. "Does not feel real" is not a verdict.
+Record which gate failed. "Does not feel real" is not a verdict. "PoC forthcoming" is not a verdict.

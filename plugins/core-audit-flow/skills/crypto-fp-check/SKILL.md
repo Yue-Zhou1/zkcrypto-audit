@@ -36,6 +36,8 @@ Do not report a finding because it looks dangerous. Verify it.
 | "Prior art proves this is a real bug here too" | Prior art supports plausibility, not target-specific exploitability |
 | "Critical/High is obvious; we can add a PoC later" | Critical/High without executable proof is still a hypothesis |
 | "The implementation is weird, so the finding must be real" | Weird code and exploitable code are not the same thing |
+| "The code evidence is self-evident for High/Critical" | Self-evident to the auditor is not a PoC. Write and run the test. |
+| "I'll note PoC status in the report instead of writing it" | PoC status in prose is not a PoC. The test file must exist and execute. |
 
 ## Workflow
 
@@ -50,12 +52,21 @@ PoC gate for Critical/High claims.
 
 ## Output Contract
 
-Produce a verification verdict that includes:
+The final deliverable for each TRUE POSITIVE finding is **two artifacts**, not one:
 
+**1. Verification verdict** (inline):
 - `TRUE POSITIVE` or `FALSE POSITIVE`
 - The exact gate that failed or the evidence that satisfied each gate
-- The justified severity ceiling, including PoC status for Critical/High
+- The justified severity ceiling
 - The correct next route: report, index, more domain review, or discard
+
+**2. PoC test** — mandatory for High/Critical, recommended for Medium/Low:
+- File path where the test was written into the target project's test suite
+- Test function name, prefixed `poc_<finding-id>_` (e.g., `poc_f02_cross_module_signing`)
+- Execution result: the actual `cargo test` / `pytest` / equivalent output line, or an explicit statement of the build blocker with fallback structural evidence
+- A test that asserts the bug is present (passes while vulnerable, fails after fix)
+
+**The report is incomplete until both artifacts exist for every High/Critical finding.**
 
 ## Reference Index
 
