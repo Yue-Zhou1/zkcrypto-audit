@@ -1,0 +1,7 @@
+display_name: noir-auditor
+short_description: Audit Noir circuits for unconstrained function boundary failures,
+  oracle validation gaps, Brillig/ACIR consistency issues, and witness-generation
+  soundness bugs.
+default_prompt: Use noir-auditor for this task. Audit Noir circuits for unconstrained
+  function boundary failures, oracle validation gaps, Brillig/ACIR consistency issues,
+  and witness-generation soundness bugs.

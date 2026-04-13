@@ -1,0 +1,7 @@
+display_name: side-channel-auditor
+short_description: Audit timing, cache, memory-access, and power-analysis leakage
+  patterns, including compiler and feature-flag regressions that break constant-time
+  assumptions.
+default_prompt: Use side-channel-auditor for this task. Audit timing, cache, memory-access,
+  and power-analysis leakage patterns, including compiler and feature-flag regressions
+  that break constant-time assumptions.

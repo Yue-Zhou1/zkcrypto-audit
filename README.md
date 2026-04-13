@@ -37,6 +37,26 @@ and easier to verify.
 
 ## Installation
 
+### Quick Start in Codex
+
+1. Keep this repository checked out locally.
+2. Verify Codex orchestration metadata and generated stubs:
+
+```bash
+python3 scripts/sync_codex_stubs.py --check
+```
+
+3. Ensure your Codex environment can read:
+   - `.agents/plugins/marketplace.json` (plugin catalog)
+   - `plugins/*/.codex-plugin/plugin.json` (category plugin manifests)
+   - `.codex/skills/*/SKILL.md` (compatibility invocation paths)
+
+4. Start the audit from the router:
+
+```text
+Use crypto-audit-router to run a staged crypto security review.
+```
+
 ### Quick Start in Claude Code
 
 1. Add the marketplace:
@@ -76,9 +96,9 @@ Use crypto-audit-router to run a staged crypto security review.
 - 7 plugin categories covering 31 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
-For OpenAI Codex, this repository also ships compatibility stubs under
-`.codex/skills/`. Claude Code is the primary setup path described in this
-README.
+For OpenAI Codex, this repository ships category plugin manifests, a Codex
+marketplace catalog, and compatibility stubs under `.codex/skills/`.
+Claude Code remains fully supported through `.claude-plugin` packaging.
 
 ## How It Works
 
@@ -279,8 +299,30 @@ Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
 
 - Category plugins live under `plugins/`
 - The root Claude Code marketplace catalog lives at `.claude-plugin/marketplace.json`
-- OpenAI Codex compatibility stubs live under `.codex/skills/`
+- Codex plugin manifests live at `plugins/*/.codex-plugin/plugin.json`
+- Codex marketplace catalog lives at `.agents/plugins/marketplace.json`
+- Codex marketplace schema lives at `.agents/plugins/marketplace.schema.json`
+- Codex routing metadata lives at `plugins/_meta/codex-skill-registry.yaml` and `plugins/_meta/router-matrix.yaml`
+- OpenAI Codex compatibility stubs live under `.codex/skills/` and are generated (not hand-edited)
+- Codex per-skill discoverability metadata lives at `plugins/*/skills/*/agents/openai.yaml`
 - `zk-findings/` is the local workspace for engagement-specific notes and findings
+
+## Codex Orchestration Contract
+
+- `plugins/*/skills/*/SKILL.md` is the source of truth for skill behavior.
+- `crypto-audit-router` remains the router-first orchestrator for staged flow.
+- `trigger_mode` policy is enforced from `plugins/_meta/codex-skill-registry.yaml`.
+  Skills marked `user_triggered_only` are excluded from router auto-selection.
+- `plugins/*/skills/*/agents/openai.yaml` controls Codex UI/discovery only.
+- `.agents/plugins/marketplace.json` is validated by `.agents/plugins/marketplace.schema.json`.
+- See `docs/codex/architecture.md` for packaging ownership and migration policy.
+
+## Migration Notes
+
+- The repository moved from a flat Codex stub model to package+registry orchestration.
+- Canonical skill sources remain `plugins/*/skills/*/SKILL.md`; routing policy now lives in `plugins/_meta/*.yaml`.
+- `.codex/skills/*` stubs remain valid Codex invocation paths for backward compatibility.
+- Do not edit `.codex/skills/*` directly, regenerate via `scripts/sync_codex_stubs.py`.
 
 ## Advanced Note
 

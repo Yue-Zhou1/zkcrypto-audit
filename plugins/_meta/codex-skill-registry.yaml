@@ -1,0 +1,184 @@
+schema_version: 1
+schema_locked: true
+schema:
+  required_fields:
+    - skill_name
+    - plugin_category
+    - canonical_path
+    - phase
+    - trigger_mode
+  phase_enum:
+    - intake
+    - domain
+    - verification
+    - reporting
+    - indexing
+  trigger_mode_enum:
+    - router_auto
+    - user_triggered_only
+storage_semantics:
+  trigger_mode_source_of_truth: plugins/_meta/codex-skill-registry.yaml
+  openai_yaml_role: discoverability_and_ui_only
+  codex_plugin_manifest_role: packaging_metadata_only
+skills:
+  - skill_name: audit-common
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/audit-common/SKILL.md
+    phase: intake
+    trigger_mode: user_triggered_only
+  - skill_name: crypto-audit-router
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/crypto-audit-router/SKILL.md
+    phase: intake
+    trigger_mode: user_triggered_only
+  - skill_name: crypto-audit-context
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/crypto-audit-context/SKILL.md
+    phase: intake
+    trigger_mode: router_auto
+  - skill_name: spec-delta-checker
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/spec-delta-checker/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: crypto-fp-check
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/crypto-fp-check/SKILL.md
+    phase: verification
+    trigger_mode: router_auto
+  - skill_name: crypto-report-writer
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/crypto-report-writer/SKILL.md
+    phase: reporting
+    trigger_mode: router_auto
+
+  - skill_name: zk-circuit-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/zk-circuit-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: cairo-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/cairo-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: noir-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/noir-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: zkvm-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/zkvm-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: gnark-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/gnark-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: folding-scheme-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/folding-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+
+  - skill_name: ecc-pairing-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/ecc-pairing-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: commitment-scheme-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/commitment-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: hash-function-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/hash-function-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: fiat-shamir-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/fiat-shamir-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: merkle-tree-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/merkle-tree-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: encryption-scheme-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/encryption-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: ethereum-crypto-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/ethereum-crypto-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+
+  - skill_name: dkg-threshold-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/dkg-threshold-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: mpc-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/mpc-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: vdf-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/vdf-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+
+  - skill_name: lattice-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/lattice-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: fhe-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/fhe-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+
+  - skill_name: rust-crypto-safety
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/rust-crypto-safety/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: side-channel-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/side-channel-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: dependency-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/dependency-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+
+  - skill_name: zkbugs-index
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/zkbugs-index/SKILL.md
+    phase: indexing
+    trigger_mode: router_auto
+  - skill_name: kani-harness-gen
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/kani-harness-gen/SKILL.md
+    phase: verification
+    trigger_mode: user_triggered_only
+  - skill_name: fuzz-harness-gen
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/fuzz-harness-gen/SKILL.md
+    phase: verification
+    trigger_mode: user_triggered_only
+  - skill_name: formal-verification-bridge
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/formal-verification-bridge/SKILL.md
+    phase: verification
+    trigger_mode: user_triggered_only

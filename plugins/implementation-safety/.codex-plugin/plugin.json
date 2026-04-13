@@ -1,0 +1,9 @@
+{
+  "name": "implementation-safety",
+  "version": "0.1.0",
+  "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, and dependency hygiene.",
+  "category": "implementation-safety",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

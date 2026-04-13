@@ -1,0 +1,7 @@
+display_name: fuzz-harness-gen
+short_description: Generate cargo-fuzz targets for Rust cryptographic code. User-triggered
+  only and never auto-invoked by the audit flow. Produces crash and edge-case evidence
+  for crypto-fp-check.
+default_prompt: Use fuzz-harness-gen for this task. Generate cargo-fuzz targets for
+  Rust cryptographic code. User-triggered only and never auto-invoked by the audit
+  flow. Produces crash and edge-case evidence for crypto-fp-check.

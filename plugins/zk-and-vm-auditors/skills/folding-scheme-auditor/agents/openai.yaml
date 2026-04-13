@@ -1,0 +1,9 @@
+display_name: folding-scheme-auditor
+short_description: Audit folding scheme and IVC implementations for accumulator soundness,
+  step circuit binding, cycle-of-curves correctness, and running instance completeness.
+  Use when reviewing Nova, HyperNova, ProtoStar, or custom folding-based proof systems
+  in Rust.
+default_prompt: Use folding-scheme-auditor for this task. Audit folding scheme and
+  IVC implementations for accumulator soundness, step circuit binding, cycle-of-curves
+  correctness, and running instance completeness. Use when reviewing Nova, HyperNova,
+  ProtoStar, or custom folding-based proof systems in Rust.

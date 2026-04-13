@@ -1,0 +1,13 @@
+display_name: zkbugs-index
+short_description: "Queryable index of real-world ZKP vulnerabilities. Use when a\
+  \ Phase 2 audit skill identifies a suspicious pattern and needs to check whether\
+  \ a similar bug has been documented before \u2014 or when a confirmed finding needs\
+  \ to be recorded. Covers circom, noir, halo2, cairo, zkVM, and custom DSLs. Backed\
+  \ by upstream community corpus (zksecurity/zkbugs) and configurable organization\
+  \ findings repo."
+default_prompt: "Use zkbugs-index for this task. Queryable index of real-world ZKP\
+  \ vulnerabilities. Use when a Phase 2 audit skill identifies a suspicious pattern\
+  \ and needs to check whether a similar bug has been documented before \u2014 or\
+  \ when a confirmed finding needs to be recorded. Covers circom, noir, halo2, cairo,\
+  \ zkVM, and custom DSLs. Backed by upstream community corpus (zksecurity/zkbugs)\
+  \ and configurable organization findings repo."

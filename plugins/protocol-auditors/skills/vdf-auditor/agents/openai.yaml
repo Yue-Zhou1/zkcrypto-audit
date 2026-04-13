@@ -1,0 +1,6 @@
+display_name: vdf-auditor
+short_description: Audit VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak
+  verifier soundness, challenge derivation integrity, and modulus/group setup risks.
+default_prompt: Use vdf-auditor for this task. Audit VDF implementations for sequentiality
+  assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation integrity,
+  and modulus/group setup risks.

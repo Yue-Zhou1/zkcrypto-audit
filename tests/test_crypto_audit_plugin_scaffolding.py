@@ -15,7 +15,11 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
 
         hook_text = hook_path.read_text()
         self.assertIn("python3 -m unittest discover -s tests -q", hook_text)
+        self.assertIn("python3 scripts/sync_codex_stubs.py --check", hook_text)
         self.assertIn("python3 -m py_compile", hook_text)
+        self.assertIn("scripts/sync_codex_stubs.py", hook_text)
+        self.assertIn("tests/test_codex_orchestration_scaffolding.py", hook_text)
+        self.assertIn("tests/test_sync_codex_stubs.py", hook_text)
         self.assertIn(".claude/settings.local.json", hook_text)
 
     def test_repo_has_ci_and_release_workflows(self) -> None:
@@ -33,7 +37,11 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("3.11", ci_text)
         self.assertIn("3.12", ci_text)
         self.assertIn("python3 -m unittest discover -s tests -q", ci_text)
+        self.assertIn("python3 scripts/sync_codex_stubs.py --check", ci_text)
         self.assertIn("python3 -m py_compile", ci_text)
+        self.assertIn("scripts/sync_codex_stubs.py", ci_text)
+        self.assertIn("tests/test_codex_orchestration_scaffolding.py", ci_text)
+        self.assertIn("tests/test_sync_codex_stubs.py", ci_text)
         self.assertIn(".claude/settings.local.json", ci_text)
 
         zkbugs_rebuild_text = zkbugs_rebuild_path.read_text()
@@ -139,6 +147,18 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         readme_text = (REPO_ROOT / "README.md").read_text()
         self.assertIn(".codex/skills/", readme_text)
         self.assertIn("zk-findings/", readme_text)
+
+    def test_codex_architecture_docs_mark_generated_stub_contract(self) -> None:
+        architecture_text = (REPO_ROOT / "docs" / "codex" / "architecture.md").read_text()
+        self.assertIn("Generated compatibility layer", architecture_text)
+        self.assertIn("never hand-edited", architecture_text)
+        self.assertIn("plugins/_meta/codex-skill-registry.yaml", architecture_text)
+
+        readme_text = (REPO_ROOT / "README.md").read_text()
+        self.assertIn("generated (not hand-edited)", readme_text)
+
+        claude_text = (REPO_ROOT / "CLAUDE.md").read_text()
+        self.assertIn("python3 scripts/sync_codex_stubs.py --check", claude_text)
 
     def test_readme_keeps_contributing_and_acknowledgments(self) -> None:
         readme_text = (REPO_ROOT / "README.md").read_text()
@@ -322,6 +342,8 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         text = claude_md.read_text()
         self.assertIn("zkcrypto-audit", text)
         self.assertIn("python3 -m unittest", text)
+        self.assertIn("scripts/sync_codex_stubs.py", text)
+        self.assertIn("tests/test_codex_orchestration_scaffolding.py", text)
 
     def test_zkbugs_scripts_use_shared_taxonomy_and_repo_helper(self) -> None:
         shared_path = REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "_shared.py"

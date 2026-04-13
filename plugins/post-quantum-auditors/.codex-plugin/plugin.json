@@ -1,0 +1,9 @@
+{
+  "name": "post-quantum-auditors",
+  "version": "0.1.0",
+  "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE) and fully homomorphic encryption (FHE).",
+  "category": "post-quantum-auditors",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

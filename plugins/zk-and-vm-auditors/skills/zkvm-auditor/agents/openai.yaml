@@ -1,0 +1,7 @@
+display_name: zkvm-auditor
+short_description: Audit zkVM guest programs and proof systems for memory consistency,
+  continuation proof soundness, precompile safety, and guest-host boundary violations
+  across SP1, RISC Zero, and Valida.
+default_prompt: Use zkvm-auditor for this task. Audit zkVM guest programs and proof
+  systems for memory consistency, continuation proof soundness, precompile safety,
+  and guest-host boundary violations across SP1, RISC Zero, and Valida.

@@ -1,0 +1,6 @@
+display_name: dependency-auditor
+short_description: Audit cryptographic dependency sets for vulnerable versions, security-significant
+  feature flags, advisory coverage, transitive risk, and stale fork provenance.
+default_prompt: Use dependency-auditor for this task. Audit cryptographic dependency
+  sets for vulnerable versions, security-significant feature flags, advisory coverage,
+  transitive risk, and stale fork provenance.

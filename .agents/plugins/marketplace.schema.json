@@ -1,0 +1,298 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "./marketplace.schema.json",
+  "title": "zkcrypto-audit Codex Marketplace",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "version",
+    "plugins"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "const": "./marketplace.schema.json"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "plugins": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/coreAuditFlow"
+        },
+        {
+          "$ref": "#/$defs/zkAndVmAuditors"
+        },
+        {
+          "$ref": "#/$defs/cryptoPrimitiveAuditors"
+        },
+        {
+          "$ref": "#/$defs/protocolAuditors"
+        },
+        {
+          "$ref": "#/$defs/postQuantumAuditors"
+        },
+        {
+          "$ref": "#/$defs/implementationSafety"
+        },
+        {
+          "$ref": "#/$defs/evidenceAndTooling"
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "routing",
+        "user_triggered_only_enforced"
+      ],
+      "properties": {
+        "routing": {
+          "type": "string",
+          "const": "router-first"
+        },
+        "user_triggered_only_enforced": {
+          "type": "boolean",
+          "const": true
+        }
+      }
+    },
+    "author": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "pluginEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "version",
+        "description",
+        "category",
+        "policy",
+        "author",
+        "source",
+        "manifest"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "policy": {
+          "$ref": "#/$defs/policy"
+        },
+        "author": {
+          "$ref": "#/$defs/author"
+        },
+        "source": {
+          "type": "string",
+          "pattern": "^\\./plugins/[^/]+$"
+        },
+        "manifest": {
+          "type": "string",
+          "pattern": "^\\./plugins/[^/]+/\\.codex-plugin/plugin\\.json$"
+        }
+      }
+    },
+    "coreAuditFlow": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "core-audit-flow"
+            },
+            "category": {
+              "const": "core-audit-flow"
+            },
+            "source": {
+              "const": "./plugins/core-audit-flow"
+            },
+            "manifest": {
+              "const": "./plugins/core-audit-flow/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "zkAndVmAuditors": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "zk-and-vm-auditors"
+            },
+            "category": {
+              "const": "zk-and-vm-auditors"
+            },
+            "source": {
+              "const": "./plugins/zk-and-vm-auditors"
+            },
+            "manifest": {
+              "const": "./plugins/zk-and-vm-auditors/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "cryptoPrimitiveAuditors": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "crypto-primitive-auditors"
+            },
+            "category": {
+              "const": "crypto-primitive-auditors"
+            },
+            "source": {
+              "const": "./plugins/crypto-primitive-auditors"
+            },
+            "manifest": {
+              "const": "./plugins/crypto-primitive-auditors/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "protocolAuditors": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "protocol-auditors"
+            },
+            "category": {
+              "const": "protocol-auditors"
+            },
+            "source": {
+              "const": "./plugins/protocol-auditors"
+            },
+            "manifest": {
+              "const": "./plugins/protocol-auditors/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "postQuantumAuditors": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "post-quantum-auditors"
+            },
+            "category": {
+              "const": "post-quantum-auditors"
+            },
+            "source": {
+              "const": "./plugins/post-quantum-auditors"
+            },
+            "manifest": {
+              "const": "./plugins/post-quantum-auditors/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "implementationSafety": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "implementation-safety"
+            },
+            "category": {
+              "const": "implementation-safety"
+            },
+            "source": {
+              "const": "./plugins/implementation-safety"
+            },
+            "manifest": {
+              "const": "./plugins/implementation-safety/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    },
+    "evidenceAndTooling": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/pluginEntry"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "name": {
+              "const": "evidence-and-tooling"
+            },
+            "category": {
+              "const": "evidence-and-tooling"
+            },
+            "source": {
+              "const": "./plugins/evidence-and-tooling"
+            },
+            "manifest": {
+              "const": "./plugins/evidence-and-tooling/.codex-plugin/plugin.json"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

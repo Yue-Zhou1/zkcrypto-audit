@@ -1,5 +1,15 @@
 # Routing Matrix
 
+This table is a human-readable mirror of machine-readable route policy in
+`plugins/_meta/router-matrix.yaml`. If there is any mismatch, the YAML registry
+is authoritative.
+
+Before selecting a route from this table, enforce trigger policy from
+`plugins/_meta/codex-skill-registry.yaml`:
+
+- `router_auto` skills are eligible for automatic routing.
+- `user_triggered_only` skills are never auto-selected and require explicit user request.
+
 Use this matrix to choose the right skill after `crypto-audit-context`.
 
 | Situation | Route |

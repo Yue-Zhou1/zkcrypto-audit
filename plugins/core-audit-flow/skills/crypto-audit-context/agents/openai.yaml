@@ -1,0 +1,8 @@
+display_name: crypto-audit-context
+short_description: Builds initial audit context for ZK and cryptographic code before
+  vulnerability hunting. Use when starting a crypto audit, mapping trust boundaries,
+  prioritizing code paths, or applying dimensional analysis to protocol values.
+default_prompt: Use crypto-audit-context for this task. Builds initial audit context
+  for ZK and cryptographic code before vulnerability hunting. Use when starting a
+  crypto audit, mapping trust boundaries, prioritizing code paths, or applying dimensional
+  analysis to protocol values.

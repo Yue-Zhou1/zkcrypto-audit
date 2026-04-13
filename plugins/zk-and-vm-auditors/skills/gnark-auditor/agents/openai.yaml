@@ -1,0 +1,7 @@
+display_name: gnark-auditor
+short_description: Audit gnark circuits and Go witness pipelines for frontend/backend
+  mismatch, public/private witness exposure, constraint API misuse, and serialization
+  boundary errors.
+default_prompt: Use gnark-auditor for this task. Audit gnark circuits and Go witness
+  pipelines for frontend/backend mismatch, public/private witness exposure, constraint
+  API misuse, and serialization boundary errors.

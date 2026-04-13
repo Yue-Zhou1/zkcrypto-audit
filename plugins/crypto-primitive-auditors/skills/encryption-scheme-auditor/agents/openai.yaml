@@ -1,0 +1,7 @@
+display_name: encryption-scheme-auditor
+short_description: Audit encryption implementations for AEAD nonce handling, decrypt
+  oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error
+  side effects.
+default_prompt: Use encryption-scheme-auditor for this task. Audit encryption implementations
+  for AEAD nonce handling, decrypt oracle behavior, associated-data binding, key-derivation
+  misuse, and decrypt-error side effects.
