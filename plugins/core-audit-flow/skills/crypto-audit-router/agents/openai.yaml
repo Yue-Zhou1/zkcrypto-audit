@@ -1,0 +1,7 @@
+display_name: crypto-audit-router
+short_description: User-triggered only and never auto-invoked by the router. Routes
+  a full cryptographic or ZK audit across the framework and decides which skills
+  should run next.
+default_prompt: Use crypto-audit-router for this task. User-triggered only and never
+  auto-invoked by the router. Route a full cryptographic or ZK audit across the framework
+  and decide the next skills.

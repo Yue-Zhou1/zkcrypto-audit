@@ -1,0 +1,7 @@
+display_name: kani-harness-gen
+short_description: "Generate Kani proof harnesses for Rust crypto code. User-triggered\
+  \ only \u2014 never auto-invoked by the audit flow. Produces formal verification\
+  \ evidence for crypto-fp-check."
+default_prompt: "Use kani-harness-gen for this task. Generate Kani proof harnesses\
+  \ for Rust crypto code. User-triggered only \u2014 never auto-invoked by the audit\
+  \ flow. Produces formal verification evidence for crypto-fp-check."

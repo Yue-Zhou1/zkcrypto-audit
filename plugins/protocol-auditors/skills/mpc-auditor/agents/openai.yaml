@@ -1,0 +1,7 @@
+display_name: mpc-auditor
+short_description: Audit MPC implementations for garbled-circuit integrity, oblivious
+  transfer misuse, share validation, Beaver triple authenticity, and transcript/session
+  binding issues.
+default_prompt: Use mpc-auditor for this task. Audit MPC implementations for garbled-circuit
+  integrity, oblivious transfer misuse, share validation, Beaver triple authenticity,
+  and transcript/session binding issues.

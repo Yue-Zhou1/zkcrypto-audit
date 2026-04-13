@@ -1,0 +1,8 @@
+display_name: spec-delta-checker
+short_description: Compare cryptographic code against a reference specification or
+  paper. Use when implementation details look close to a standard but may have drifted
+  in validation, transcript binding, parameter negotiation, or caller obligations.
+default_prompt: Use spec-delta-checker for this task. Compare cryptographic code against
+  a reference specification or paper. Use when implementation details look close to
+  a standard but may have drifted in validation, transcript binding, parameter negotiation,
+  or caller obligations.

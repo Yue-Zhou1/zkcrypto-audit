@@ -1,0 +1,7 @@
+display_name: hash-function-auditor
+short_description: Audit ZK-friendly hash functions (Poseidon, Rescue, MiMC, Pedersen)
+  for parameter selection, sponge construction, domain separation, and algebraic attack
+  resistance.
+default_prompt: Use hash-function-auditor for this task. Audit ZK-friendly hash functions
+  (Poseidon, Rescue, MiMC, Pedersen) for parameter selection, sponge construction,
+  domain separation, and algebraic attack resistance.

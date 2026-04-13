@@ -1,0 +1,8 @@
+display_name: formal-verification-bridge
+short_description: User-triggered only and never auto-invoked by the router. Bridges
+  validated findings into optional external formal-verification tooling (Ecne, Picus,
+  Circomspect) and requires those tools to be installed/configured in the environment.
+default_prompt: Use formal-verification-bridge for this task. User-triggered only
+  and never auto-invoked by the router. Bridge validated findings into optional external
+  formal-verification tooling (Ecne, Picus, Circomspect), and verify required external
+  tools are installed/configured before execution.

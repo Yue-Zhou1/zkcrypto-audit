@@ -1,0 +1,8 @@
+display_name: zk-circuit-auditor
+short_description: Audit ZK circuits, proof systems, and verifier code for soundness
+  and transcript failures. Use when reviewing witness constraints, Fiat-Shamir flows,
+  KZG/PCS setup assumptions, public input encoding, or recursive proof threading.
+default_prompt: Use zk-circuit-auditor for this task. Audit ZK circuits, proof systems,
+  and verifier code for soundness and transcript failures. Use when reviewing witness
+  constraints, Fiat-Shamir flows, KZG/PCS setup assumptions, public input encoding,
+  or recursive proof threading.

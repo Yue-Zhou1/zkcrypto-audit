@@ -1,0 +1,8 @@
+display_name: crypto-fp-check
+short_description: Verifies suspected ZK and cryptographic findings before reporting.
+  Use when deciding whether a suspected vulnerability is a TRUE POSITIVE or FALSE
+  POSITIVE, assigning severity, or enforcing the Critical/High PoC gate.
+default_prompt: Use crypto-fp-check for this task. Verifies suspected ZK and cryptographic
+  findings before reporting. Use when deciding whether a suspected vulnerability is
+  a TRUE POSITIVE or FALSE POSITIVE, assigning severity, or enforcing the Critical/High
+  PoC gate.

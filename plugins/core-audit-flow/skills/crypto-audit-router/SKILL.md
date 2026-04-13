@@ -37,9 +37,30 @@ Top-level orchestrator for the crypto audit framework.
 
 ## Workflow
 
-- Read `references/routing-matrix.md` to select the right domain skill set
+- Load machine-readable route metadata from `../../../_meta/router-matrix.yaml`
+- Load machine-readable skill trigger metadata from `../../../_meta/codex-skill-registry.yaml`
+- Read `references/routing-matrix.md` as the human-readable mirror of registry policy
 - Execute `workflows/full-audit-flow.md` to keep the end-to-end sequence consistent
 - Preserve the output contract from each skill before routing to the next one
+
+## Routing Authority
+
+- Auto-routing eligibility is determined by `trigger_mode` in
+  `../../../_meta/codex-skill-registry.yaml`.
+- `trigger_mode: router_auto` skills are eligible when predicates match.
+- `trigger_mode: user_triggered_only` skills must never be auto-selected.
+- `agents/openai.yaml` provides UI/discovery metadata only and does not override
+  routing policy.
+
+## Session State Enforcement
+
+- Every handoff must preserve schema validity against
+  `zk-findings/sessions/session-state-schema.json`.
+- Use `references/state-machine.md` to enforce legal phase transitions and
+  mutation boundaries (`open_findings` -> `verified_findings`, `next_steps`
+  refresh, closeout checks).
+- If any required session-state field is missing, route back to the earliest
+  phase that can repair the state before progressing.
 
 ## Routing Scope
 
@@ -59,4 +80,5 @@ Produce an audit routing plan that includes:
 ## Reference Index
 
 - [references/routing-matrix.md](references/routing-matrix.md)
+- [references/state-machine.md](references/state-machine.md)
 - [workflows/full-audit-flow.md](workflows/full-audit-flow.md)

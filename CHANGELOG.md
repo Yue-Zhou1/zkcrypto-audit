@@ -5,6 +5,35 @@ All notable changes to `zkcrypto-audit` are documented in this file.
 The format is based on Keep a Changelog and this project follows Semantic
 Versioning.
 
+## [Unreleased]
+
+### Added
+
+- Codex-native plugin packaging manifests under `plugins/*/.codex-plugin/plugin.json`.
+- Codex marketplace registry and schema under `.agents/plugins/`.
+- Machine-readable orchestration metadata under `plugins/_meta/`:
+  - `codex-skill-registry.yaml`
+  - `router-matrix.yaml`
+- Codex UI/discovery metadata files for all skills under
+  `plugins/*/skills/*/agents/openai.yaml`.
+- Stub synchronization/check utility: `scripts/sync_codex_stubs.py`.
+- Router state transition reference:
+  `plugins/core-audit-flow/skills/crypto-audit-router/references/state-machine.md`.
+- Codex documentation:
+  - `docs/codex/architecture.md`
+  - `docs/codex/usage.md`
+- Codex orchestration scaffolding test suite:
+  `tests/test_codex_orchestration_scaffolding.py`.
+
+### Changed
+
+- CI and pre-push guardrails now run
+  `python3 scripts/sync_codex_stubs.py --check`.
+- `.codex/skills/*` stubs are now generated from the machine-readable registry
+  and remain valid backward-compatible invocation paths.
+- Router documentation now references machine-readable orchestration sources and
+  explicit session-state phase transitions.
+
 ## [0.3.0] - 2026-04-07
 
 ### Added

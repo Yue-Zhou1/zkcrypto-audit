@@ -1,0 +1,6 @@
+display_name: merkle-tree-auditor
+short_description: Audit Merkle tree implementations for second-preimage attacks,
+  leaf-node domain separation, sparse tree edge cases, and proof verification soundness.
+default_prompt: Use merkle-tree-auditor for this task. Audit Merkle tree implementations
+  for second-preimage attacks, leaf-node domain separation, sparse tree edge cases,
+  and proof verification soundness.

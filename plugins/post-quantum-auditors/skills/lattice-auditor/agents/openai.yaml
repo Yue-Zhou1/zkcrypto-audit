@@ -1,0 +1,6 @@
+display_name: lattice-auditor
+short_description: Audit lattice-based cryptography for LWE/RLWE parameter soundness,
+  noise sampling correctness, rejection-sampling safety, and decryption-failure assumptions.
+default_prompt: Use lattice-auditor for this task. Audit lattice-based cryptography
+  for LWE/RLWE parameter soundness, noise sampling correctness, rejection-sampling
+  safety, and decryption-failure assumptions.

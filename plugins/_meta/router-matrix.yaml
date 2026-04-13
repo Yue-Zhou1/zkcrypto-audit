@@ -1,0 +1,162 @@
+schema_version: 1
+schema_locked: true
+description: Machine-readable router predicates and phase orchestration metadata.
+derived_docs:
+  - plugins/core-audit-flow/skills/crypto-audit-router/references/routing-matrix.md
+  - plugins/core-audit-flow/skills/crypto-audit-router/workflows/full-audit-flow.md
+phase_flow:
+  - phase: intake
+    default_skill: crypto-audit-context
+    stop_condition: Intake artifacts are persisted in zk-findings session state.
+    escalation_rule: Return to crypto-audit-context if target scope or trust boundaries are incomplete.
+  - phase: domain
+    default_skill: spec-delta-checker
+    stop_condition: Applicable domain auditors have produced output contracts and open findings are captured.
+    escalation_rule: Route additional domain auditors when unresolved assumptions remain.
+  - phase: verification
+    default_skill: crypto-fp-check
+    stop_condition: Surviving findings are verified or rejected with evidence.
+    escalation_rule: Return findings to originating domain auditor when reproduction evidence is incomplete.
+  - phase: reporting
+    default_skill: crypto-report-writer
+    stop_condition: Verified findings are converted into report-ready entries.
+    escalation_rule: Return to verification when impact or exploitability evidence is insufficient.
+  - phase: indexing
+    default_skill: zkbugs-index
+    stop_condition: Prior-art links and index state reflect the verified claim set.
+    escalation_rule: Return to reporting if report text and indexed metadata diverge.
+trigger_semantics:
+  router_auto: Skill is eligible for router selection when predicates match.
+  user_triggered_only: Skill is never auto-selected by router and must be explicitly requested.
+user_triggered_only_exclusions:
+  - audit-common
+  - crypto-audit-router
+  - kani-harness-gen
+  - fuzz-harness-gen
+  - formal-verification-bridge
+routing_rules:
+  - rule_id: spec_governed_code
+    predicate: The code claims to follow an RFC, paper, or reference implementation.
+    phase: domain
+    route_to:
+      - spec-delta-checker
+  - rule_id: ecc_pairings_bls_dst_aggregation
+    predicate: The issue touches points, pairings, BLS verification, DST, or aggregation.
+    phase: domain
+    route_to:
+      - ecc-pairing-auditor
+  - rule_id: zk_constraints_transcript_verifier
+    predicate: The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion.
+    phase: domain
+    route_to:
+      - zk-circuit-auditor
+  - rule_id: gnark_frontend_backend_assignment
+    predicate: The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs.
+    phase: domain
+    route_to:
+      - gnark-auditor
+  - rule_id: encryption_mode_nonce_oracle
+    predicate: The issue touches AEAD nonce handling, decrypt oracles, key derivation, associated-data binding, or encryption mode misuse.
+    phase: domain
+    route_to:
+      - encryption-scheme-auditor
+  - rule_id: mpc_transcripts_and_reconstruction
+    predicate: The issue touches MPC transcripts, garbled circuits, oblivious transfer, share validation, or multi-party reconstruction.
+    phase: domain
+    route_to:
+      - mpc-auditor
+  - rule_id: vdf_sequentiality_and_verification
+    predicate: The issue touches VDF sequentiality, Wesolowski or Pietrzak proof verification, delay parameters, or challenge derivation.
+    phase: domain
+    route_to:
+      - vdf-auditor
+  - rule_id: lattice_noise_and_failure
+    predicate: The issue touches LWE/RLWE parameters, noise sampling, rejection sampling, or decryption failure assumptions.
+    phase: domain
+    route_to:
+      - lattice-auditor
+  - rule_id: fhe_noise_bootstrap_modswitch
+    predicate: The issue touches FHE noise budgets, bootstrapping, modulus switching, key switching, or plaintext leakage.
+    phase: domain
+    route_to:
+      - fhe-auditor
+  - rule_id: side_channel_constant_time
+    predicate: The issue touches timing leaks, cache or power side channels, secret-dependent branching, or constant-time regressions.
+    phase: domain
+    route_to:
+      - side-channel-auditor
+  - rule_id: dependency_supply_chain
+    predicate: The issue touches cryptographic dependency versions, advisories, feature flags, transitive risk, or fork provenance.
+    phase: domain
+    route_to:
+      - dependency-auditor
+  - rule_id: cairo_hint_builtin_sierra
+    predicate: The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation.
+    phase: domain
+    route_to:
+      - cairo-auditor
+  - rule_id: noir_unconstrained_oracle_brillig
+    predicate: The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation.
+    phase: domain
+    route_to:
+      - noir-auditor
+  - rule_id: zkvm_guest_memory_precompile
+    predicate: The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida).
+    phase: domain
+    route_to:
+      - zkvm-auditor
+  - rule_id: hash_sponge_parameters_dst
+    predicate: The issue touches Poseidon, Rescue, MiMC, Pedersen, or other ZK-friendly hash parameters, sponge construction, or domain separation.
+    phase: domain
+    route_to:
+      - hash-function-auditor
+  - rule_id: commitments_degree_and_proofs
+    predicate: The issue touches KZG, FRI, IPA, Pedersen commitments, polynomial degree bounds, or evaluation proofs.
+    phase: domain
+    route_to:
+      - commitment-scheme-auditor
+  - rule_id: merkle_proofs_and_roots
+    predicate: The issue touches Merkle trees, inclusion proofs, sparse trees, or Merkle root computation.
+    phase: domain
+    route_to:
+      - merkle-tree-auditor
+  - rule_id: fiat_shamir_transcript_transform
+    predicate: The issue touches Fiat-Shamir transcripts, challenge derivation, transcript completeness, or interactive-to-non-interactive transforms.
+    phase: domain
+    route_to:
+      - fiat-shamir-auditor
+  - rule_id: dkg_threshold_and_nonce_binding
+    predicate: The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation.
+    phase: domain
+    route_to:
+      - dkg-threshold-auditor
+  - rule_id: rust_impl_safety
+    predicate: The issue touches constant-time behavior, zeroization, unsafe code, feature flags, or dependency hygiene.
+    phase: domain
+    route_to:
+      - rust-crypto-safety
+  - rule_id: ethereum_rust_crypto_precompiles
+    predicate: The issue touches secp256k1/ECDSA, keccak/EIP-712, BN254/BLS12-381 precompile input/output, KZG/EIP-4844 usage, or alloy/ethers-rs API patterns in Rust.
+    phase: domain
+    route_to:
+      - ethereum-crypto-auditor
+  - rule_id: folding_ivc_accumulator
+    predicate: The issue touches Nova, HyperNova, ProtoStar folding equations, accumulator update, running instance threading, or cycle-of-curves encoding.
+    phase: domain
+    route_to:
+      - folding-scheme-auditor
+  - rule_id: finding_verification
+    predicate: The issue has survived domain review and needs truth/impact validation.
+    phase: verification
+    route_to:
+      - crypto-fp-check
+  - rule_id: report_verified_finding
+    predicate: The issue is verified and needs report prose.
+    phase: reporting
+    route_to:
+      - crypto-report-writer
+  - rule_id: index_verified_finding
+    predicate: The issue is verified and may need prior-art lookup or index storage.
+    phase: indexing
+    route_to:
+      - zkbugs-index

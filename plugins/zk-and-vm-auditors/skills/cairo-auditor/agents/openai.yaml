@@ -1,0 +1,8 @@
+display_name: cairo-auditor
+short_description: Audit Cairo and Starknet code for hint validation failures, felt252
+  overflow, builtin misuse, and Sierra-to-CASM soundness gaps. Use when reviewing
+  Cairo contracts, prover hints, or Starknet-specific proof construction.
+default_prompt: Use cairo-auditor for this task. Audit Cairo and Starknet code for
+  hint validation failures, felt252 overflow, builtin misuse, and Sierra-to-CASM soundness
+  gaps. Use when reviewing Cairo contracts, prover hints, or Starknet-specific proof
+  construction.

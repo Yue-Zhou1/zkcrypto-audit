@@ -1,0 +1,7 @@
+display_name: fhe-auditor
+short_description: Audit FHE implementations for noise-budget accounting, bootstrapping
+  correctness, modulus-switching safety, plaintext leakage, and key-switch parameter
+  integrity.
+default_prompt: Use fhe-auditor for this task. Audit FHE implementations for noise-budget
+  accounting, bootstrapping correctness, modulus-switching safety, plaintext leakage,
+  and key-switch parameter integrity.

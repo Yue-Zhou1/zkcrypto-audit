@@ -1,0 +1,9 @@
+{
+  "name": "protocol-auditors",
+  "version": "0.1.0",
+  "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), and VDFs (Wesolowski, Pietrzak).",
+  "category": "protocol-auditors",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

@@ -1,0 +1,8 @@
+display_name: ethereum-crypto-auditor
+short_description: Audit Rust application code that uses Ethereum cryptography. Use
+  when reviewing secp256k1/ECDSA usage, keccak/EIP-712 hashing, BN254/BLS12-381 precompile
+  interaction, KZG/EIP-4844 patterns, or alloy/ethers-rs API usage.
+default_prompt: Use ethereum-crypto-auditor for this task. Audit Rust application
+  code that uses Ethereum cryptography. Use when reviewing secp256k1/ECDSA usage,
+  keccak/EIP-712 hashing, BN254/BLS12-381 precompile interaction, KZG/EIP-4844 patterns,
+  or alloy/ethers-rs API usage.

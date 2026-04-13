@@ -1,0 +1,9 @@
+{
+  "name": "evidence-and-tooling",
+  "version": "0.1.0",
+  "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, and formal verification bridge. Kani/fuzz/formal-verification skills are user-triggered only.",
+  "category": "evidence-and-tooling",
+  "author": {
+    "name": "Yue Zhou"
+  }
+}

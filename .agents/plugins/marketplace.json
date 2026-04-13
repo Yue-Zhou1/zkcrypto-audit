@@ -1,0 +1,111 @@
+{
+  "$schema": "./marketplace.schema.json",
+  "version": "0.1.0",
+  "plugins": [
+    {
+      "name": "core-audit-flow",
+      "version": "0.1.0",
+      "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, and shared severity/evidence framework.",
+      "category": "core-audit-flow",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/core-audit-flow",
+      "manifest": "./plugins/core-audit-flow/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "zk-and-vm-auditors",
+      "version": "0.1.0",
+      "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), and gnark.",
+      "category": "zk-and-vm-auditors",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/zk-and-vm-auditors",
+      "manifest": "./plugins/zk-and-vm-auditors/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "crypto-primitive-auditors",
+      "version": "0.1.0",
+      "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, and encryption schemes.",
+      "category": "crypto-primitive-auditors",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/crypto-primitive-auditors",
+      "manifest": "./plugins/crypto-primitive-auditors/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "protocol-auditors",
+      "version": "0.1.0",
+      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), and VDFs (Wesolowski, Pietrzak).",
+      "category": "protocol-auditors",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/protocol-auditors",
+      "manifest": "./plugins/protocol-auditors/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "post-quantum-auditors",
+      "version": "0.1.0",
+      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE) and fully homomorphic encryption (FHE).",
+      "category": "post-quantum-auditors",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/post-quantum-auditors",
+      "manifest": "./plugins/post-quantum-auditors/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "implementation-safety",
+      "version": "0.1.0",
+      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, and dependency hygiene.",
+      "category": "implementation-safety",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/implementation-safety",
+      "manifest": "./plugins/implementation-safety/.codex-plugin/plugin.json"
+    },
+    {
+      "name": "evidence-and-tooling",
+      "version": "0.1.0",
+      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, and formal verification bridge. Kani/fuzz/formal-verification skills are user-triggered only.",
+      "category": "evidence-and-tooling",
+      "policy": {
+        "routing": "router-first",
+        "user_triggered_only_enforced": true
+      },
+      "author": {
+        "name": "Yue Zhou"
+      },
+      "source": "./plugins/evidence-and-tooling",
+      "manifest": "./plugins/evidence-and-tooling/.codex-plugin/plugin.json"
+    }
+  ]
+}
