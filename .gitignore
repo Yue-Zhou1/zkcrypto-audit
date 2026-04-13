@@ -6,4 +6,6 @@ plugins/evidence-and-tooling/index/local_findings/findings.json
 plugins/evidence-and-tooling/index/embeddings.npy
 plugins/evidence-and-tooling/index/embedding_ids.json
 plugins/evidence-and-tooling/.cache/
-docs/
+docs/*
+!docs/codex/
+!docs/codex/*.md
