@@ -1,0 +1,83 @@
+{
+  "engagement_id": "signal-ethereum-core-host-methods-ssz-multiproofs-2026-04-28",
+  "scope": [
+    "core/",
+    "host/",
+    "methods/",
+    "ssz-multiproofs/"
+  ],
+  "router": "crypto-audit-router",
+  "phases": {
+    "intake": {
+      "status": "complete",
+      "critical_paths": [
+        "core/src/verify.rs::verify",
+        "core/src/verify.rs::process_attestation",
+        "core/src/attestation.rs::get_attesting_indices",
+        "core/src/state_reader/ssz_state_reader.rs::StateInput::into_state_reader",
+        "ssz-multiproofs/src/multiproof.rs::Multiproof::verify",
+        "methods/guest/src/lib.rs::entry"
+      ],
+      "trust_boundaries": [
+        "RISC Zero guest frame input deserialization",
+        "Host-built StateInput multiproofs and patches",
+        "Attestation list supplied to verifier",
+        "Beacon RPC responses consumed by host input builder",
+        "SSZ multiproof descriptor/data/value_mask supplied to guest"
+      ]
+    },
+    "routes": {
+      "spec-delta-checker": "Casper FFG, Ethereum Electra attestation processing, and SSZ multiproof semantics",
+      "ecc-pairing-auditor": "BLS aggregate signature verification and public key deserialization",
+      "ethereum-crypto-auditor": "Ethereum consensus domains, roots, and beacon-chain cryptographic APIs",
+      "merkle-tree-auditor": "SSZ multiproof verification and generalized-index extraction",
+      "zkvm-auditor": "RISC Zero guest-host frame and journal boundary",
+      "rust-crypto-safety": "Panic, unwrap, assert, overflow, and dependency-surface review",
+      "dependency-auditor": "Pinned git forks, optional crypto dependencies, and missing lockfile"
+    },
+    "verification": {
+      "status": "complete",
+      "notes": [
+        "Temporary PoC integration test confirmed duplicate attestations from one valid signer can be replayed until target_balance crosses the finality threshold.",
+        "General workspace cargo test is blocked by dependency resolution without Cargo.lock: ethereum-consensus -> multihash -> yanked core2 0.4.0.",
+        "Focused PoC required temporarily narrowing the workspace and removing the optional ethereum-consensus edge from ssz-multiproofs, then pinning alloy 0.8.25 in the temporary lock resolution. All temporary files and manifest edits were removed."
+      ]
+    },
+    "reporting": {
+      "status": "complete",
+      "reports": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ],
+      "poc_artifacts": [
+        "zk-findings/pocs/SE-CORE-001-duplicate-attestation-replay.rs"
+      ],
+      "indexing": "not submitted to zkbugs-index; no prior-art lookup or public citation requested"
+    }
+  },
+  "verified_findings": [
+    {
+      "id": "SE-CORE-001",
+      "title": "Repeated attestations are counted multiple times toward finality",
+      "severity": "Critical",
+      "impacted_property": "Soundness",
+      "status": "TRUE POSITIVE",
+      "primary_files": [
+        "core/src/verify.rs",
+        "core/src/attestation.rs"
+      ]
+    }
+  ],
+  "open_findings": [
+    {
+      "id": "SE-DEP-001",
+      "title": "No lockfile plus yanked transitive dependency prevents reproducible full-workspace verification",
+      "severity": "Low",
+      "status": "tooling risk"
+    }
+  ],
+  "next_steps": [
+    "Deduplicate attesting validator indices across all attestations for a link before summing balance.",
+    "Add a regression test replaying the same valid attestation and expecting ThresholdNotMet.",
+    "Commit a Cargo.lock or otherwise pin/reconcile yanked and semver-drifting transitive dependencies."
+  ]
+}

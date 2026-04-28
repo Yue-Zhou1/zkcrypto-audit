@@ -51,10 +51,13 @@ python3 scripts/sync_codex_stubs.py --check
    - `plugins/*/.codex-plugin/plugin.json` (category plugin manifests)
    - `.codex/skills/*/SKILL.md` (compatibility invocation paths)
 
-4. Start the audit from the router:
+4. Start the audit from the router using the prompt below.
+
+## Best-Practice Codex Prompt
 
 ```text
-Use crypto-audit-router to run a staged crypto security review.
+Use crypto-audit-router to run a complete staged crypto/ZK security audit on <target directories>; read the full audit workflow, build/update session state, run context, spec-delta, all applicable router-matrix domain auditors, FP checks, PoC gates, report writer, and zkbugs-index only when applicable.
+Do not stop after the first issue; finish with session JSON, candidate dispositions, PoC/proof artifacts, a readable report, and explicit reasons for any skipped stage or route.
 ```
 
 ### Quick Start in Claude Code
@@ -82,11 +85,8 @@ install all 7 plugins for full coverage:
 - `implementation-safety`
 - `evidence-and-tooling`
 
-3. Start your first audit chat:
-
-```text
-Use crypto-audit-router to run a staged crypto security review.
-```
+3. Start your first audit chat using the best-practice prompt above, after
+   installing `core-audit-flow`.
 
 ### What You Get After Install
 
@@ -127,7 +127,7 @@ skills produces.
 ### Step 1 — Start the router
 
 ```text
-Use crypto-audit-router. I want to audit a Rust Groth16 verifier library.
+Use crypto-audit-router to run a complete staged crypto/ZK security audit on src/. Follow the Best-Practice Codex Prompt above, including session state, all applicable domain routes, false-positive checking, PoC gates, and report writing.
 ```
 
 > **Router output:**
