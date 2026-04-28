@@ -16,28 +16,35 @@ zero-knowledge systems and cryptographic protocols.
 - `tests/` contains scaffolding and CLI regression tests.
 - `zk-findings/sessions/` stores local engagement session-state handoff files.
 
-## Default Audit Flow
+## MANDATORY: Before Starting Any Audit
 
-1. `crypto-audit-router`
-2. `crypto-audit-context`
-3. `spec-delta-checker`
-4. Domain auditor(s)
-5. `crypto-fp-check`
-6. `crypto-report-writer`
-7. `zkbugs-index`
+Before invoking any audit skill, you MUST:
 
-## Verification Commands
+1. Invoke the `crypto-audit-router` skill via the Skill tool.
+2. Inside that skill, read `workflows/full-audit-flow.md` completely before
+   selecting any domain auditor. Do not rely on memory of prior sessions.
+3. Run every step in the order below. Do not skip a step because it seems
+   inapplicable — invoke the skill and let it determine applicability.
 
-```bash
-python3 scripts/sync_codex_stubs.py --check
-python3 -m unittest discover -s tests -q
-python3 -m py_compile \
-  scripts/sync_codex_stubs.py \
-  plugins/evidence-and-tooling/scripts/_shared.py \
-  plugins/evidence-and-tooling/scripts/build_index.py \
-  plugins/evidence-and-tooling/scripts/contribute_bug.py \
-  tests/test_crypto_audit_plugin_scaffolding.py \
-  tests/test_codex_orchestration_scaffolding.py \
-  tests/test_sync_codex_stubs.py \
-  tests/test_zkbugs_index_cli.py
-```
+## Default Audit Flow (ALL STEPS REQUIRED)
+
+| Step | Skill | Skip condition |
+|------|-------|----------------|
+| 1 | `crypto-audit-router` | Never skip — orchestrates all subsequent routing |
+| 2 | `crypto-audit-context` | Never skip — builds trust boundary and dimension map |
+| 3 | `spec-delta-checker` | Only skip if there is provably no governing specification or paper |
+| 4 | Domain auditor(s) per routing-matrix | Never skip applicable auditors |
+| 5 | `crypto-fp-check` | Never skip — all findings must pass verification gates |
+| 6 | `crypto-report-writer` | Never skip — required for any client-facing or internal output |
+| 7 | `zkbugs-index` | Skip only if all findings are client-confidential and not index-worthy |
+
+**If you skip step 3 or step 7, you must explicitly state why in your response.**
+
+## Session State
+
+After every phase boundary, persist the handoff in:
+`zk-findings/sessions/<engagement-id>.json`
+
+The session schema is at `zk-findings/sessions/session-state-schema.json`.
+This file is the source of truth for resuming a multi-session audit.
+

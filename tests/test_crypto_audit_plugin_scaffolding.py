@@ -157,9 +157,6 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         readme_text = (REPO_ROOT / "README.md").read_text()
         self.assertIn("generated (not hand-edited)", readme_text)
 
-        claude_text = (REPO_ROOT / "CLAUDE.md").read_text()
-        self.assertIn("python3 scripts/sync_codex_stubs.py --check", claude_text)
-
     def test_readme_keeps_contributing_and_acknowledgments(self) -> None:
         readme_text = (REPO_ROOT / "README.md").read_text()
         self.assertIn("## Contributing", readme_text)
@@ -341,9 +338,6 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertTrue(claude_md.exists())
         text = claude_md.read_text()
         self.assertIn("zkcrypto-audit", text)
-        self.assertIn("python3 -m unittest", text)
-        self.assertIn("scripts/sync_codex_stubs.py", text)
-        self.assertIn("tests/test_codex_orchestration_scaffolding.py", text)
 
     def test_zkbugs_scripts_use_shared_taxonomy_and_repo_helper(self) -> None:
         shared_path = REPO_ROOT / "plugins" / "evidence-and-tooling" / "scripts" / "_shared.py"
