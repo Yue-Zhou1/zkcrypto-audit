@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-04-28
+
 ### Added
 
 - Codex-native plugin packaging manifests under `plugins/*/.codex-plugin/plugin.json`.
@@ -24,6 +26,9 @@ Versioning.
   - `docs/codex/usage.md`
 - Codex orchestration scaffolding test suite:
   `tests/test_codex_orchestration_scaffolding.py`.
+- `AGENTS.md` audit completion contract for Codex staged audit runs.
+- Local engagement state and report artifacts for Commit-Boost and Signal
+  Ethereum audit sessions, including a Signal Ethereum replay PoC artifact.
 
 ### Changed
 
@@ -33,6 +38,10 @@ Versioning.
   and remain valid backward-compatible invocation paths.
 - Router documentation now references machine-readable orchestration sources and
   explicit session-state phase transitions.
+- `crypto-fp-check` verification gates now require stronger report and PoC
+  artifact alignment for higher-severity claims.
+- README and Claude/Codex project guidance now emphasize complete staged audit
+  execution, session state, candidate dispositions, and report closeout.
 
 ## [0.3.0] - 2026-04-07
 
