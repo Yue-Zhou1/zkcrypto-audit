@@ -1,4 +1,4 @@
-name: zkbugs-index Diff Check
+name: zkbugs-index Upstream Sync
 
 on:
   schedule:
@@ -6,10 +6,11 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
 
 jobs:
-  diff-upstream:
+  sync-upstream:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,14 +23,48 @@ jobs:
           python-version: "3.12"
 
       - name: Diff zkbugs upstream against committed index
+        id: diff
         run: |
           set -euo pipefail
           python3 plugins/evidence-and-tooling/scripts/build_index.py --config plugins/evidence-and-tooling/config/zkbugs-sources.json --diff-upstream | tee zkbugs-upstream-diff.txt
 
           if grep -Eq "NEW entries|entries REMOVED" zkbugs-upstream-diff.txt; then
-            echo "ERROR: committed zkbugs index is stale relative to upstream"
-            exit 1
+            echo "drift=true" >> "$GITHUB_OUTPUT"
+            echo "Upstream drift detected — index will be rebuilt and a PR opened."
+          else
+            echo "drift=false" >> "$GITHUB_OUTPUT"
+            echo "Index is current with upstream."
           fi
+
+      - name: Rebuild index
+        if: steps.diff.outputs.drift == 'true'
+        run: |
+          set -euo pipefail
+          python3 plugins/evidence-and-tooling/scripts/build_index.py --config plugins/evidence-and-tooling/config/zkbugs-sources.json --rebuild --no-embeddings
+
+      - name: Prepare PR body
+        if: steps.diff.outputs.drift == 'true'
+        run: |
+          {
+            echo "Automated weekly sync of the zkbugs index with upstream [zksecurity/zkbugs](https://github.com/zksecurity/zkbugs)."
+            echo
+            echo "Upstream diff that triggered this rebuild:"
+            echo
+            echo '```'
+            cat zkbugs-upstream-diff.txt
+            echo '```'
+          } > zkbugs-pr-body.md
+
+      - name: Create pull request
+        if: steps.diff.outputs.drift == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          add-paths: plugins/evidence-and-tooling/index/**
+          commit-message: "chore: rebuild zkbugs index from upstream"
+          branch: auto/zkbugs-index-sync
+          delete-branch: true
+          title: "chore: sync zkbugs index with upstream"
+          body-path: zkbugs-pr-body.md
 
       - name: Upload diff artifact
         if: always()
