@@ -1,5 +1,68 @@
 [
   {
+    "id": "zkbugs/Moonsong-Labs/zksync-social-login-circuit/openzeppelin_mismatched_base64url_decoding_may_break_completeness",
+    "dsl": "circom",
+    "vuln_type": "over_constrained",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "Misimplementation of a Specification",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/openzeppelin-sso.pdf",
+      "commit": "27cda6e74492fbad4aa3ca37ff5084ed391b534b",
+      "file": "utils/jwt-verify.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "0548942278a414d85e2f3d406e171eeac325349e",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/pantherfoundation/panther-core/veridise_kyt_signature_verification_fails_nonzero_hash",
+    "dsl": "circom",
+    "vuln_type": "over_constrained",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/veridise-panther.pdf",
+      "commit": "b464348b33155a5877f67c085c7206dc29ad7cb7",
+      "file": "circuits/circuits/templates/trustProvidersKyt.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "ccb2a8b",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/zkemail/ether-email-auth/matterlabs_emailauth_fails_with_overlapping_invitation_code_regex",
+    "dsl": "circom",
+    "vuln_type": "over_constrained",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "Circuit Design Issue",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/matterlabs-zkemail.pdf",
+      "commit": "8a62db1e676aedbb20a403be95fffebef12b97e4",
+      "file": "packages/circuits/src/email_auth_template.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "984b5919a9be715b743b08863ab6471c2b5356a6",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
     "id": "zkbugs/scroll-tech/poseidon-circuit/zellic_mpt_only_being_true_leads_to_overconstrained_circuits",
     "dsl": "halo2",
     "vuln_type": "over_constrained",
@@ -8,7 +71,7 @@
     "root_cause": "Other Programming Errors",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll.pdf",
-      "commit": "0xf3ebc6af0e5049d2f45259ef79741f9c7d7794e1",
+      "commit": "079e3f5bfc30d63ded672a97850e3c160504bfad",
       "file": "src/hash.rs",
       "line": 11
     },

@@ -8,13 +8,13 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/arkworks-rs/r1cs-std/pull/70",
-      "commit": "",
-      "file": "",
+      "commit": "1ad210462cae103ebf2718a397cca33f44183f65",
+      "file": "src/fields/mod.rs",
       "line": null
     },
     "reproduced": false,
     "poc_available": false,
-    "fix_commit": "",
+    "fix_commit": "47ddbaa411afe7c499311a248a38135e5a192b67",
     "disclosure_state": "disclosed",
     "source": "upstream",
     "upstream": true,
@@ -29,8 +29,8 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/nccgroup-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "penumbra/crates/core/num/src/fixpoint.rs",
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/num/src/fixpoint.rs",
       "line": null
     },
     "reproduced": false,
@@ -50,9 +50,9 @@
     "root_cause": "Out-of-Circuit Computation Not Being Constrained",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "core/keys",
-      "line": null
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/keys/src/keys/ivk.rs",
+      "line": 101
     },
     "reproduced": false,
     "poc_available": false,
@@ -71,9 +71,9 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "core/num",
-      "line": null
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/num/src/fixpoint.rs",
+      "line": 265
     },
     "reproduced": false,
     "poc_available": false,
@@ -92,9 +92,9 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "core/num",
-      "line": null
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/num/src/fixpoint.rs",
+      "line": 323
     },
     "reproduced": false,
     "poc_available": false,

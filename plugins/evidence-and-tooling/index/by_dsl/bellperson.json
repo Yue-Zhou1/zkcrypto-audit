@@ -8,8 +8,8 @@
     "root_cause": "Circuit Design Issue",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/trapdoor-filecoin-disclosure.pdf",
-      "commit": "8efe93",
-      "file": "storage-proofs/src/porep/stacked/vanilla/challenges.rs",
+      "commit": "8efe933117f7570767cdaa57613d9a95f89de739",
+      "file": "storage-proofs/porep/src/stacked/vanilla/challenges.rs",
       "line": null
     },
     "reproduced": false,
@@ -30,8 +30,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
       "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "src/circuits",
-      "line": null
+      "file": "src/circuit/circuit_frame.rs",
+      "line": 2737
     },
     "reproduced": false,
     "poc_available": false,
@@ -51,8 +51,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
       "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "src/circuits",
-      "line": null
+      "file": "src/circuit/gadgets/case.rs",
+      "line": 138
     },
     "reproduced": false,
     "poc_available": false,
@@ -72,8 +72,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
       "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "src/circuits/multi_case_aux",
-      "line": null
+      "file": "src/circuit/gadgets/case.rs",
+      "line": 213
     },
     "reproduced": false,
     "poc_available": false,
@@ -93,8 +93,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
       "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "src/circuits/reduce_sym.rs",
-      "line": null
+      "file": "src/circuit/circuit_frame.rs",
+      "line": 923
     },
     "reproduced": false,
     "poc_available": false,
@@ -114,8 +114,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
       "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "src/circuits",
-      "line": null
+      "file": "src/circuit/gadgets/case.rs",
+      "line": 197
     },
     "reproduced": false,
     "poc_available": false,
@@ -134,8 +134,8 @@
     "root_cause": "Assigned but Unconstrained",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/inference-lurk.pdf",
-      "commit": "0x5c92c6a37856f43cb23bcfce59443da9d0ce0061",
-      "file": "filecoin-project/neptune/src/circuit2.rs",
+      "commit": "4e29c4c02c55025eb49b1519c91199ca11546cc5",
+      "file": "src/circuit2.rs",
       "line": null
     },
     "reproduced": false,

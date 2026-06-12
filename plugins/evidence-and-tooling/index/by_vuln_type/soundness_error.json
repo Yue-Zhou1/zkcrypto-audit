@@ -8,9 +8,9 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "core/num",
-      "line": null
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/num/src/fixpoint.rs",
+      "line": 265
     },
     "reproduced": false,
     "poc_available": false,
@@ -29,13 +29,76 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-penumbra.pdf",
-      "commit": "0xa43b594",
-      "file": "core/num",
-      "line": null
+      "commit": "a43b5944dfac702fd76fee6aab81de05f97de898",
+      "file": "crates/core/num/src/fixpoint.rs",
+      "line": 323
     },
     "reproduced": false,
     "poc_available": false,
     "fix_commit": "1fdbe1ea10a270180c035aeb8bb7f4a3ff25d99e",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/pantherfoundation/panther-core/veridise_blacklist_states_not_representable_in_field",
+    "dsl": "circom",
+    "vuln_type": "soundness_error",
+    "impact": "Completeness",
+    "severity": "Medium",
+    "root_cause": "Arithmetic Field Issues",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/veridise-panther.pdf",
+      "commit": "b464348b33155a5877f67c085c7206dc29ad7cb7",
+      "file": "circuits/circuits/templates/zAccountBlackListLeafInclusionProver.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "1763ca4",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/pantherfoundation/panther-core/veridise_data_escrow_encrypted_message_wrong_input",
+    "dsl": "circom",
+    "vuln_type": "soundness_error",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Other Programming Errors",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/veridise-panther.pdf",
+      "commit": "b464348b33155a5877f67c085c7206dc29ad7cb7",
+      "file": "circuits/circuits/templates/dataEscrowElGamalEncryption.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "7ff5ba7",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/pantherfoundation/panther-core/veridise_fortxreward_abstracted_away_in_reward_calc",
+    "dsl": "circom",
+    "vuln_type": "soundness_error",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/veridise-panther.pdf",
+      "commit": "b464348b33155a5877f67c085c7206dc29ad7cb7",
+      "file": "circuits/circuits/templates/rewardsExtended.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "1055906",
     "disclosure_state": "disclosed",
     "source": "upstream",
     "upstream": true,
@@ -50,12 +113,12 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zksecurity-celo-self-audit.pdf",
-      "commit": "",
-      "file": "",
+      "commit": "4f18c75041bb47c1862169eef82c22067642a83a",
+      "file": "circuits/circuits/utils/crypto/bigInt/bigIntComparators.circom",
       "line": null
     },
-    "reproduced": true,
-    "poc_available": true,
+    "reproduced": false,
+    "poc_available": false,
     "fix_commit": "",
     "disclosure_state": "disclosed",
     "source": "upstream",
@@ -75,8 +138,8 @@
       "file": "circuits/circuits/utils/passport/disclose/proveCountryIsNotInList.circom",
       "line": null
     },
-    "reproduced": true,
-    "poc_available": true,
+    "reproduced": false,
+    "poc_available": false,
     "fix_commit": "",
     "disclosure_state": "disclosed",
     "source": "upstream",
@@ -96,8 +159,8 @@
       "file": "circuits/set/membership.circom",
       "line": 20
     },
-    "reproduced": true,
-    "poc_available": true,
+    "reproduced": false,
+    "poc_available": false,
     "fix_commit": "eeb4fc7a4883d513e3fe3adbe2c447133ccd39f2",
     "disclosure_state": "disclosed",
     "source": "upstream",

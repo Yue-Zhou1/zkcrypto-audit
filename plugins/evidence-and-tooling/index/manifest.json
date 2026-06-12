@@ -1,14 +1,14 @@
 {
-  "count": 122,
-  "upstream_count": 110,
+  "count": 151,
+  "upstream_count": 139,
   "org_count": 12,
   "schema_version": "1.0",
-  "built_at": "2026-04-02T09:08:21.158835+00:00",
+  "built_at": "2026-06-12T02:24:52.822830+00:00",
   "by_dsl": {
     "arkworks": 6,
     "bellperson": 7,
     "cairo": 10,
-    "circom": 43,
+    "circom": 72,
     "gnark": 3,
     "halo2": 37,
     "noir": 1,
@@ -25,13 +25,13 @@
     "missing_public_input": 1,
     "missing_range_check": 1,
     "nonce_reuse": 1,
-    "over_constrained": 1,
-    "privacy_leak": 1,
+    "over_constrained": 4,
+    "privacy_leak": 2,
     "prover_input_injection": 1,
-    "soundness_error": 7,
+    "soundness_error": 10,
     "subgroup_attack": 1,
     "timing_side_channel": 1,
     "trusted_setup_leak": 1,
-    "under_constrained": 100
+    "under_constrained": 122
   }
 }

@@ -8,8 +8,8 @@
     "root_cause": "Missing Input Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/hexens-polygonzkevm.pdf",
-      "commit": "0x313dc",
-      "file": "utils.zkasm",
+      "commit": "313dcd8d2df49b02fb04e0d99743dc33cfa25faf",
+      "file": "pil/main.pil",
       "line": null
     },
     "reproduced": false,
@@ -29,8 +29,8 @@
     "root_cause": "Missing Input Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/hexens-polygonzkevm.pdf",
-      "commit": "0x313dc",
-      "file": "storage.pil",
+      "commit": "313dcd8d2df49b02fb04e0d99743dc33cfa25faf",
+      "file": "pil/storage.pil",
       "line": null
     },
     "reproduced": false,

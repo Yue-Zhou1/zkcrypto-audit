@@ -1,5 +1,26 @@
 [
   {
+    "id": "zkbugs/sismo-core/hydra-s2-zkps/veridise_private_information_leakage",
+    "dsl": "circom",
+    "vuln_type": "privacy_leak",
+    "impact": "ZK/Privacy",
+    "severity": "High",
+    "root_cause": "Circuit Design Issue",
+    "location": {
+      "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/veridise-sismo.pdf",
+      "commit": "2b79ab31ebf5547cf73d0441a236446e8ddf501c",
+      "file": "circuits/hydra-s2.circom",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
     "id": "external/risc0/zellic/private-witness-logged",
     "dsl": "risc0",
     "vuln_type": "privacy_leak",
