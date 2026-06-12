@@ -7,6 +7,24 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-12
+
+### Added
+
+- Halo2 gadgets audit session artifacts under
+  `zk-findings/sessions/halo2-gadgets/` (2026-06-05 engagement report and
+  session state).
+
+### Changed
+
+- The weekly `zkbugs-index` upstream diff workflow now rebuilds the index and
+  opens an automated sync pull request when upstream drift is detected,
+  instead of failing the scheduled run.
+- Rebuilt the zkbugs index against upstream `zksecurity/zkbugs`: ingested 31
+  new entries (panther-core, zkemail, circom-rln, keyless-zk-proofs, and
+  others) and dropped 2 entries removed upstream (111 -> 139 upstream
+  entries, 151 total).
+
 ## [0.4.0] - 2026-04-28
 
 ### Added
