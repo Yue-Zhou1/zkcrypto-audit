@@ -8,7 +8,7 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/trailofbits-scroll-2.pdf",
-      "commit": "0xfc6c8a2972870e62e96cde480b3aa48c0cc1303d",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
       "file": "src/gadgets/mpt_update.rs",
       "line": 1209
     },
@@ -29,8 +29,8 @@
     "root_cause": "Missing Input Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/trailofbits-scroll-2.pdf",
-      "commit": "0xfc6c8a2972870e62e96cde480b3aa48c0cc1303d",
-      "file": "constraint_builder/binary_column.rs",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/constraint_builder/binary_column.rs",
       "line": null
     },
     "reproduced": false,
@@ -50,8 +50,8 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
-      "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "MPTCircuit/gadgets/mpt_update.rs",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/gadgets/mpt_update.rs",
       "line": 56
     },
     "reproduced": false,
@@ -71,8 +71,8 @@
     "root_cause": "Assigned but Unconstrained",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
-      "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "MPTCircuit/gadgets/mpt_update.rs",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/gadgets/mpt_update.rs",
       "line": 53
     },
     "reproduced": false,
@@ -92,8 +92,8 @@
     "root_cause": "Wrong Translation of Logic into Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
-      "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "MPTCircuit/gadgets/mpt_update.rs",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/gadgets/mpt_update.rs",
       "line": 54
     },
     "reproduced": false,
@@ -113,8 +113,8 @@
     "root_cause": "Missing Input Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
-      "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "MPTCircuit/gadgets/mpt_update.rs",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/gadgets/mpt_update.rs",
       "line": 47
     },
     "reproduced": false,
@@ -134,8 +134,8 @@
     "root_cause": "Incorrect Custom Gates",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
-      "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "MPTCircuit",
+      "commit": "5026317aec5eb416129c03fdb4b8cd5edad2dd6c",
+      "file": "src/gadgets/one_hot.rs",
       "line": 43
     },
     "reproduced": false,
@@ -155,7 +155,7 @@
     "root_cause": "Other Programming Errors",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll.pdf",
-      "commit": "0xf3ebc6af0e5049d2f45259ef79741f9c7d7794e1",
+      "commit": "079e3f5bfc30d63ded672a97850e3c160504bfad",
       "file": "src/hash.rs",
       "line": 11
     },
@@ -282,7 +282,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/trailofbits-scroll-2.pdf",
       "commit": "0xfc6c8a2972870e62e96cde480b3aa48c0cc1303d",
-      "file": "evm_circuit/execution/error_invalid_creation_code.rs",
+      "file": "zkevm-circuits/src/evm_circuit/execution/error_invalid_creation_code.rs",
       "line": 36
     },
     "reproduced": false,
@@ -324,7 +324,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "PICircuit/pi_circuit.rs",
+      "file": "zkevm-circuits/src/pi_circuit.rs",
       "line": 36
     },
     "reproduced": false,
@@ -345,7 +345,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit/tx_circuit.rs",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 64
     },
     "reproduced": false,
@@ -366,7 +366,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "RLPCircuit/rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 23
     },
     "reproduced": false,
@@ -387,7 +387,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll.pdf",
       "commit": "0xf3ebc6af0e5049d2f45259ef79741f9c7d7794e1",
-      "file": "zkevm-circuits/src/exp-circuit.rs",
+      "file": "zkevm-circuits/src/exp_circuit.rs",
       "line": 19
     },
     "reproduced": false,
@@ -408,7 +408,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit/tx_circuit.rs",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 66
     },
     "reproduced": false,
@@ -429,7 +429,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 19
     },
     "reproduced": false,
@@ -450,7 +450,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 40
     },
     "reproduced": false,
@@ -471,7 +471,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 25
     },
     "reproduced": false,
@@ -492,7 +492,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 14
     },
     "reproduced": false,
@@ -513,7 +513,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "RLPCircuit",
+      "file": "gadgets/src/less_than.rs",
       "line": 17
     },
     "reproduced": false,
@@ -555,7 +555,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "RLPCircuit/rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 68
     },
     "reproduced": false,
@@ -597,7 +597,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 42
     },
     "reproduced": false,
@@ -618,7 +618,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 30
     },
     "reproduced": false,
@@ -639,7 +639,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "RLPCircuit/rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 27
     },
     "reproduced": false,
@@ -660,7 +660,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "TxCircuit",
+      "file": "zkevm-circuits/src/tx_circuit.rs",
       "line": 33
     },
     "reproduced": false,
@@ -681,7 +681,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll-2.pdf",
       "commit": "0x25dd32aa316ec842ffe79bb8efe9f05f86edc33e",
-      "file": "rlp_circuit_fsm.rs",
+      "file": "zkevm-circuits/src/rlp_circuit_fsm.rs",
       "line": 21
     },
     "reproduced": false,
@@ -702,7 +702,7 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/zellic-scroll.pdf",
       "commit": "0xf3ebc6af0e5049d2f45259ef79741f9c7d7794e1",
-      "file": "zkevm-circuits/src/bytecode_circuit/to_poseidon_hash.rs",
+      "file": "zkevm-circuits/src/bytecode_circuit/circuit/to_poseidon_hash.rs",
       "line": 13
     },
     "reproduced": false,
@@ -722,13 +722,13 @@
     "root_cause": "Assigned but Unconstrained",
     "location": {
       "repo": "https://github.com/summa-dev/summa-solvency/issues/32",
-      "commit": "",
-      "file": "",
-      "line": null
+      "commit": "c62b2c743120a5bf0f189e19500fa6042fcfa455",
+      "file": "src/chips/merkle_sum_tree.rs",
+      "line": 147
     },
     "reproduced": false,
     "poc_available": false,
-    "fix_commit": "",
+    "fix_commit": "90b65a159b2ae322763cfdb86bb49efa85b4afc1",
     "disclosure_state": "disclosed",
     "source": "upstream",
     "upstream": true,

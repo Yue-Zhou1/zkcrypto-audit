@@ -9,8 +9,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/mmr.cairo",
+      "line": 147
     },
     "reproduced": false,
     "poc_available": false,
@@ -30,8 +30,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/mmr.cairo",
+      "line": 190
     },
     "reproduced": false,
     "poc_available": false,
@@ -51,8 +51,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/mmr.cairo",
+      "line": 291
     },
     "reproduced": false,
     "poc_available": false,
@@ -72,8 +72,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/mmr.cairo",
+      "line": 193
     },
     "reproduced": false,
     "poc_available": false,
@@ -93,8 +93,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/utils.cairo",
+      "line": 17
     },
     "reproduced": false,
     "poc_available": false,
@@ -114,8 +114,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/utils.cairo",
+      "line": 34
     },
     "reproduced": false,
     "poc_available": false,
@@ -135,8 +135,8 @@
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-herodotus.pdf",
       "commit": "0xb14e74a5a67bd4882383993036658a57f871e12b",
-      "file": "",
-      "line": null
+      "file": "src/libs/utils.cairo",
+      "line": 101
     },
     "reproduced": false,
     "poc_available": false,
@@ -155,8 +155,8 @@
     "root_cause": "Missing Input Constraints",
     "location": {
       "repo": "https://github.com/zksecurity/zkbugs/blob/main/reports/documents/abdk-perpetual.pdf",
-      "commit": "0xe6189aa",
-      "file": "execute_batch_utils.cairo",
+      "commit": "e6189aa6aad3e9d9a2f3b61474e7e284e73153f5",
+      "file": "src/services/perpetual/cairo/execute_batch_utils.cairo",
       "line": 78
     },
     "reproduced": false,
