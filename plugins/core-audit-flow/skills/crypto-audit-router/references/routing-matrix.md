@@ -17,6 +17,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The code claims to follow an RFC, paper, or reference implementation | `spec-delta-checker` |
 | The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
 | The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
+| The issue touches Circom templates, signal constraints, circomlib component reuse, or witness generation for `.circom` circuits | `zk-circuit-auditor` |
 | The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs | `gnark-auditor` |
 | The issue touches AEAD nonce handling, decrypt oracles, key derivation, associated-data binding, or encryption mode misuse | `encryption-scheme-auditor` |
 | The issue touches MPC transcripts, garbled circuits, oblivious transfer, share validation, or multi-party reconstruction | `mpc-auditor` |

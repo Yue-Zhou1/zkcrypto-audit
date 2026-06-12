@@ -1383,13 +1383,18 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
             REPO_ROOT / "plugins" / "zk-and-vm-auditors"
             / "skills" / "zk-circuit-auditor" / "references"
         )
-        for name in ["halo2-patterns.md", "arkworks-patterns.md", "plonky2-patterns.md"]:
+        for name in [
+            "circom-patterns.md",
+            "halo2-patterns.md",
+            "arkworks-patterns.md",
+            "plonky2-patterns.md",
+        ]:
             self.assertTrue((zk_refs / name).exists(), name)
         zk_skill_text = (
             REPO_ROOT / "plugins" / "zk-and-vm-auditors"
             / "skills" / "zk-circuit-auditor" / "SKILL.md"
         ).read_text()
-        self.assertIn("If the codebase uses halo2, arkworks, or plonky2/3", zk_skill_text)
+        self.assertIn("If the codebase uses circom, halo2, arkworks, or plonky2/3", zk_skill_text)
 
         # Layer 2: ethereum-crypto-auditor
         eth = (

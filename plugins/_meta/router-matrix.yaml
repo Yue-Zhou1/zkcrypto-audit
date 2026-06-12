@@ -50,6 +50,11 @@ routing_rules:
     phase: domain
     route_to:
       - zk-circuit-auditor
+  - rule_id: circom_templates_and_signals
+    predicate: The issue touches Circom templates, signal constraints, circomlib component reuse, or witness generation for .circom circuits.
+    phase: domain
+    route_to:
+      - zk-circuit-auditor
   - rule_id: gnark_frontend_backend_assignment
     predicate: The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs.
     phase: domain
