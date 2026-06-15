@@ -1,14 +1,17 @@
-import { Clipboard, FileJson, GitBranch, Plus, RefreshCcw, Save } from 'lucide-react';
+import { ArrowDown, ArrowUp, Clipboard, FileJson, GitBranch, Plus, RefreshCcw, Save, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   createSession,
   Finding,
   Gate,
   listSessions,
-  patchFindingStatus,
+  PatchOp,
+  patchSession,
   readSession,
   SessionDetail,
   SessionListItem,
+  TrustBoundary,
+  validateTarget,
 } from './api';
 
 const PHASES = ['intake', 'domain', 'verification', 'reporting', 'indexing'];
@@ -19,6 +22,8 @@ export function App() {
   const [detail, setDetail] = useState<SessionDetail | null>(null);
   const [selectedFindingId, setSelectedFindingId] = useState<string | null>(null);
   const [newEngagementId, setNewEngagementId] = useState('');
+  const [newTargetPath, setNewTargetPath] = useState('');
+  const [targetHint, setTargetHint] = useState<string | null>(null);
   const [loadingSessions, setLoadingSessions] = useState(true);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,11 +79,22 @@ export function App() {
 
   async function handleCreateSession() {
     const engagementId = newEngagementId.trim();
+    const targetPath = newTargetPath.trim();
     if (!engagementId) return;
     setError(null);
+    setTargetHint(null);
     try {
-      const created = await createSession(engagementId);
+      let validatedTarget: string | undefined;
+      if (targetPath) {
+        const validation = await validateTarget(targetPath);
+        validatedTarget = validation.path;
+        if (!validation.looks_like_rust) {
+          setTargetHint('No Cargo.toml found in this folder. Confirm it is the right Rust target.');
+        }
+      }
+      const created = await createSession(engagementId, validatedTarget);
       setNewEngagementId('');
+      setNewTargetPath('');
       await refreshSessions(created.session_path);
       setDetail(created);
     } catch (err) {
@@ -87,11 +103,20 @@ export function App() {
   }
 
   async function handleSaveStatus() {
-    if (!detail || !selectedFinding?.id || !statusDraft.trim()) return;
+    if (!selectedFinding?.id || !statusDraft.trim()) return;
+    await applyPatch([{ kind: 'update_finding_status', finding_id: selectedFinding.id, status: statusDraft.trim() }]);
+  }
+
+  async function applyPatch(operations: PatchOp[]) {
+    if (!detail) return;
     setError(null);
     try {
-      const updated = await patchFindingStatus(detail.session_path, detail.mtime_ns, selectedFinding.id, statusDraft.trim());
+      const updated = await patchSession(detail.session_path, detail.mtime_ns, operations);
       setDetail(updated);
+      const nextFindings = getFindings(updated);
+      setSelectedFindingId((current) =>
+        current && nextFindings.some((finding) => finding.id === current) ? current : (nextFindings[0]?.id ?? null),
+      );
       await refreshSessions(updated.session_path);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -119,16 +144,24 @@ export function App() {
 
         <section className="new-session">
           <label htmlFor="engagement-id">New engagement</label>
-          <div className="inline-form">
+          <div className="inline-form stacked">
             <input
               id="engagement-id"
               value={newEngagementId}
               onChange={(event) => setNewEngagementId(event.target.value)}
               placeholder="halo2-gadgets-2026-06-12"
             />
-            <button className="icon-button strong" aria-label="Create engagement" onClick={() => void handleCreateSession()}>
-              <Plus size={18} />
-            </button>
+            <input
+              value={newTargetPath}
+              onChange={(event) => setNewTargetPath(event.target.value)}
+              placeholder="/absolute/path/to/rust/crate"
+            />
+            <div className="form-footer">
+              {targetHint ? <p className="hint-note">{targetHint}</p> : <span />}
+              <button className="icon-button strong" aria-label="Create engagement" onClick={() => void handleCreateSession()}>
+                <Plus size={18} />
+              </button>
+            </div>
           </div>
         </section>
 
@@ -190,39 +223,27 @@ export function App() {
             </div>
 
             <section className="section-block">
-              <div className="section-title">
-                <h3>Finding Candidate Matrix</h3>
-                <span>{findings.length} findings</span>
-              </div>
-              {findings.length === 0 ? (
-                <p className="muted">No open or verified findings are recorded in this session.</p>
-              ) : (
-                <div className="finding-table">
-                  <div className="finding-table-head">
-                    <span>ID</span>
-                    <span>Disposition</span>
-                    <span>Summary</span>
-                    <span>Owner</span>
-                  </div>
-                  {findings.map((finding) => (
-                    <button
-                      className={`finding-row ${selectedFinding?.id === finding.id ? 'active' : ''}`}
-                      key={`${finding.id}-${finding.title ?? finding.summary}`}
-                      onClick={() => setSelectedFindingId(finding.id ?? null)}
-                    >
-                      <span>{finding.id ?? 'unknown'}</span>
-                      <Disposition finding={finding} detail={detail} />
-                      <strong>{finding.title ?? finding.summary ?? finding.description ?? 'No summary'}</strong>
-                      <span>{finding.owner_skill ?? String(finding.routing ?? 'unassigned')}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
+              <TargetsPanel
+                targets={getTargets(detail)}
+                onPatch={(operations) => void applyPatch(operations)}
+                onValidateTarget={validateTarget}
+                setError={setError}
+              />
+            </section>
+
+            <section className="section-block">
+              <FindingMatrix
+                detail={detail}
+                findings={findings}
+                selectedFinding={selectedFinding}
+                onSelect={setSelectedFindingId}
+                onPatch={(operations) => void applyPatch(operations)}
+              />
             </section>
 
             <section className="section-block split">
-              <TrustBoundaryPanel value={detail.session.trust_boundaries} />
-              <NextStepsPanel steps={detail.session.next_steps ?? []} />
+              <TrustBoundaryPanel boundaries={getTrustBoundaries(detail)} onPatch={(operations) => void applyPatch(operations)} />
+              <NextStepsPanel steps={detail.session.next_steps ?? []} onPatch={(operations) => void applyPatch(operations)} />
             </section>
 
             {!detail.diagnostics.valid ? (
@@ -300,6 +321,16 @@ function getFindings(detail: SessionDetail): Finding[] {
   return [...(detail.session?.open_findings ?? []), ...(detail.session?.verified_findings ?? [])];
 }
 
+function getTargets(detail: SessionDetail): string[] {
+  const value = detail.session?.targets;
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+function getTrustBoundaries(detail: SessionDetail): TrustBoundary[] {
+  const value = detail.session?.trust_boundaries;
+  return Array.isArray(value) ? value.filter((item): item is TrustBoundary => Boolean(item) && typeof item === 'object') : [];
+}
+
 function Disposition({ finding, detail }: { finding: Finding; detail: SessionDetail }) {
   const dispositions = detail.derived.finding_dispositions ?? {};
   const disposition = (finding.id && dispositions[finding.id]) || 'unknown';
@@ -319,55 +350,306 @@ function Metric({ label, value }: { label: string; value: string }) {
   );
 }
 
-function TrustBoundaryPanel({ value }: { value: unknown }) {
-  const items = Array.isArray(value) ? value : value && typeof value === 'object' ? Object.entries(value) : [];
+function TargetsPanel({
+  targets,
+  onPatch,
+  onValidateTarget,
+  setError,
+}: {
+  targets: string[];
+  onPatch: (operations: PatchOp[]) => void;
+  onValidateTarget: typeof validateTarget;
+  setError: (message: string | null) => void;
+}) {
+  const [newTarget, setNewTarget] = useState('');
+  const [editing, setEditing] = useState<Record<number, string>>({});
+
+  async function validate(raw: string): Promise<string | null> {
+    const target = raw.trim();
+    if (!target) return null;
+    try {
+      const validation = await onValidateTarget(target);
+      if (!validation.looks_like_rust) {
+        setError('No Cargo.toml found for that target. It was accepted, but confirm the path is intentional.');
+      }
+      return validation.path;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return null;
+    }
+  }
+
+  async function addTarget() {
+    const path = await validate(newTarget);
+    if (!path) return;
+    onPatch([{ kind: 'add_target', value: path }]);
+    setNewTarget('');
+  }
+
+  async function saveTarget(index: number) {
+    const path = await validate(editing[index] ?? targets[index] ?? '');
+    if (!path) return;
+    onPatch([{ kind: 'edit_target', index, value: path }]);
+  }
+
   return (
     <div>
       <div className="section-title">
-        <h3>Trust Boundaries</h3>
-        <span>{Array.isArray(items) ? items.length : 0}</span>
+        <h3>Targets</h3>
+        <span>{targets.length}</span>
       </div>
-      <div className="compact-list">
-        {Array.isArray(value)
-          ? value.slice(0, 5).map((item, index) => (
-              <div key={index}>
-                <strong>{typeof item === 'object' && item !== null && 'name' in item ? String(item.name) : `Boundary ${index + 1}`}</strong>
-                <p>{typeof item === 'object' && item !== null ? String(item.assumption ?? item.description ?? item.evidence ?? '') : String(item)}</p>
-              </div>
-            ))
-          : Object.entries((value ?? {}) as Record<string, unknown>)
-              .slice(0, 5)
-              .map(([key, item]) => (
-                <div key={key}>
-                  <strong>{key}</strong>
-                  <p>{Array.isArray(item) ? item.slice(0, 3).join('; ') : String(item)}</p>
-                </div>
-              ))}
-        <MoreIndicator total={items.length} shown={5} noun="boundaries" />
+      <div className="edit-list">
+        {targets.length === 0 ? <p className="muted">No target paths recorded.</p> : null}
+        {targets.map((target, index) => (
+          <div className="edit-row target-row" key={`${target}-${index}`}>
+            <input
+              value={editing[index] ?? target}
+              onChange={(event) => setEditing((current) => ({ ...current, [index]: event.target.value }))}
+            />
+            <button className="icon-button" aria-label="Save target" onClick={() => void saveTarget(index)}>
+              <Save size={16} />
+            </button>
+            <button className="icon-button danger" aria-label="Remove target" onClick={() => onPatch([{ kind: 'remove_target', index }])}>
+              <Trash2 size={16} />
+            </button>
+          </div>
+        ))}
+        <div className="edit-row target-row">
+          <input value={newTarget} onChange={(event) => setNewTarget(event.target.value)} placeholder="/absolute/path/to/target" />
+          <button className="icon-button strong" aria-label="Add target" onClick={() => void addTarget()}>
+            <Plus size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );
 }
 
-function MoreIndicator({ total, shown, noun }: { total: number; shown: number; noun: string }) {
-  if (total <= shown) return null;
-  return <p className="muted">+{total - shown} more {noun}</p>;
+function FindingMatrix({
+  detail,
+  findings,
+  selectedFinding,
+  onSelect,
+  onPatch,
+}: {
+  detail: SessionDetail;
+  findings: Finding[];
+  selectedFinding: Finding | null;
+  onSelect: (findingId: string | null) => void;
+  onPatch: (operations: PatchOp[]) => void;
+}) {
+  const [draft, setDraft] = useState({ id: '', status: 'unverified', summary: '' });
+  const canAdd = Boolean(draft.id.trim());
+
+  function addFinding() {
+    if (!canAdd) return;
+    onPatch([{ kind: 'add_finding', finding: cleanFinding(draft) }]);
+    setDraft({ id: '', status: 'unverified', summary: '' });
+  }
+
+  return (
+    <>
+      <div className="section-title">
+        <h3>Finding Candidate Matrix</h3>
+        <span>{findings.length} findings</span>
+      </div>
+      <div className="finding-add-row">
+        <input value={draft.id} onChange={(event) => setDraft((current) => ({ ...current, id: event.target.value }))} placeholder="F-01" />
+        <input
+          value={draft.status}
+          onChange={(event) => setDraft((current) => ({ ...current, status: event.target.value }))}
+          placeholder="unverified"
+        />
+        <input
+          value={draft.summary}
+          onChange={(event) => setDraft((current) => ({ ...current, summary: event.target.value }))}
+          placeholder="Candidate finding summary"
+        />
+        <button className="icon-button strong" aria-label="Add finding" disabled={!canAdd} onClick={addFinding}>
+          <Plus size={16} />
+        </button>
+      </div>
+      {findings.length === 0 ? (
+        <p className="muted">No open or verified findings are recorded in this session.</p>
+      ) : (
+        <div className="finding-table">
+          <div className="finding-table-head">
+            <span>ID</span>
+            <span>Disposition</span>
+            <span>Summary</span>
+            <span>Owner</span>
+            <span />
+          </div>
+          {findings.map((finding) => (
+            <div className={`finding-row ${selectedFinding?.id === finding.id ? 'active' : ''}`} key={`${finding.id}-${finding.title ?? finding.summary}`}>
+              <button className="row-select" onClick={() => onSelect(finding.id ?? null)}>
+                <span>{finding.id ?? 'unknown'}</span>
+                <Disposition finding={finding} detail={detail} />
+                <strong>{finding.title ?? finding.summary ?? finding.description ?? 'No summary'}</strong>
+                <span>{finding.owner_skill ?? String(finding.routing ?? 'unassigned')}</span>
+              </button>
+              <button
+                className="icon-button danger"
+                aria-label="Remove finding"
+                disabled={!finding.id || !detail.session?.open_findings?.some((item) => item.id === finding.id)}
+                onClick={() => finding.id && onPatch([{ kind: 'remove_finding', finding_id: finding.id }])}
+              >
+                <Trash2 size={16} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
 }
 
-function NextStepsPanel({ steps }: { steps: string[] }) {
+function TrustBoundaryPanel({
+  boundaries,
+  onPatch,
+}: {
+  boundaries: TrustBoundary[];
+  onPatch: (operations: PatchOp[]) => void;
+}) {
+  const [draft, setDraft] = useState({ name: '', assumption: '', evidence: '' });
+  const [edits, setEdits] = useState<Record<number, { name: string; assumption: string; evidence: string }>>({});
+
+  function editFor(boundary: TrustBoundary, index: number) {
+    return (
+      edits[index] ?? {
+        name: String(boundary.name ?? ''),
+        assumption: String(boundary.assumption ?? boundary.description ?? ''),
+        evidence: String(boundary.evidence ?? ''),
+      }
+    );
+  }
+
+  function setEdit(index: number, field: 'name' | 'assumption' | 'evidence', value: string) {
+    setEdits((current) => ({ ...current, [index]: { ...editFor(boundaries[index] ?? {}, index), [field]: value } }));
+  }
+
+  function addBoundary() {
+    if (!draft.name.trim()) return;
+    onPatch([{ kind: 'add_trust_boundary', boundary: cleanBoundary(draft) }]);
+    setDraft({ name: '', assumption: '', evidence: '' });
+  }
+
+  return (
+    <div>
+      <div className="section-title">
+        <h3>Trust Boundaries</h3>
+        <span>{boundaries.length}</span>
+      </div>
+      <div className="edit-list">
+        {boundaries.length === 0 ? <p className="muted">No trust boundaries recorded.</p> : null}
+        {boundaries.map((boundary, index) => {
+          const edit = editFor(boundary, index);
+          return (
+            <div className="edit-card" key={`${edit.name}-${index}`}>
+              <input value={edit.name} onChange={(event) => setEdit(index, 'name', event.target.value)} placeholder="Boundary name" />
+              <textarea
+                value={edit.assumption}
+                onChange={(event) => setEdit(index, 'assumption', event.target.value)}
+                placeholder="Assumption"
+              />
+              <textarea value={edit.evidence} onChange={(event) => setEdit(index, 'evidence', event.target.value)} placeholder="Evidence" />
+              <div className="row-actions">
+                <button className="icon-button" aria-label="Save trust boundary" onClick={() => onPatch([{ kind: 'edit_trust_boundary', index, boundary: cleanBoundary(edit) }])}>
+                  <Save size={16} />
+                </button>
+                <button className="icon-button danger" aria-label="Remove trust boundary" onClick={() => onPatch([{ kind: 'remove_trust_boundary', index }])}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          );
+        })}
+        <div className="edit-card">
+          <input value={draft.name} onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))} placeholder="Boundary name" />
+          <textarea
+            value={draft.assumption}
+            onChange={(event) => setDraft((current) => ({ ...current, assumption: event.target.value }))}
+            placeholder="Assumption"
+          />
+          <textarea
+            value={draft.evidence}
+            onChange={(event) => setDraft((current) => ({ ...current, evidence: event.target.value }))}
+            placeholder="Evidence"
+          />
+          <div className="row-actions">
+            <button className="icon-button strong" aria-label="Add trust boundary" onClick={addBoundary}>
+              <Plus size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function cleanBoundary(boundary: { name: string; assumption: string; evidence: string }): Record<string, string> {
+  return cleanFields(boundary);
+}
+
+function cleanFinding(finding: { id: string; status: string; summary: string }): Record<string, string> {
+  return { ...cleanFields(finding), id: finding.id.trim() };
+}
+
+function cleanFields(fields: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(fields).filter(([, value]) => value.trim()).map(([key, value]) => [key, value.trim()]));
+}
+
+function NextStepsPanel({ steps, onPatch }: { steps: string[]; onPatch: (operations: PatchOp[]) => void }) {
+  const [draft, setDraft] = useState('');
+  const [edits, setEdits] = useState<Record<number, string>>({});
+
+  function moveStep(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= steps.length) return;
+    const order = steps.map((_, itemIndex) => itemIndex);
+    [order[index], order[target]] = [order[target], order[index]];
+    onPatch([{ kind: 'reorder_next_steps', order }]);
+  }
+
   return (
     <div>
       <div className="section-title">
         <h3>Next Steps</h3>
         <span>{steps.length}</span>
       </div>
-      <div className="compact-list">
-        {steps.slice(0, 5).map((step) => (
-          <div key={step}>
-            <p>{step}</p>
+      <div className="edit-list">
+        {steps.length === 0 ? <p className="muted">No next steps recorded.</p> : null}
+        {steps.map((step, index) => (
+          <div className="edit-row step-row" key={`${step}-${index}`}>
+            <input value={edits[index] ?? step} onChange={(event) => setEdits((current) => ({ ...current, [index]: event.target.value }))} />
+            <button className="icon-button" aria-label="Move step up" disabled={index === 0} onClick={() => moveStep(index, -1)}>
+              <ArrowUp size={16} />
+            </button>
+            <button className="icon-button" aria-label="Move step down" disabled={index === steps.length - 1} onClick={() => moveStep(index, 1)}>
+              <ArrowDown size={16} />
+            </button>
+            <button className="icon-button" aria-label="Save next step" onClick={() => onPatch([{ kind: 'edit_next_step', index, value: (edits[index] ?? step).trim() }])}>
+              <Save size={16} />
+            </button>
+            <button className="icon-button danger" aria-label="Remove next step" onClick={() => onPatch([{ kind: 'remove_next_step', index }])}>
+              <Trash2 size={16} />
+            </button>
           </div>
         ))}
-        <MoreIndicator total={steps.length} shown={5} noun="steps" />
+        <div className="edit-row step-row add-row">
+          <input value={draft} onChange={(event) => setDraft(event.target.value)} placeholder="Next action to preserve in session state" />
+          <button
+            className="icon-button strong"
+            aria-label="Add next step"
+            onClick={() => {
+              if (!draft.trim()) return;
+              onPatch([{ kind: 'append_next_step', text: draft.trim() }]);
+              setDraft('');
+            }}
+          >
+            <Plus size={16} />
+          </button>
+        </div>
       </div>
     </div>
   );

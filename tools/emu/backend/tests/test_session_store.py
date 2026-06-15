@@ -4,7 +4,13 @@ import unittest
 from pathlib import Path
 
 from emu.models.session import PatchOperation, PatchRequest
-from emu.services.session_store import PathGuardError, SessionStore, WriteConflictError
+from emu.services.session_store import (
+    FindingConflictError,
+    PatchIndexError,
+    PathGuardError,
+    SessionStore,
+    WriteConflictError,
+)
 
 
 def _write_session(path: Path, payload: dict) -> int:
@@ -20,6 +26,11 @@ class SessionStoreTests(unittest.TestCase):
 
     def tearDown(self) -> None:
         self._temp_dir.cleanup()
+
+    def _store_with_session(self, payload: dict) -> tuple[SessionStore, int]:
+        session_path = self.repo_root / "zk-findings" / "sessions" / "eng" / "eng.json"
+        base_mtime_ns = _write_session(session_path, payload)
+        return SessionStore(self.repo_root), base_mtime_ns
 
     def test_rejects_path_traversal(self) -> None:
         store = SessionStore(self.repo_root)
@@ -144,6 +155,71 @@ class SessionStoreTests(unittest.TestCase):
                             kind="update_finding_status",
                             finding_id="F-01",
                             status="verified",
+                        )
+                    ],
+                ),
+            )
+
+    def test_edit_target_raises_on_out_of_range_index(self) -> None:
+        store, mtime = self._store_with_session(
+            {
+                "engagement_id": "eng",
+                "targets": ["/a"],
+                "trust_boundaries": [],
+                "open_findings": [],
+                "verified_findings": [],
+                "next_steps": [],
+            }
+        )
+        with self.assertRaises(PatchIndexError):
+            store.patch_session(
+                "eng/eng.json",
+                PatchRequest(
+                    base_mtime_ns=mtime,
+                    operations=[PatchOperation(kind="edit_target", index=5, value="/b")],
+                ),
+            )
+
+    def test_remove_trust_boundary_raises_on_out_of_range_index(self) -> None:
+        store, mtime = self._store_with_session(
+            {
+                "engagement_id": "eng",
+                "targets": [],
+                "trust_boundaries": [],
+                "open_findings": [],
+                "verified_findings": [],
+                "next_steps": [],
+            }
+        )
+        with self.assertRaises(PatchIndexError):
+            store.patch_session(
+                "eng/eng.json",
+                PatchRequest(
+                    base_mtime_ns=mtime,
+                    operations=[PatchOperation(kind="remove_trust_boundary", index=0)],
+                ),
+            )
+
+    def test_add_finding_raises_on_duplicate_id(self) -> None:
+        store, mtime = self._store_with_session(
+            {
+                "engagement_id": "eng",
+                "targets": [],
+                "trust_boundaries": [],
+                "open_findings": [{"id": "F-01", "status": "unverified", "summary": "x"}],
+                "verified_findings": [],
+                "next_steps": [],
+            }
+        )
+        with self.assertRaises(FindingConflictError):
+            store.patch_session(
+                "eng/eng.json",
+                PatchRequest(
+                    base_mtime_ns=mtime,
+                    operations=[
+                        PatchOperation(
+                            kind="add_finding",
+                            finding={"id": "F-01", "status": "unverified", "summary": "dupe"},
                         )
                     ],
                 ),

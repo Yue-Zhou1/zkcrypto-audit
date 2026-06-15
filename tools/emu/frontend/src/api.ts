@@ -29,6 +29,33 @@ export type Finding = {
   [key: string]: unknown;
 };
 
+export type TrustBoundary = {
+  name?: string;
+  assumption?: string;
+  evidence?: string;
+  description?: string;
+  [key: string]: unknown;
+};
+
+export type PatchOp = {
+  kind: string;
+  finding_id?: string;
+  status?: string;
+  summary?: string;
+  text?: string;
+  index?: number;
+  value?: string;
+  boundary?: Record<string, string>;
+  finding?: Record<string, string>;
+  order?: number[];
+};
+
+export type TargetValidation = {
+  path: string;
+  in_repo: boolean;
+  looks_like_rust: boolean;
+};
+
 export type Gate = {
   gate: string;
   status: string;
@@ -44,7 +71,7 @@ export type SessionDetail = {
     targets?: unknown;
     target_scope?: unknown;
     scope?: unknown;
-    trust_boundaries?: unknown;
+    trust_boundaries?: TrustBoundary[] | Record<string, unknown>;
     open_findings?: Finding[];
     verified_findings?: Finding[];
     next_steps?: string[];
@@ -77,35 +104,48 @@ export async function listSessions(): Promise<SessionListItem[]> {
   return data.sessions;
 }
 
+// Encode each path segment but keep the slash separators literal: the backend
+// route is {session_path:path}, which matches a slash-bearing tail.
+function sessionUrl(sessionPath: string): string {
+  const encoded = sessionPath.split('/').map(encodeURIComponent).join('/');
+  return `/api/sessions/${encoded}`;
+}
+
 export async function readSession(sessionPath: string): Promise<SessionDetail> {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(sessionPath).replace(/%2F/g, '/')}`);
+  const response = await fetch(sessionUrl(sessionPath));
   if (!response.ok) throw new Error(await response.text());
   return response.json();
 }
 
-export async function createSession(engagementId: string): Promise<SessionDetail> {
+export async function createSession(engagementId: string, firstTarget?: string): Promise<SessionDetail> {
   const response = await fetch('/api/sessions', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ engagement_id: engagementId }),
+    body: JSON.stringify({ engagement_id: engagementId, first_target: firstTarget }),
   });
   if (!response.ok) throw new Error(await response.text());
   return response.json();
 }
 
-export async function patchFindingStatus(
+export async function validateTarget(path: string): Promise<TargetValidation> {
+  const response = await fetch('/api/fs/validate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ path }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function patchSession(
   sessionPath: string,
   baseMtimeNs: number,
-  findingId: string,
-  status: string,
+  operations: PatchOp[],
 ): Promise<SessionDetail> {
-  const response = await fetch(`/api/sessions/${encodeURIComponent(sessionPath).replace(/%2F/g, '/')}`, {
+  const response = await fetch(sessionUrl(sessionPath), {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      base_mtime_ns: baseMtimeNs,
-      operations: [{ kind: 'update_finding_status', finding_id: findingId, status }],
-    }),
+    body: JSON.stringify({ base_mtime_ns: baseMtimeNs, operations }),
   });
   if (!response.ok) throw new Error(await response.text());
   return response.json();

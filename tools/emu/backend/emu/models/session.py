@@ -10,6 +10,11 @@ class PatchOperation:
     status: str | None = None
     summary: str | None = None
     text: str | None = None
+    index: int | None = None
+    value: str | None = None
+    boundary: dict[str, str] | None = None
+    finding: dict[str, str] | None = None
+    order: list[int] | None = None
 
 
 @dataclass(frozen=True)

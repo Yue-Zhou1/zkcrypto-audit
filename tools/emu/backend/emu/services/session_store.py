@@ -30,12 +30,20 @@ class FindingNotFoundError(SessionStoreError):
     """Raised when a patch operation names a missing finding."""
 
 
+class FindingConflictError(SessionStoreError):
+    """Raised when add_finding would introduce a duplicate finding id."""
+
+
 class WriteConflictError(SessionStoreError):
     """Raised when a session changed after the caller loaded it."""
 
 
 class UnsupportedPatchOperationError(SessionStoreError):
     """Raised when a patch request contains an unsupported operation."""
+
+
+class PatchIndexError(SessionStoreError):
+    """Raised when a patch operation targets an out-of-range list index."""
 
 
 class SessionStore:
@@ -120,7 +128,12 @@ class SessionStore:
             },
         }
 
-    def create_session(self, engagement_id: str, engagement_dir: str | None = None) -> dict[str, Any]:
+    def create_session(
+        self,
+        engagement_id: str,
+        engagement_dir: str | None = None,
+        first_target: str | None = None,
+    ) -> dict[str, Any]:
         clean_engagement_id = engagement_id.strip()
         if not clean_engagement_id:
             raise InvalidSessionError("engagement_id is required")
@@ -132,7 +145,7 @@ class SessionStore:
 
         data = {
             "engagement_id": clean_engagement_id,
-            "targets": [],
+            "targets": [first_target] if first_target else [],
             "trust_boundaries": [],
             "open_findings": [],
             "verified_findings": [],
@@ -210,11 +223,88 @@ class SessionStore:
         if operation.kind == "append_next_step":
             if not operation.text:
                 raise UnsupportedPatchOperationError("append_next_step requires non-empty text")
-            next_steps = data.setdefault("next_steps", [])
-            if not isinstance(next_steps, list):
-                raise InvalidSessionError("next_steps must be a list")
-            next_steps.append(operation.text)
+            self._mutable_list(data, "next_steps").append(operation.text)
             return
+
+        if operation.kind == "add_target":
+            if not operation.value:
+                raise UnsupportedPatchOperationError("add_target requires value")
+            self._mutable_list(data, "targets").append(operation.value)
+            return
+
+        if operation.kind == "edit_target":
+            if not operation.value:
+                raise UnsupportedPatchOperationError("edit_target requires value")
+            targets = self._mutable_list(data, "targets")
+            targets[self._checked_index(targets, operation.index, "edit_target")] = operation.value
+            return
+
+        if operation.kind == "remove_target":
+            targets = self._mutable_list(data, "targets")
+            del targets[self._checked_index(targets, operation.index, "remove_target")]
+            return
+
+        if operation.kind == "add_trust_boundary":
+            if not operation.boundary or not operation.boundary.get("name"):
+                raise UnsupportedPatchOperationError("add_trust_boundary requires boundary with name")
+            self._mutable_list(data, "trust_boundaries").append(dict(operation.boundary))
+            return
+
+        if operation.kind == "edit_trust_boundary":
+            if not operation.boundary:
+                raise UnsupportedPatchOperationError("edit_trust_boundary requires boundary")
+            boundaries = self._mutable_list(data, "trust_boundaries")
+            idx = self._checked_index(boundaries, operation.index, "edit_trust_boundary")
+            current = boundaries[idx]
+            if not isinstance(current, dict):
+                raise InvalidSessionError("trust boundary entry is not an object")
+            current.update(operation.boundary)
+            return
+
+        if operation.kind == "remove_trust_boundary":
+            boundaries = self._mutable_list(data, "trust_boundaries")
+            del boundaries[self._checked_index(boundaries, operation.index, "remove_trust_boundary")]
+            return
+
+        if operation.kind == "edit_next_step":
+            if not operation.value:
+                raise UnsupportedPatchOperationError("edit_next_step requires value")
+            steps = self._mutable_list(data, "next_steps")
+            steps[self._checked_index(steps, operation.index, "edit_next_step")] = operation.value
+            return
+
+        if operation.kind == "remove_next_step":
+            steps = self._mutable_list(data, "next_steps")
+            del steps[self._checked_index(steps, operation.index, "remove_next_step")]
+            return
+
+        if operation.kind == "reorder_next_steps":
+            steps = self._mutable_list(data, "next_steps")
+            order = operation.order or []
+            if sorted(order) != list(range(len(steps))):
+                raise PatchIndexError(f"reorder_next_steps order {order} is not a permutation of 0..{len(steps) - 1}")
+            data["next_steps"] = [steps[i] for i in order]
+            return
+
+        if operation.kind == "add_finding":
+            finding = operation.finding or {}
+            finding_id = finding.get("id")
+            if not finding_id:
+                raise UnsupportedPatchOperationError("add_finding requires finding with id")
+            if self._finding_id_exists(data, finding_id):
+                raise FindingConflictError(f"finding id already exists: {finding_id}")
+            self._mutable_list(data, "open_findings").append(dict(finding))
+            return
+
+        if operation.kind == "remove_finding":
+            if not operation.finding_id:
+                raise UnsupportedPatchOperationError("remove_finding requires finding_id")
+            findings = self._mutable_list(data, "open_findings")
+            for i, item in enumerate(findings):
+                if isinstance(item, dict) and item.get("id") == operation.finding_id:
+                    del findings[i]
+                    return
+            raise FindingNotFoundError(f"finding not found: {operation.finding_id}")
 
         raise UnsupportedPatchOperationError(f"unsupported patch operation: {operation.kind}")
 
@@ -243,6 +333,26 @@ class SessionStore:
                     return item
         raise FindingNotFoundError(f"finding not found: {finding_id}")
 
+    def _finding_id_exists(self, data: dict[str, Any], finding_id: str) -> bool:
+        for collection_name in ("open_findings", "verified_findings"):
+            for item in self._finding_list(data, collection_name):
+                if item.get("id") == finding_id:
+                    return True
+        return False
+
+    def _mutable_list(self, data: dict[str, Any], key: str) -> list[Any]:
+        value = data.setdefault(key, [])
+        if not isinstance(value, list):
+            raise InvalidSessionError(f"{key} must be a list")
+        return value
+
+    def _checked_index(self, items: list[Any], index: int | None, kind: str) -> int:
+        if index is None:
+            raise UnsupportedPatchOperationError(f"{kind} requires index")
+        if index < 0 or index >= len(items):
+            raise PatchIndexError(f"{kind} index {index} out of range (len {len(items)})")
+        return index
+
     def _finding_list(self, data: dict[str, Any], key: str) -> list[dict[str, Any]]:
         value = data.get(key, [])
         if not isinstance(value, list):
@@ -260,8 +370,10 @@ class SessionStore:
 
 
 __all__ = [
+    "FindingConflictError",
     "FindingNotFoundError",
     "InvalidSessionError",
+    "PatchIndexError",
     "PathGuardError",
     "SessionNotFoundError",
     "SessionStore",

@@ -25,7 +25,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -70,6 +71,12 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+}
+
+.inline-form.stacked {
+  display: grid;
+  align-items: stretch;
+  gap: 8px;
 }
 
 .brand-row h1,
@@ -140,6 +147,15 @@ button {
   color: #ffffff;
 }
 
+.icon-button.danger {
+  color: #963927;
+}
+
+.icon-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.42;
+}
+
 .icon-button:active,
 .text-button:active,
 .session-row:active,
@@ -171,20 +187,54 @@ button {
   font-weight: 650;
 }
 
-.inline-form input {
+.inline-form input,
+.edit-row input,
+.finding-add-row input,
+.edit-card input,
+.edit-card textarea {
   width: 100%;
   min-width: 0;
-  height: 36px;
   border: 1px solid #cbd4d8;
   border-radius: 8px;
-  padding: 0 10px;
   background: #ffffff;
   color: #202124;
   outline: none;
 }
 
-.inline-form input:focus {
+.inline-form input,
+.edit-row input,
+.finding-add-row input,
+.edit-card input {
+  height: 36px;
+  padding: 0 10px;
+}
+
+.edit-card textarea {
+  min-height: 72px;
+  resize: vertical;
+  padding: 9px 10px;
+}
+
+.inline-form input:focus,
+.edit-row input:focus,
+.finding-add-row input:focus,
+.edit-card input:focus,
+.edit-card textarea:focus {
   border-color: #16584f;
+}
+
+.form-footer {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 8px;
+}
+
+.hint-note {
+  margin: 0;
+  color: #8a5600;
+  font-size: 12px;
+  line-height: 1.35;
 }
 
 .phase-list {
@@ -339,12 +389,13 @@ button {
 .finding-table-head,
 .finding-row {
   display: grid;
-  grid-template-columns: 90px 140px minmax(240px, 1fr) 170px;
+  grid-template-columns: 1fr 42px;
   gap: 12px;
   align-items: center;
 }
 
 .finding-table-head {
+  grid-template-columns: 90px 140px minmax(240px, 1fr) 170px 42px;
   min-height: 38px;
   padding: 0 12px;
   color: #667078;
@@ -364,19 +415,31 @@ button {
   text-align: left;
 }
 
+.row-select {
+  display: grid;
+  grid-template-columns: 90px 140px minmax(240px, 1fr) 170px;
+  gap: 12px;
+  align-items: center;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+
 .finding-row.active,
 .finding-row:hover {
   background: #f7faf9;
 }
 
-.finding-row span:first-child,
-.finding-row span:last-child {
+.row-select span:first-child,
+.row-select span:last-child {
   color: #626b73;
   font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
   font-size: 12px;
 }
 
-.finding-row strong {
+.row-select strong {
   overflow: hidden;
   color: #2e3439;
   font-size: 13px;
@@ -440,6 +503,50 @@ button {
   margin: 0;
   font-size: 13px;
   line-height: 1.45;
+}
+
+.edit-list {
+  display: grid;
+  gap: 10px;
+}
+
+.edit-row,
+.finding-add-row {
+  display: grid;
+  gap: 8px;
+  align-items: center;
+}
+
+.target-row {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.step-row {
+  grid-template-columns: minmax(0, 1fr) auto auto auto auto;
+}
+
+.step-row.add-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.finding-add-row {
+  grid-template-columns: 90px 150px minmax(220px, 1fr) auto;
+  margin-bottom: 12px;
+}
+
+.edit-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid #dfe3e6;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+}
+
+.row-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .diagnostic-list {
@@ -583,6 +690,10 @@ pre {
   .split,
   .finding-table-head,
   .finding-row,
+  .row-select,
+  .finding-add-row,
+  .target-row,
+  .step-row,
   .diagnostic-list li {
     grid-template-columns: 1fr;
   }
@@ -602,7 +713,7 @@ pre {
     display: none;
   }
 
-  .finding-row strong {
+  .row-select strong {
     white-space: normal;
   }
 }

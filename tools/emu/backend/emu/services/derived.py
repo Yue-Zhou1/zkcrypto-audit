@@ -196,6 +196,29 @@ class DerivedSessionService:
             default_skill = self.metadata.default_skill_for_phase(str(runtime_phase)) if runtime_phase else None
         except MetadataError:
             default_skill = None
+        has_targets = self._has_targets(session)
+        has_boundaries = bool(session.get("trust_boundaries"))
+        has_findings = bool(session.get("open_findings") or session.get("verified_findings"))
+
+        if not has_targets:
+            return self._action(
+                phase,
+                next_skill="crypto-audit-context",
+                reason="No target is set yet. Add the Rust crate or workspace folder to audit.",
+                finding=None,
+                session_path=session_path,
+                session=session,
+            )
+        if not has_boundaries and not has_findings:
+            return self._action(
+                phase,
+                next_skill="crypto-audit-context",
+                reason="Targets are set but trust boundaries are empty. Capture trust boundaries and critical paths before routing.",
+                finding=None,
+                session_path=session_path,
+                session=session,
+            )
+
         blocking_gate = next((gate for gate in gates if gate.get("status") == "blocked"), None)
         ready_report_gate = next((gate for gate in gates if gate.get("status") == "ready_for_report_writer"), None)
         promotion_gate = next((gate for gate in gates if gate.get("status") == "should_promote"), None)
@@ -217,13 +240,23 @@ class DerivedSessionService:
             reason = "Continue the staged audit flow from the current session phase."
             finding = None
 
-        prompt = self._prompt(session_path, session, next_skill, reason, finding)
+        return self._action(phase, next_skill, reason, finding, session_path, session)
+
+    def _action(
+        self,
+        phase: dict[str, str | None],
+        next_skill: str,
+        reason: str,
+        finding: str | None,
+        session_path: str,
+        session: dict[str, Any],
+    ) -> dict[str, Any]:
         return {
             "phase": phase,
             "next_skill": next_skill,
             "reason": reason,
             "finding_id": finding,
-            "prompt": prompt,
+            "prompt": self._prompt(session_path, session, next_skill, reason, finding),
         }
 
     def _prompt(

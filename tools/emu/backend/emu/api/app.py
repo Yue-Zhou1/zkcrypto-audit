@@ -7,10 +7,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from emu.models.session import PatchOperation, PatchRequest
+from emu.services.filesystem import FilesystemService, TargetPathError
 from emu.services.metadata import MetadataError, MetadataService
 from emu.services.session_store import (
+    FindingConflictError,
     FindingNotFoundError,
     InvalidSessionError,
+    PatchIndexError,
     PathGuardError,
     SessionNotFoundError,
     SessionStore,
@@ -25,6 +28,11 @@ class PatchOperationPayload(BaseModel):
     status: str | None = None
     summary: str | None = None
     text: str | None = None
+    index: int | None = None
+    value: str | None = None
+    boundary: dict[str, str] | None = None
+    finding: dict[str, str] | None = None
+    order: list[int] | None = None
 
 
 class PatchSessionPayload(BaseModel):
@@ -35,6 +43,11 @@ class PatchSessionPayload(BaseModel):
 class CreateSessionPayload(BaseModel):
     engagement_id: str
     engagement_dir: str | None = None
+    first_target: str | None = None
+
+
+class ValidateTargetPayload(BaseModel):
+    path: str
 
 
 def repo_root_from_backend() -> Path:
@@ -45,6 +58,7 @@ def create_app(repo_root: Path | None = None) -> FastAPI:
     root = repo_root or repo_root_from_backend()
     store = SessionStore(root)
     metadata = MetadataService(root)
+    filesystem = FilesystemService(root)
     app = FastAPI(title="emu", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -79,11 +93,18 @@ def create_app(repo_root: Path | None = None) -> FastAPI:
     @app.post("/api/sessions", status_code=201)
     def create_session(payload: CreateSessionPayload) -> dict:
         try:
-            return store.create_session(payload.engagement_id, payload.engagement_dir)
+            return store.create_session(payload.engagement_id, payload.engagement_dir, payload.first_target)
         except (PathGuardError, InvalidSessionError) as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
         except WriteConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+    @app.post("/api/fs/validate")
+    def validate_target(payload: ValidateTargetPayload) -> dict:
+        try:
+            return filesystem.validate_target(payload.path)
+        except TargetPathError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     @app.patch("/api/sessions/{session_path:path}")
     def patch_session(session_path: str, payload: PatchSessionPayload) -> dict:
@@ -96,6 +117,11 @@ def create_app(repo_root: Path | None = None) -> FastAPI:
                     status=item.status,
                     summary=item.summary,
                     text=item.text,
+                    index=item.index,
+                    value=item.value,
+                    boundary=item.boundary,
+                    finding=item.finding,
+                    order=item.order,
                 )
                 for item in payload.operations
             ],
@@ -107,8 +133,10 @@ def create_app(repo_root: Path | None = None) -> FastAPI:
         except WriteConflictError as exc:
             raise HTTPException(status_code=409, detail=str(exc)) from exc
         except (
+            FindingConflictError,
             FindingNotFoundError,
             InvalidSessionError,
+            PatchIndexError,
             PathGuardError,
             UnsupportedPatchOperationError,
         ) as exc:
