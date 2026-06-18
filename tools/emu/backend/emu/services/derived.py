@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,21 @@ def _truncate(text: str, limit: int = 140) -> str:
     return text if len(text) <= limit else text[: limit - 1] + "…"
 
 
+# Single source of truth for which skill a gate status (or a phase fallback)
+# routes to. Both per-gate prompts and the next-action prompt read this, so
+# their phrasing cannot drift apart. A status absent here gets no prompt.
+GATE_SKILL = {
+    "blocked": "crypto-fp-check",
+    "should_promote": "crypto-fp-check",
+    "insufficient_data": "crypto-fp-check",
+    "ready_for_report_writer": "crypto-report-writer",
+    "needs_repair": "crypto-report-writer",
+    "needs_classification": "crypto-audit-router",
+    "needs_rationale": "crypto-audit-router",
+    "needs_intake": "crypto-audit-context",
+}
+
+
 @dataclass(frozen=True)
 class GateResult:
     gate: str
@@ -28,6 +43,7 @@ class GateResult:
     finding_id: str | None = None
     message: str = ""
     reads: tuple[str, ...] = ()
+    prompt: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -36,6 +52,7 @@ class GateResult:
             "finding_id": self.finding_id,
             "message": self.message,
             "reads": list(self.reads),
+            "prompt": self.prompt,
         }
 
 
@@ -94,6 +111,7 @@ class DerivedSessionService:
         session: dict[str, Any],
         validation: dict[str, Any],
         session_file: Path | None = None,
+        session_path: str = "",
     ) -> list[dict[str, Any]]:
         gates: list[GateResult] = []
         open_findings = self._findings(session, "open_findings")
@@ -187,7 +205,14 @@ class DerivedSessionService:
                 )
             )
 
-        return [gate.to_dict() for gate in gates]
+        return [self._with_prompt(gate, session_path, session).to_dict() for gate in gates]
+
+    def _with_prompt(self, gate: GateResult, session_path: str, session: dict[str, Any]) -> GateResult:
+        skill = GATE_SKILL.get(gate.status)
+        if skill is None:
+            return gate
+        prompt = self._prompt(session_path, session, skill, gate.message, gate.finding_id)
+        return replace(gate, prompt=prompt)
 
     def next_action(self, session_path: str, session: dict[str, Any], gates: list[dict[str, Any]]) -> dict[str, Any]:
         phase = self.current_phase(session)
@@ -219,28 +244,29 @@ class DerivedSessionService:
                 session=session,
             )
 
-        blocking_gate = next((gate for gate in gates if gate.get("status") == "blocked"), None)
-        ready_report_gate = next((gate for gate in gates if gate.get("status") == "ready_for_report_writer"), None)
-        promotion_gate = next((gate for gate in gates if gate.get("status") == "should_promote"), None)
+        # Act on the highest-priority gate that maps to a skill; the gate already
+        # carries the prompt built from the shared GATE_SKILL mapping.
+        priority = ("blocked", "should_promote", "ready_for_report_writer")
+        for status in priority:
+            gate = next((g for g in gates if g.get("status") == status), None)
+            if gate:
+                return self._action(
+                    phase,
+                    next_skill=GATE_SKILL[status],
+                    reason=gate.get("message", "Evidence gate needs handling."),
+                    finding=gate.get("finding_id"),
+                    session_path=session_path,
+                    session=session,
+                )
 
-        if blocking_gate:
-            next_skill = "crypto-fp-check"
-            reason = blocking_gate.get("message", "Evidence gate is blocking promotion.")
-            finding = blocking_gate.get("finding_id")
-        elif promotion_gate:
-            next_skill = "crypto-fp-check"
-            reason = promotion_gate.get("message", "Verified open finding needs verification gate handling.")
-            finding = promotion_gate.get("finding_id")
-        elif ready_report_gate:
-            next_skill = "crypto-report-writer"
-            reason = ready_report_gate.get("message", "Verified finding needs report writing.")
-            finding = ready_report_gate.get("finding_id")
-        else:
-            next_skill = default_skill or "crypto-audit-router"
-            reason = "Continue the staged audit flow from the current session phase."
-            finding = None
-
-        return self._action(phase, next_skill, reason, finding, session_path, session)
+        return self._action(
+            phase,
+            next_skill=default_skill or "crypto-audit-router",
+            reason="Continue the staged audit flow from the current session phase.",
+            finding=None,
+            session_path=session_path,
+            session=session,
+        )
 
     def _action(
         self,

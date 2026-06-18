@@ -112,7 +112,7 @@ class SessionStore:
             raise InvalidSessionError(f"session JSON root must be an object: {session_path}")
 
         diagnostics = self.validate_session(data)
-        gates = self.derived.evidence_gates(data, diagnostics, path)
+        gates = self.derived.evidence_gates(data, diagnostics, path, session_path)
         next_action = self.derived.next_action(session_path, data, gates)
         return {
             "session_path": session_path,

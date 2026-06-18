@@ -595,6 +595,18 @@ pre {
   padding: 12px;
 }
 
+.gate-row-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.gate-row-head .icon-button {
+  width: 30px;
+  height: 30px;
+}
+
 .gate-row strong {
   display: block;
   margin-top: 8px;
@@ -625,6 +637,40 @@ pre {
   white-space: pre-wrap;
   line-height: 1.5;
   font-size: 12px;
+}
+
+.text-button.ghost {
+  background: transparent;
+  border-color: #cbd4d8;
+  color: #3d454b;
+}
+
+.history-list {
+  display: grid;
+  gap: 8px;
+  max-height: 280px;
+  overflow: auto;
+}
+
+.history-entry small {
+  display: block;
+  margin-bottom: 4px;
+  color: #7a838a;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.history-entry pre {
+  margin: 0;
+  overflow: auto;
+  border: 1px solid #dfe3e6;
+  border-radius: 8px;
+  background: #f0f2f3;
+  color: #2b2f33;
+  padding: 10px;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  font-size: 11px;
 }
 
 .skeleton-stack,

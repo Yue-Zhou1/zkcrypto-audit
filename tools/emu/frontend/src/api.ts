@@ -62,6 +62,7 @@ export type Gate = {
   finding_id: string | null;
   message: string;
   reads: string[];
+  prompt: string | null;
 };
 
 export type SessionDetail = {

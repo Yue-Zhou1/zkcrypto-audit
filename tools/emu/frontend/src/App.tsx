@@ -13,6 +13,7 @@ import {
   TrustBoundary,
   validateTarget,
 } from './api';
+import { clearHistory, PromptHistoryEntry, readHistory, recordPrompt } from './promptHistory';
 
 const PHASES = ['intake', 'domain', 'verification', 'reporting', 'indexing'];
 
@@ -28,6 +29,8 @@ export function App() {
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [statusDraft, setStatusDraft] = useState('');
+  const [history, setHistory] = useState<PromptHistoryEntry[]>([]);
+  const [copied, setCopied] = useState(false);
 
   async function refreshSessions(nextSelectedPath?: string) {
     setLoadingSessions(true);
@@ -52,9 +55,11 @@ export function App() {
   useEffect(() => {
     if (!selectedPath) {
       setDetail(null);
+      setHistory([]);
       return;
     }
 
+    setHistory(readHistory(selectedPath));
     setLoadingDetail(true);
     setError(null);
     readSession(selectedPath)
@@ -123,10 +128,22 @@ export function App() {
     }
   }
 
-  async function handleCopyPrompt() {
-    const prompt = detail?.derived.next_action?.prompt;
-    if (!prompt) return;
-    await navigator.clipboard.writeText(prompt);
+  async function copyPrompt(prompt: string | null | undefined, source: string) {
+    if (!prompt || !detail) return;
+    try {
+      await navigator.clipboard.writeText(prompt);
+      setHistory(recordPrompt(detail.session_path, prompt, source));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1400);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  function handleClearHistory() {
+    if (!detail) return;
+    clearHistory(detail.session_path);
+    setHistory([]);
   }
 
   return (
@@ -299,21 +316,48 @@ export function App() {
             <h3>Evidence Gates</h3>
             <span>{selectedGates.length}</span>
           </div>
-          <GateList gates={selectedGates} />
+          <GateList gates={selectedGates} onCopy={(gate) => void copyPrompt(gate.prompt, gate.gate)} />
         </section>
 
         <section className="panel-section prompt-panel">
           <div className="section-title">
             <h3>Next Prompt</h3>
-            <button className="text-button" onClick={() => void handleCopyPrompt()}>
+            <button
+              className="text-button"
+              onClick={() => void copyPrompt(detail?.derived.next_action?.prompt, 'next action')}
+            >
               <Clipboard size={16} />
-              Copy
+              {copied ? 'Copied' : 'Copy'}
             </button>
           </div>
           <pre>{detail?.derived.next_action?.prompt ?? 'Select a session to generate the next Codex prompt.'}</pre>
         </section>
+
+        {detail ? <PromptHistoryPanel history={history} onClear={handleClearHistory} /> : null}
       </aside>
     </main>
+  );
+}
+
+function PromptHistoryPanel({ history, onClear }: { history: PromptHistoryEntry[]; onClear: () => void }) {
+  if (history.length === 0) return null;
+  return (
+    <section className="panel-section">
+      <div className="section-title">
+        <h3>Prompt History</h3>
+        <button className="text-button ghost" onClick={onClear}>
+          Clear
+        </button>
+      </div>
+      <div className="history-list">
+        {history.map((entry) => (
+          <div className="history-entry" key={`${entry.at}-${entry.source}`}>
+            <small>{entry.source}</small>
+            <pre>{entry.prompt}</pre>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -655,7 +699,7 @@ function NextStepsPanel({ steps, onPatch }: { steps: string[]; onPatch: (operati
   );
 }
 
-function GateList({ gates }: { gates: Gate[] }) {
+function GateList({ gates, onCopy }: { gates: Gate[]; onCopy: (gate: Gate) => void }) {
   if (gates.length === 0) {
     return <p className="muted">No gates are attached to the selected finding.</p>;
   }
@@ -663,7 +707,14 @@ function GateList({ gates }: { gates: Gate[] }) {
     <div className="gate-list">
       {gates.map((gate) => (
         <div className="gate-row" key={`${gate.gate}-${gate.finding_id ?? 'session'}`}>
-          <span className={`gate-status ${gate.status}`}>{gate.status.replaceAll('_', ' ')}</span>
+          <div className="gate-row-head">
+            <span className={`gate-status ${gate.status}`}>{gate.status.replaceAll('_', ' ')}</span>
+            {gate.prompt ? (
+              <button className="icon-button" aria-label="Copy gate prompt" onClick={() => onCopy(gate)}>
+                <Clipboard size={15} />
+              </button>
+            ) : null}
+          </div>
           <strong>{gate.gate.replaceAll('_', ' ')}</strong>
           <p>{gate.message}</p>
           <small>{gate.reads.join(', ')}</small>
