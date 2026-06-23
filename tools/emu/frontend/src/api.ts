@@ -65,6 +65,73 @@ export type Gate = {
   prompt: string | null;
 };
 
+export type QuestionRecord = {
+  id: string;
+  text: string;
+  source_ref?: string;
+  source_hint?: { status?: string; mode?: string; path?: string; skipped_targets?: number };
+  rationale?: string;
+  status: string;
+  routed_skill?: string;
+  prompt?: string | null;
+  evidence?: string;
+  verdict?: string | null;
+  finding_ref?: string | null;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: unknown;
+};
+
+export type QuestionList = {
+  questions: QuestionRecord[];
+  records?: QuestionRecord[];
+  mtime_ns: number;
+  diagnostics: Array<{ line?: number | null; message: string }>;
+};
+
+export type PendingRecord = {
+  question_id: string;
+  proposed: {
+    summary?: string;
+    severity?: string;
+    owner_skill?: string;
+    [key: string]: unknown;
+  };
+  imported?: boolean;
+  finding_ref?: string | null;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type PendingList = {
+  records: PendingRecord[];
+  mtime_ns: number;
+  diagnostics: Array<{ line?: number | null; message: string }>;
+};
+
+export type RouteSuggestion = {
+  skill: string;
+  rule_id?: string;
+  matched_terms: string[];
+  score: number;
+  reason: string;
+};
+
+export type RouteSuggestResult = {
+  suggestions: RouteSuggestion[];
+  confidence: string;
+};
+
+export type CoverageResult = {
+  questions: QuestionRecord[];
+  summary: {
+    asked: number;
+    answered: number;
+    findings: number;
+    pending: number;
+  };
+};
+
 export type SessionDetail = {
   session_path: string;
   session: {
@@ -148,6 +215,121 @@ export async function patchSession(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ base_mtime_ns: baseMtimeNs, operations }),
   });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function listQuestions(sessionPath: string): Promise<QuestionList> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/questions`);
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function createQuestion(
+  sessionPath: string,
+  baseMtimeNs: number,
+  payload: { text: string; source_ref?: string; rationale?: string; routed_skill?: string },
+): Promise<QuestionList> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/questions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base_mtime_ns: baseMtimeNs, ...payload }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function patchQuestion(
+  sessionPath: string,
+  questionId: string,
+  baseMtimeNs: number,
+  updates: Record<string, unknown>,
+): Promise<QuestionList> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/questions/${encodeURIComponent(questionId)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base_mtime_ns: baseMtimeNs, updates }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function questionPrompt(sessionPath: string, questionId: string, chosenSkill?: string): Promise<{ prompt: string }> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/questions/${encodeURIComponent(questionId)}/prompt`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chosen_skill: chosenSkill }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function suggestRoute(text: string): Promise<RouteSuggestResult> {
+  const response = await fetch('/api/routing/suggest', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function listPending(sessionPath: string): Promise<PendingList> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/pending`);
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function bufferCandidate(
+  sessionPath: string,
+  questionsMtimeNs: number,
+  pendingMtimeNs: number,
+  questionId: string,
+  proposed: PendingRecord['proposed'],
+): Promise<PendingList> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/pending`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      questions_mtime_ns: questionsMtimeNs,
+      pending_mtime_ns: pendingMtimeNs,
+      question_id: questionId,
+      proposed,
+    }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function importPending(
+  sessionPath: string,
+  sessionMtimeNs: number,
+  questionsMtimeNs: number,
+  pendingMtimeNs: number,
+  questionIds: string[],
+): Promise<{ session: unknown; questions: QuestionList; pending: PendingList }> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/pending/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      session_mtime_ns: sessionMtimeNs,
+      questions_mtime_ns: questionsMtimeNs,
+      pending_mtime_ns: pendingMtimeNs,
+      question_ids: questionIds,
+    }),
+  });
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function readCoverage(sessionPath: string): Promise<CoverageResult> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/coverage`);
+  if (!response.ok) throw new Error(await response.text());
+  return response.json();
+}
+
+export async function exportCoverage(sessionPath: string): Promise<{ markdown: string }> {
+  const response = await fetch(`${sessionUrl(sessionPath)}/coverage/export`);
   if (!response.ok) throw new Error(await response.text());
   return response.json();
 }

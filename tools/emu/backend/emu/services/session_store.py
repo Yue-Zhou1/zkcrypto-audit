@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from jsonschema import Draft202012Validator
 
-from emu.core.paths import PathGuardError, resolve_session_path, sessions_root
+from emu.core.paths import PathGuardError, resolve_session_path, sessions_root, write_text_atomic
 from emu.models.session import PatchOperation, PatchRequest
 from emu.services.derived import DerivedSessionService
 from emu.services.metadata import MetadataService
@@ -194,11 +193,9 @@ class SessionStore:
         return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
     def _write_session_file(self, path: Path, data: dict[str, Any]) -> None:
-        # Session files are audit handoff artifacts: write to a sibling temp
-        # file and replace atomically so a crash cannot truncate them.
-        temp_path = path.with_name(path.name + ".tmp")
-        temp_path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
-        os.replace(temp_path, path)
+        # Session files are audit handoff artifacts: the shared helper stages to
+        # a sibling temp file and replaces atomically so a crash cannot truncate.
+        write_text_atomic(path, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
     def _load_session_for_write(self, path: Path) -> dict[str, Any]:
         try:

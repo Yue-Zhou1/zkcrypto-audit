@@ -370,6 +370,33 @@ button {
   padding-top: 20px;
 }
 
+.tab-row {
+  display: inline-grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2px;
+  margin-top: 24px;
+  border: 1px solid #cbd4d8;
+  border-radius: 8px;
+  background: #edf0f2;
+  padding: 2px;
+}
+
+.tab-row button {
+  min-height: 34px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #626b73;
+  padding: 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.tab-row button.active {
+  background: #ffffff;
+  color: #202124;
+}
+
 .section-title {
   margin-bottom: 12px;
 }
@@ -567,6 +594,199 @@ button {
   font-size: 13px;
 }
 
+.investigation-workbench {
+  display: grid;
+  gap: 18px;
+}
+
+.quick-ask {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.5fr) minmax(150px, 0.9fr) minmax(180px, 1fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+
+.quick-ask label,
+.detail-grid label {
+  display: grid;
+  gap: 7px;
+  color: #3d454b;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.quick-ask input,
+.detail-grid input,
+.detail-grid textarea {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid #cbd4d8;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #202124;
+  outline: none;
+}
+
+.quick-ask input,
+.detail-grid input {
+  height: 36px;
+  padding: 0 10px;
+}
+
+.detail-grid textarea {
+  min-height: 120px;
+  resize: vertical;
+  padding: 10px;
+}
+
+.suggestion-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.suggestion-strip button {
+  display: grid;
+  gap: 3px;
+  border: 1px solid #cbd4d8;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 8px 10px;
+  color: #202124;
+  text-align: left;
+}
+
+.suggestion-strip span,
+.coverage-row span,
+.question-card small,
+.question-detail small {
+  color: #6d767d;
+  font-size: 11px;
+}
+
+.coverage-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #dfe3e6;
+  border-bottom: 1px solid #dfe3e6;
+  padding: 10px 0;
+}
+
+.question-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.question-column {
+  min-width: 0;
+  border-left: 1px solid #dfe3e6;
+  padding-left: 10px;
+}
+
+.question-column-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 32px;
+}
+
+.question-column-title h3 {
+  margin: 0;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.question-column-title span {
+  color: #7a838a;
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
+
+.question-card {
+  display: grid;
+  gap: 8px;
+  width: 100%;
+  min-height: 112px;
+  margin-top: 8px;
+  border: 1px solid #dfe3e6;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 10px;
+  color: #202124;
+  text-align: left;
+}
+
+.question-card.active,
+.question-card:hover {
+  border-color: #16584f;
+  background: #f7faf9;
+}
+
+.question-card > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.question-card strong {
+  font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
+  font-size: 12px;
+}
+
+.question-card em {
+  border: 1px solid #cbd4d8;
+  border-radius: 999px;
+  color: #626b73;
+  padding: 2px 7px;
+  font-style: normal;
+  font-size: 10px;
+}
+
+.question-card p,
+.question-detail p {
+  margin: 0;
+  color: #2e3439;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.diagnostic-inline {
+  display: grid;
+  gap: 5px;
+  border-left: 4px solid #8a5600;
+  background: #fff8e8;
+  padding: 10px 12px;
+}
+
+.diagnostic-inline p {
+  margin: 0;
+  color: #8a5600;
+  font-size: 12px;
+}
+
+.question-detail {
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid #dfe3e6;
+  padding-top: 18px;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-grid .wide {
+  grid-column: 1 / -1;
+}
+
 code,
 pre {
   font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
@@ -738,6 +958,9 @@ pre {
   .finding-row,
   .row-select,
   .finding-add-row,
+  .quick-ask,
+  .question-board,
+  .detail-grid,
   .target-row,
   .step-row,
   .diagnostic-list li {

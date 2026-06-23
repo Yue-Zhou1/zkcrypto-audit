@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from emu.services.metadata import MetadataError, MetadataService
+from emu.services.prompt_builder import PromptBuilder
 
 
 DISPOSITIONS = (
@@ -60,6 +61,7 @@ class DerivedSessionService:
     def __init__(self, repo_root: Path, metadata: MetadataService) -> None:
         self.repo_root = repo_root
         self.metadata = metadata
+        self.prompts = PromptBuilder()
 
     def current_phase(self, session: dict[str, Any]) -> dict[str, str | None]:
         explicit = session.get("phase")
@@ -293,13 +295,7 @@ class DerivedSessionService:
         reason: str,
         finding_id: str | None,
     ) -> str:
-        engagement = session.get("engagement_id", "unknown engagement")
-        finding_clause = f" on finding {finding_id}" if finding_id else ""
-        return (
-            f"Resume engagement {engagement} from zk-findings/sessions/{session_path}.\n"
-            "Invoke crypto-audit-router to confirm the current phase, then use "
-            f"{next_skill}{finding_clause}. Reason: {reason}"
-        )
+        return self.prompts.next_action(session_path, session, next_skill, reason, finding_id)
 
     def _infer_phase(self, session: dict[str, Any]) -> str:
         if session.get("open_findings"):

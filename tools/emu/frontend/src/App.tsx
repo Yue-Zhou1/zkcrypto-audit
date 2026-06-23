@@ -1,15 +1,30 @@
-import { ArrowDown, ArrowUp, Clipboard, FileJson, GitBranch, Plus, RefreshCcw, Save, Trash2 } from 'lucide-react';
+import { ArrowDown, ArrowUp, Clipboard, FileJson, GitBranch, Plus, RefreshCcw, Save, Search, Trash2 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  bufferCandidate,
   createSession,
+  createQuestion,
+  exportCoverage,
   Finding,
   Gate,
+  importPending,
+  listPending,
+  listQuestions,
   listSessions,
   PatchOp,
   patchSession,
+  patchQuestion,
+  PendingList,
+  PendingRecord,
+  questionPrompt,
+  QuestionList,
+  QuestionRecord,
+  readCoverage,
   readSession,
+  RouteSuggestion,
   SessionDetail,
   SessionListItem,
+  suggestRoute,
   TrustBoundary,
   validateTarget,
 } from './api';
@@ -31,6 +46,7 @@ export function App() {
   const [statusDraft, setStatusDraft] = useState('');
   const [history, setHistory] = useState<PromptHistoryEntry[]>([]);
   const [copied, setCopied] = useState(false);
+  const [activeTab, setActiveTab] = useState<'workbench' | 'overview'>('workbench');
 
   async function refreshSessions(nextSelectedPath?: string) {
     setLoadingSessions(true);
@@ -123,6 +139,16 @@ export function App() {
         current && nextFindings.some((finding) => finding.id === current) ? current : (nextFindings[0]?.id ?? null),
       );
       await refreshSessions(updated.session_path);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function reloadSelectedSession(sessionPath: string) {
+    try {
+      const updated = await readSession(sessionPath);
+      setDetail(updated);
+      await refreshSessions(sessionPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     }
@@ -239,49 +265,69 @@ export function App() {
               <Metric label="Gates" value={String(detail.derived.evidence_gates?.length ?? 0)} />
             </div>
 
-            <section className="section-block">
-              <TargetsPanel
-                targets={getTargets(detail)}
-                onPatch={(operations) => void applyPatch(operations)}
-                onValidateTarget={validateTarget}
-                setError={setError}
-              />
-            </section>
+            <div className="tab-row">
+              <button className={activeTab === 'workbench' ? 'active' : ''} onClick={() => setActiveTab('workbench')}>
+                Investigation
+              </button>
+              <button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>
+                Session Overview
+              </button>
+            </div>
 
-            <section className="section-block">
-              <FindingMatrix
+            {activeTab === 'workbench' ? (
+              <QuestionWorkbench
                 detail={detail}
-                findings={findings}
-                selectedFinding={selectedFinding}
-                onSelect={setSelectedFindingId}
-                onPatch={(operations) => void applyPatch(operations)}
+                setError={setError}
+                onCopyPrompt={(prompt, source) => void copyPrompt(prompt, source)}
+                onSessionChanged={(sessionPath) => void reloadSelectedSession(sessionPath)}
               />
-            </section>
+            ) : (
+              <>
+                <section className="section-block">
+                  <TargetsPanel
+                    targets={getTargets(detail)}
+                    onPatch={(operations) => void applyPatch(operations)}
+                    onValidateTarget={validateTarget}
+                    setError={setError}
+                  />
+                </section>
 
-            <section className="section-block split">
-              <TrustBoundaryPanel boundaries={getTrustBoundaries(detail)} onPatch={(operations) => void applyPatch(operations)} />
-              <NextStepsPanel steps={detail.session.next_steps ?? []} onPatch={(operations) => void applyPatch(operations)} />
-            </section>
+                <section className="section-block">
+                  <FindingMatrix
+                    detail={detail}
+                    findings={findings}
+                    selectedFinding={selectedFinding}
+                    onSelect={setSelectedFindingId}
+                    onPatch={(operations) => void applyPatch(operations)}
+                  />
+                </section>
 
-            {!detail.diagnostics.valid ? (
-              <section className="section-block">
-                <div className="section-title">
-                  <h3>Schema Diagnostics</h3>
-                  <span>advisory</span>
-                </div>
-                <ul className="diagnostic-list">
-                  {detail.diagnostics.errors.slice(0, 8).map((item) => (
-                    <li key={`${item.path}-${item.message}`}>
-                      <code>{item.path || 'root'}</code>
-                      <span>{item.message}</span>
-                    </li>
-                  ))}
-                  {detail.diagnostics.errors.length > 8 ? (
-                    <li className="muted">+{detail.diagnostics.errors.length - 8} more diagnostics</li>
-                  ) : null}
-                </ul>
-              </section>
-            ) : null}
+                <section className="section-block split">
+                  <TrustBoundaryPanel boundaries={getTrustBoundaries(detail)} onPatch={(operations) => void applyPatch(operations)} />
+                  <NextStepsPanel steps={detail.session.next_steps ?? []} onPatch={(operations) => void applyPatch(operations)} />
+                </section>
+
+                {!detail.diagnostics.valid ? (
+                  <section className="section-block">
+                    <div className="section-title">
+                      <h3>Schema Diagnostics</h3>
+                      <span>advisory</span>
+                    </div>
+                    <ul className="diagnostic-list">
+                      {detail.diagnostics.errors.slice(0, 8).map((item) => (
+                        <li key={`${item.path}-${item.message}`}>
+                          <code>{item.path || 'root'}</code>
+                          <span>{item.message}</span>
+                        </li>
+                      ))}
+                      {detail.diagnostics.errors.length > 8 ? (
+                        <li className="muted">+{detail.diagnostics.errors.length - 8} more diagnostics</li>
+                      ) : null}
+                    </ul>
+                  </section>
+                ) : null}
+              </>
+            )}
           </>
         ) : null}
       </section>
@@ -356,6 +402,312 @@ function PromptHistoryPanel({ history, onClear }: { history: PromptHistoryEntry[
             <pre>{entry.prompt}</pre>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+function QuestionWorkbench({
+  detail,
+  setError,
+  onCopyPrompt,
+  onSessionChanged,
+}: {
+  detail: SessionDetail;
+  setError: (message: string | null) => void;
+  onCopyPrompt: (prompt: string | null | undefined, source: string) => void;
+  onSessionChanged: (sessionPath: string) => void;
+}) {
+  const [questions, setQuestions] = useState<QuestionList | null>(null);
+  const [pending, setPending] = useState<PendingList | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [askDraft, setAskDraft] = useState('');
+  const [sourceDraft, setSourceDraft] = useState('');
+  const [rationaleDraft, setRationaleDraft] = useState('');
+  const [routeSuggestions, setRouteSuggestions] = useState<RouteSuggestion[]>([]);
+  const [evidenceDraft, setEvidenceDraft] = useState('');
+  const [verdictDraft, setVerdictDraft] = useState('');
+  const [summaryDraft, setSummaryDraft] = useState('');
+  const [severityDraft, setSeverityDraft] = useState('');
+  const [ownerDraft, setOwnerDraft] = useState('');
+  const [coverageSummary, setCoverageSummary] = useState('0 asked / 0 answered / 0 findings / 0 pending');
+
+  async function refreshInvestigation(nextSelectedId?: string) {
+    setError(null);
+    try {
+      const [questionList, pendingList, coverage] = await Promise.all([
+        listQuestions(detail.session_path),
+        listPending(detail.session_path),
+        readCoverage(detail.session_path),
+      ]);
+      setQuestions(questionList);
+      setPending(pendingList);
+      setCoverageSummary(
+        `${coverage.summary.asked} asked / ${coverage.summary.answered} answered / ${coverage.summary.findings} findings / ${coverage.summary.pending} pending`,
+      );
+      const nextId = nextSelectedId ?? selectedId ?? questionList.questions[0]?.id ?? null;
+      setSelectedId(nextId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  useEffect(() => {
+    setSelectedId(null);
+    void refreshInvestigation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.session_path]);
+
+  const allQuestions = questions?.questions ?? [];
+  const pendingRecords = pending?.records ?? [];
+  const selected = allQuestions.find((question) => question.id === selectedId) ?? allQuestions[0] ?? null;
+  const selectedPending = selected ? pendingRecords.find((record) => record.question_id === selected.id) ?? null : null;
+
+  useEffect(() => {
+    setEvidenceDraft(String(selected?.evidence ?? ''));
+    setVerdictDraft(String(selected?.verdict ?? ''));
+    setSummaryDraft(String(selectedPending?.proposed.summary ?? selected?.text ?? ''));
+    setSeverityDraft(String(selectedPending?.proposed.severity ?? ''));
+    setOwnerDraft(String(selectedPending?.proposed.owner_skill ?? selected?.routed_skill ?? ''));
+  }, [selected?.id, selected?.evidence, selected?.verdict, selected?.text, selected?.routed_skill, selectedPending?.proposed.summary, selectedPending?.proposed.severity, selectedPending?.proposed.owner_skill]);
+
+  async function handleSuggest() {
+    const text = askDraft.trim();
+    if (!text) return;
+    try {
+      const result = await suggestRoute(text);
+      setRouteSuggestions(result.suggestions);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handleAsk() {
+    const text = askDraft.trim();
+    if (!text || !questions) return;
+    setError(null);
+    try {
+      const result = routeSuggestions.length ? { suggestions: routeSuggestions } : await suggestRoute(text);
+      const routedSkill = result.suggestions[0]?.skill;
+      const nextQuestions = await createQuestion(detail.session_path, questions.mtime_ns, {
+        text,
+        source_ref: sourceDraft.trim() || undefined,
+        rationale: rationaleDraft.trim() || undefined,
+        routed_skill: routedSkill,
+      });
+      setAskDraft('');
+      setSourceDraft('');
+      setRationaleDraft('');
+      setRouteSuggestions([]);
+      setQuestions(nextQuestions);
+      const createdId = nextQuestions.questions[nextQuestions.questions.length - 1]?.id ?? null;
+      setSelectedId(createdId);
+      await refreshInvestigation(createdId ?? undefined);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function updateSelected(updates: Record<string, unknown>) {
+    if (!selected || !questions) return;
+    try {
+      const next = await patchQuestion(detail.session_path, selected.id, questions.mtime_ns, updates);
+      setQuestions(next);
+      await refreshInvestigation(selected.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function copySelectedPrompt() {
+    if (!selected) return;
+    try {
+      const response = await questionPrompt(detail.session_path, selected.id, selected.routed_skill);
+      onCopyPrompt(response.prompt, selected.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handleBufferCandidate() {
+    if (!selected || !questions || !pending) return;
+    try {
+      await bufferCandidate(detail.session_path, questions.mtime_ns, pending.mtime_ns, selected.id, {
+        summary: summaryDraft.trim() || selected.text,
+        severity: severityDraft.trim(),
+        owner_skill: ownerDraft.trim() || selected.routed_skill,
+      });
+      await refreshInvestigation(selected.id);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handleImportCandidate(questionId: string) {
+    if (!questions || !pending) return;
+    try {
+      const imported = await importPending(detail.session_path, detail.mtime_ns, questions.mtime_ns, pending.mtime_ns, [questionId]);
+      setQuestions(imported.questions);
+      setPending(imported.pending);
+      onSessionChanged(detail.session_path);
+      await refreshInvestigation(questionId);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function handleExportCoverage() {
+    try {
+      const exported = await exportCoverage(detail.session_path);
+      onCopyPrompt(exported.markdown, 'coverage export');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  const columns: Array<{ key: string; title: string; items: QuestionRecord[] }> = [
+    { key: 'proposed', title: 'Proposed', items: allQuestions.filter((question) => question.status === 'proposed') },
+    { key: 'investigating', title: 'Investigating', items: allQuestions.filter((question) => question.status === 'investigating') },
+    { key: 'answered', title: 'Answered', items: allQuestions.filter((question) => question.status === 'answered') },
+    { key: 'candidate', title: 'Candidate', items: allQuestions.filter((question) => question.status === 'candidate') },
+  ];
+
+  return (
+    <section className="section-block investigation-workbench">
+      <div className="quick-ask">
+        <div>
+          <label htmlFor="question-text">Question</label>
+          <input id="question-text" value={askDraft} onChange={(event) => setAskDraft(event.target.value)} placeholder="Is this transcript bound to all public inputs?" />
+        </div>
+        <div>
+          <label htmlFor="source-ref">Source</label>
+          <input id="source-ref" value={sourceDraft} onChange={(event) => setSourceDraft(event.target.value)} placeholder="src/transcript.rs:42" />
+        </div>
+        <div>
+          <label htmlFor="rationale">Rationale</label>
+          <input id="rationale" value={rationaleDraft} onChange={(event) => setRationaleDraft(event.target.value)} placeholder="Why this is worth checking" />
+        </div>
+        <button className="icon-button" aria-label="Suggest skill" onClick={() => void handleSuggest()}>
+          <Search size={16} />
+        </button>
+        <button className="icon-button strong" aria-label="Ask question" onClick={() => void handleAsk()}>
+          <Plus size={16} />
+        </button>
+      </div>
+
+      {routeSuggestions.length ? (
+        <div className="suggestion-strip">
+          {routeSuggestions.slice(0, 3).map((suggestion) => (
+            <button
+              key={`${suggestion.skill}-${suggestion.rule_id}`}
+              onClick={() => setRouteSuggestions([suggestion])}
+            >
+              <strong>{suggestion.skill}</strong>
+              <span>{suggestion.matched_terms.join(', ')}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="coverage-row">
+        <span>{coverageSummary}</span>
+        <button className="text-button ghost" onClick={() => void handleExportCoverage()}>
+          <Clipboard size={15} />
+          Export
+        </button>
+      </div>
+
+      <div className="question-board">
+        {columns.map((column) => (
+          <div className="question-column" key={column.key}>
+            <div className="question-column-title">
+              <h3>{column.title}</h3>
+              <span>{column.items.length}</span>
+            </div>
+            {column.items.map((question) => {
+              const buffered = pendingRecords.some((record) => record.question_id === question.id && !record.imported);
+              return (
+                <button
+                  className={`question-card ${selected?.id === question.id ? 'active' : ''}`}
+                  key={question.id}
+                  onClick={() => setSelectedId(question.id)}
+                >
+                  <span>
+                    <strong>{question.id}</strong>
+                    {column.key === 'candidate' ? <em>{question.finding_ref ? 'in-session' : buffered ? 'buffered' : 'candidate'}</em> : null}
+                  </span>
+                  <p>{question.text}</p>
+                  <small>{question.routed_skill ?? 'unrouted'} {question.finding_ref ? `-> ${question.finding_ref}` : ''}</small>
+                </button>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      {questions?.diagnostics.length || pending?.diagnostics.length ? (
+        <div className="diagnostic-inline">
+          {[...(questions?.diagnostics ?? []), ...(pending?.diagnostics ?? [])].map((item, index) => (
+            <p key={`${item.message}-${index}`}>{item.line ? `line ${item.line}: ` : ''}{item.message}</p>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="question-detail">
+        {selected ? (
+          <>
+            <div className="section-title">
+              <h3>{selected.id}</h3>
+              <span>{selected.status}</span>
+            </div>
+            <p>{selected.text}</p>
+            {selected.source_ref ? <small>{selected.source_ref} · {selected.source_hint?.status ?? 'unchecked'}</small> : null}
+            <div className="detail-grid">
+              <label>
+                Routed skill
+                <input value={ownerDraft} onChange={(event) => setOwnerDraft(event.target.value)} placeholder="fiat-shamir-auditor" />
+              </label>
+              <label>
+                Verdict
+                <input value={verdictDraft} onChange={(event) => setVerdictDraft(event.target.value)} placeholder="safe / bug / inconclusive" />
+              </label>
+              <label className="wide">
+                Evidence
+                <textarea value={evidenceDraft} onChange={(event) => setEvidenceDraft(event.target.value)} placeholder="Paste agent output or manual evidence here" />
+              </label>
+              <label>
+                Candidate summary
+                <input value={summaryDraft} onChange={(event) => setSummaryDraft(event.target.value)} />
+              </label>
+              <label>
+                Severity
+                <input value={severityDraft} onChange={(event) => setSeverityDraft(event.target.value)} placeholder="High" />
+              </label>
+            </div>
+            <div className="row-actions">
+              <button className="text-button ghost" onClick={() => void copySelectedPrompt()}>
+                <Clipboard size={15} />
+                Copy Prompt
+              </button>
+              <button className="text-button ghost" onClick={() => void updateSelected({ status: 'investigating', routed_skill: ownerDraft.trim() || selected.routed_skill })}>
+                Mark Investigating
+              </button>
+              <button className="text-button" onClick={() => void updateSelected({ evidence: evidenceDraft, verdict: verdictDraft, routed_skill: ownerDraft.trim() || selected.routed_skill })}>
+                Record Verdict
+              </button>
+              <button className="text-button" onClick={() => void handleBufferCandidate()}>
+                Buffer Candidate
+              </button>
+              {selectedPending && !selectedPending.imported ? (
+                <button className="text-button" onClick={() => void handleImportCandidate(selected.id)}>
+                  Import Candidate
+                </button>
+              ) : null}
+            </div>
+          </>
+        ) : (
+          <p className="muted">Ask or select a question to inspect the evidence loop.</p>
+        )}
       </div>
     </section>
   );
