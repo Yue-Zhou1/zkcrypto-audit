@@ -1,0 +1,60 @@
+{
+  "skill_name": "onchain-verifier-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Review this snarkjs-exported Groth16 verifier contract in Solidity. It stores the verification key as contract constants, ABI-decodes the proof from calldata, and calls the bn256 pairing precompile via staticcall. I want to know whether a forged proof or out-of-range public input can pass verifyProof.",
+      "expected_route": "onchain-verifier-auditor"
+    },
+    {
+      "prompt": "Audit a Vyper contract that verifies a zk proof by calling the pairing check precompile at address 0x08 with raw_call. It concatenates G1 and G2 point encodings into the precompile input buffer and treats a nonempty return as success. Check the precompile invocation semantics and input length handling.",
+      "expected_route": "onchain-verifier-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit this arkworks-based Groth16 verifier written in Rust. It deserializes the proof and verification key with ark-serialize and runs the pairing equation check natively, with no smart contract or EVM precompile involved. I am worried about missing constraints and verifier equation soundness.",
+      "expected_route": "zk-circuit-auditor"
+    },
+    {
+      "prompt": "Review this ordinary Solidity staking vault for reentrancy: withdraw() sends ETH via call before zeroing the user's balance, and there is no nonReentrant guard. There is no proof verification or cryptographic protocol in the contract.",
+      "expected_route": "crypto-audit-context"
+    }
+  ],
+  "required_sources": [
+    "EIP-196",
+    "EIP-197",
+    "EIP-2537"
+  ],
+  "required_output_fields": [
+    "affected_component",
+    "precompile_or_verifier_path",
+    "invariant_at_risk",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "onchain-verifier-auditor",
+      "output_fields_present": [
+        "affected_component",
+        "precompile_or_verifier_path",
+        "invariant_at_risk",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "zk-circuit-auditor",
+      "output_fields_present": [
+        "affected constraints/transcript steps/verifier equations",
+        "witness/public-input or proof path involved",
+        "soundness/privacy/batching classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

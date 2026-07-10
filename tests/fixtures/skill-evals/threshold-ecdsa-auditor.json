@@ -1,0 +1,61 @@
+{
+  "skill_name": "threshold-ecdsa-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit our GG20 threshold ECDSA keygen and signing implementation. Each party generates a Paillier modulus and publishes range proofs for the MtA (multiplicative-to-additive) share conversion. I want the Paillier modulus validity proofs and the MtA/MtAwc range proofs checked for missing or unverified conditions.",
+      "expected_route": "threshold-ecdsa-auditor"
+    },
+    {
+      "prompt": "Review a CGGMP21-style threshold ECDSA signing service that runs many concurrent signing sessions with presignatures. I am worried about session-state isolation across concurrent signings, resharing of key shares, and whether identifiable abort can be triggered without leaking share information.",
+      "expected_route": "threshold-ecdsa-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit our FROST threshold Schnorr signing implementation: distributed key generation with VSS share verification, nonce commitment binding across the two signing rounds, and Lagrange interpolation of partial signatures.",
+      "expected_route": "dkg-threshold-auditor"
+    },
+    {
+      "prompt": "Review this Rust wallet code that signs Ethereum transactions with a single secp256k1 ECDSA key using the alloy signer API, including EIP-712 typed-data hashing before signing. No threshold or multi-party protocol is involved.",
+      "expected_route": "ethereum-crypto-auditor"
+    }
+  ],
+  "required_sources": [
+    "GG18",
+    "GG20",
+    "CGGMP21",
+    "Paillier"
+  ],
+  "required_output_fields": [
+    "protocol_round",
+    "proof_or_range_check",
+    "invariant_at_risk",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "threshold-ecdsa-auditor",
+      "output_fields_present": [
+        "protocol_round",
+        "proof_or_range_check",
+        "invariant_at_risk",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "dkg-threshold-auditor",
+      "output_fields_present": [
+        "affected session/participant identifiers/nonces/shares/commitments",
+        "binding/verification/interpolation failure candidate",
+        "single-session/concurrent-session/abort-path classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

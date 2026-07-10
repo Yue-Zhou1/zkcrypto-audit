@@ -22,6 +22,9 @@ Domain auditor for circuit soundness and verifier logic.
 - Reviewing witness assignment, constraint completeness, and public input handling
 - Checking Fiat-Shamir transcript construction and challenge timing
 - Reviewing verifier equations, KZG/SRS assumptions, or recursive proof plumbing
+- Auditing generic STARK/AIR systems outside Cairo/Starknet: AIR transition
+  and boundary constraints, trace padding, composition polynomials, FRI
+  query schedules, and DEEP out-of-domain sampling
 
 ## When NOT to Use
 
@@ -42,6 +45,7 @@ Domain auditor for circuit soundness and verifier logic.
 
 - Read `references/zk-checklist.md`
 - If the codebase uses circom, halo2, arkworks, or plonky2/3, read the corresponding library pattern file in `references/` before proceeding
+- If the target is a STARK/AIR system (AIR constraints, execution trace, composition polynomial, FRI), read `references/stark-air-patterns.md` and execute `workflows/stark-air-review.md`; Cairo/Starknet language and hint review routes to `cairo-auditor`, and standalone FRI-as-PCS review routes to `commitment-scheme-auditor`
 - Map every assigned witness value to its constraining equations
 - Flag unconstrained signals, non-native arithmetic width gaps, and lookup multiplicity edge cases
 
@@ -67,6 +71,8 @@ Produce a circuit-audit handoff that includes:
 
 - The affected constraints, transcript steps, verifier equations, or setup assumptions
 - The exact witness/public-input or proof path involved
+- For STARK/AIR targets: the AIR constraint group, trace segment,
+  composition/quotient step, or FRI parameter at issue
 - Whether the issue is a soundness, privacy, or batching candidate
 - The next verification or reporting route
 
@@ -78,5 +84,8 @@ Produce a circuit-audit handoff that includes:
 - [references/halo2-patterns.md](references/halo2-patterns.md)
 - [references/arkworks-patterns.md](references/arkworks-patterns.md)
 - [references/plonky2-patterns.md](references/plonky2-patterns.md)
+- [references/stark-air-patterns.md](references/stark-air-patterns.md)
+- [references/spec-sources.md](references/spec-sources.md)
 - [workflows/transcript-review.md](workflows/transcript-review.md)
 - [workflows/setup-review.md](workflows/setup-review.md)
+- [workflows/stark-air-review.md](workflows/stark-air-review.md)

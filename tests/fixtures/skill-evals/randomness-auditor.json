@@ -1,0 +1,60 @@
+{
+  "skill_name": "randomness-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Our Rust signing service seeds a ChaCha CSPRNG once at startup and then forks worker processes that each keep using the inherited RNG state. The service also runs in VM snapshots that get cloned and resumed. Audit whether forked or snapshot-resumed workers can produce duplicate random values or repeated signature nonces.",
+      "expected_route": "randomness-auditor"
+    },
+    {
+      "prompt": "Review our ECDSA nonce derivation: we implemented deterministic nonces per RFC 6979 but added a retry path that, after a crash, re-reads a persisted counter file and may re-derive the same k for a different message hash. Check the nonce lifecycle for reuse and bias across retries, crash recovery, and concurrent signers.",
+      "expected_route": "randomness-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit this AES-GCM wrapper: the caller supplies the nonce explicitly per message and we suspect associated data is not bound into the tag correctly, and the decrypt path may act as a padding-style error oracle. Nonce generation itself is handled by a separate, already-reviewed component.",
+      "expected_route": "encryption-scheme-auditor"
+    },
+    {
+      "prompt": "Review this scalar multiplication implementation for pure timing leakage: the double-and-add loop branches on secret key bits and the lookup table is indexed by secret nibbles. No randomness generation is involved.",
+      "expected_route": "side-channel-auditor"
+    }
+  ],
+  "required_sources": [
+    "NIST SP 800-90A",
+    "RFC 6979",
+    "RFC 8032"
+  ],
+  "required_output_fields": [
+    "random_value_role",
+    "lifecycle_path",
+    "reuse_or_bias_condition",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "randomness-auditor",
+      "output_fields_present": [
+        "random_value_role",
+        "lifecycle_path",
+        "reuse_or_bias_condition",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "encryption-scheme-auditor",
+      "output_fields_present": [
+        "mode/implementation path and nonce lifecycle involved",
+        "decrypt error behavior and oracle risk surface",
+        "nonce/tag-ordering/AD-binding/KDF/key-lifecycle classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

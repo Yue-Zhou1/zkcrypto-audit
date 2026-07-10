@@ -1,0 +1,69 @@
+{
+  "skill_name": "signature-scheme-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit our BIP-340 Schnorr implementation: x-only public key handling, tagged-hash challenge computation, and the verification equation. I want lift_x even-y handling and batch versus single verification consistency reviewed.",
+      "expected_route": "signature-scheme-auditor"
+    },
+    {
+      "prompt": "Review this Ed25519 library for canonical encoding enforcement: does verification reject non-canonical s values above the group order, how does it handle small-order and mixed-order points, and can batch verification accept a signature that single verification rejects?",
+      "expected_route": "signature-scheme-auditor"
+    },
+    {
+      "prompt": "Audit a generic ECDSA verifier used across P-256 and secp256k1: r/s range validation, signature malleability via the s -> n - s transformation, public key validation before the verification equation, and hash truncation for mismatched curve/hash sizes. This is a standalone library, not an Ethereum application.",
+      "expected_route": "signature-scheme-auditor"
+    },
+    {
+      "prompt": "Review our RSA signature verification supporting both RSA-PSS and PKCS#1 v1.5: salt length checking in PSS, strict DigestInfo parsing in v1.5 (no tolerance for trailing bytes or flexible padding), and modulus/exponent sanity checks.",
+      "expected_route": "signature-scheme-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit this Ethereum application signing path: EIP-712 typed structured data hashing with domain separators, ecrecover return-value handling including the zero-address case, and alloy-rs signer integration for transaction signing.",
+      "expected_route": "ethereum-crypto-auditor"
+    },
+    {
+      "prompt": "Review our BLS12-381 aggregate signature verification: proof-of-possession checks against rogue-key attacks, subgroup membership of deserialized points, DST usage in hash_to_curve, and the pairing equation for aggregated public keys.",
+      "expected_route": "ecc-pairing-auditor"
+    }
+  ],
+  "required_sources": [
+    "BIP-340",
+    "RFC 8032",
+    "FIPS 186-5",
+    "RFC 8017"
+  ],
+  "required_output_fields": [
+    "signature_family",
+    "verification_or_signing_path",
+    "equation_or_encoding_invariant",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "signature-scheme-auditor",
+      "output_fields_present": [
+        "signature_family",
+        "verification_or_signing_path",
+        "equation_or_encoding_invariant",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "ethereum-crypto-auditor",
+      "output_fields_present": [
+        "crypto entry points/API calls/encoding paths involved",
+        "malleability/encoding/domain-separation/type-confusion issue",
+        "ECDSA/hash/precompile/KZG/API-layer classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

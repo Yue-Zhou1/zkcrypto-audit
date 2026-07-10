@@ -7,6 +7,41 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `onchain-verifier-auditor` (zk-and-vm-auditors): audits Solidity/Vyper/Huff
+  proof-verifier contracts for EIP-196/197/2537 precompile invocation
+  semantics, missing scalar-field checks on public inputs, point encoding,
+  verification-key provenance/upgrade risk, and proof calldata decoding.
+  Routed by `onchain_verifier_contract`.
+- `threshold-ecdsa-auditor` (protocol-auditors): audits GG18/GG20/CGGMP21/
+  Lindell-style threshold ECDSA for Paillier modulus validity proofs,
+  MtA/MtAwc range-proof gaps, presignature lifecycle, resharing, concurrent
+  session isolation, and identifiable-abort leakage. Routed by
+  `threshold_ecdsa_paillier_mta`.
+- `randomness-auditor` (implementation-safety): audits CSPRNG/DRBG seeding
+  and reseeding, entropy availability, fork/clone/VM-snapshot RNG
+  duplication, RFC 6979/RFC 8032 deterministic nonce derivation, and nonce
+  reuse across retries, crash recovery, persistence, logging, and concurrent
+  state. Routed by `randomness_nonce_entropy`.
+- `privacy-protocol-auditor` (protocol-auditors): audits shielded-pool and
+  mixer protocol logic for nullifier derivation/uniqueness/spent-set
+  soundness, note and value commitment binding, deposit/withdraw
+  front-running, root acceptance, and cross-domain replay. Routed by
+  `privacy_nullifier_shielded_pool`.
+- `signature-scheme-auditor` (crypto-primitive-auditors): audits classical
+  signatures — generic ECDSA across curves, Schnorr/BIP-340, EdDSA/Ed25519,
+  RSA-PSS and PKCS#1 v1.5 — for verification-equation correctness,
+  malleability, canonical encoding, public-key validation, and hash/prehash
+  semantics. Routed by `classical_signature_verification`.
+- `zk-circuit-auditor` extension: generic STARK/AIR coverage — AIR
+  transition/boundary constraints, trace padding and selectors, composition
+  polynomial degree accounting, FRI query schedule and soundness budget,
+  DEEP out-of-domain sampling, and verifier parameter provenance — via
+  `references/stark-air-patterns.md`, `references/spec-sources.md`, and
+  `workflows/stark-air-review.md`; the `zk_constraints_transcript_verifier`
+  predicate now names STARK/AIR/trace/composition review.
+
 ## [0.5.0] - 2026-06-12
 
 ### Added

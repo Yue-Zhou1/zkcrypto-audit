@@ -1,0 +1,7 @@
+display_name: onchain-verifier-auditor
+short_description: Audit Solidity/Vyper/Huff proof-verifier contracts for pairing
+  precompile misuse, missing scalar-field checks on public inputs, calldata decoding
+  errors, and verification-key provenance or upgrade risks.
+default_prompt: Use onchain-verifier-auditor for this task. Audit the on-chain proof
+  verifier contract for precompile invocation semantics (EIP-196/197/2537), public-input
+  range checks, point encoding, verification-key provenance, and proof calldata decoding.

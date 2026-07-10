@@ -1,0 +1,8 @@
+display_name: privacy-protocol-auditor
+short_description: Audit shielded-pool and mixer protocol logic for nullifier
+  derivation and spent-set soundness, commitment ownership binding, deposit/withdraw
+  front-running, and cross-domain replay of withdrawal proofs.
+default_prompt: Use privacy-protocol-auditor for this task. Audit the shielded pool's
+  nullifier derivation and uniqueness, spent-set semantics, note/value commitment
+  binding, root acceptance policy, relayer/recipient statement binding, and replay
+  domains across chains, pools, and versions.

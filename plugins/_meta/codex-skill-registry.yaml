@@ -82,6 +82,11 @@ skills:
     canonical_path: plugins/zk-and-vm-auditors/skills/folding-scheme-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: onchain-verifier-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/onchain-verifier-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: ecc-pairing-auditor
     plugin_category: crypto-primitive-auditors
@@ -118,6 +123,11 @@ skills:
     canonical_path: plugins/crypto-primitive-auditors/skills/ethereum-crypto-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: signature-scheme-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/signature-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: dkg-threshold-auditor
     plugin_category: protocol-auditors
@@ -132,6 +142,16 @@ skills:
   - skill_name: vdf-auditor
     plugin_category: protocol-auditors
     canonical_path: plugins/protocol-auditors/skills/vdf-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: threshold-ecdsa-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/threshold-ecdsa-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: privacy-protocol-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/privacy-protocol-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 
@@ -159,6 +179,11 @@ skills:
   - skill_name: dependency-auditor
     plugin_category: implementation-safety
     canonical_path: plugins/implementation-safety/skills/dependency-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: randomness-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/randomness-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 

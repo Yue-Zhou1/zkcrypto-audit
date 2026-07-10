@@ -1,0 +1,59 @@
+{
+  "skill_name": "privacy-protocol-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit the shielded pool logic of our mixer: deposits insert note commitments into an on-chain Merkle tree, withdrawals reveal a nullifier derived from the note secret, and the contract tracks a spent-nullifier mapping. I want the nullifier derivation, uniqueness, and spent-set semantics checked for double-spend and cross-pool replay.",
+      "expected_route": "privacy-protocol-auditor"
+    },
+    {
+      "prompt": "Review our shielded transfer protocol's state transitions: join-split of input notes into output notes with value commitments, change outputs linked back to the sender, and withdrawal transactions that can be front-run by relayers. Check ownership binding of notes, replay domains across chain forks, and deposit/withdraw ordering assumptions.",
+      "expected_route": "privacy-protocol-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit this standalone incremental Merkle tree library: leaf insertion, inclusion proof verification, sparse tree defaults for empty subtrees, and second-preimage domain separation between leaves and internal nodes. It is a generic library with no shielded pool or nullifier logic on top.",
+      "expected_route": "merkle-tree-auditor"
+    },
+    {
+      "prompt": "Review this Circom withdrawal circuit only for constraint completeness: are all witness signals properly constrained, is the nullifier hash computed with correctly constrained components, and can a malicious prover satisfy the circuit with an unconstrained intermediate signal? The contract-side pool logic is out of scope.",
+      "expected_route": "zk-circuit-auditor"
+    }
+  ],
+  "required_sources": [
+    "Zcash Protocol Specification",
+    "Tornado Cash"
+  ],
+  "required_output_fields": [
+    "protocol_state_transition",
+    "nullifier_or_commitment_invariant",
+    "privacy_or_replay_impact",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "privacy-protocol-auditor",
+      "output_fields_present": [
+        "protocol_state_transition",
+        "nullifier_or_commitment_invariant",
+        "privacy_or_replay_impact",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "merkle-tree-auditor",
+      "output_fields_present": [
+        "tree variant and proof path under review",
+        "node-typing/path-validation/root-binding gap",
+        "soundness/replay-update-integrity/completeness classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

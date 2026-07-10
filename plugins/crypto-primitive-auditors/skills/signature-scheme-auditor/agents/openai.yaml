@@ -1,0 +1,8 @@
+display_name: signature-scheme-auditor
+short_description: Audit classical signatures (ECDSA, Schnorr/BIP-340, Ed25519,
+  RSA-PSS, PKCS#1 v1.5) for verification-equation correctness, malleability,
+  canonical encoding, public-key validation, and hash/prehash semantics.
+default_prompt: Use signature-scheme-auditor for this task. Audit the signature
+  library's decode rules, verification equations, malleability posture, public-key
+  validation, batch/single consistency, and hash truncation semantics against the
+  governing standards.

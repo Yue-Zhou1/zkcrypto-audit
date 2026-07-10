@@ -1,0 +1,57 @@
+{
+  "skill_name": "zk-circuit-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit our custom AIR and STARK verifier written on top of Winterfell: transition and boundary constraints over a 12-column trace, selector-gated padding rows, the composition polynomial degree bound, and the DEEP out-of-domain consistency check between trace and composition openings.",
+      "expected_route": "zk-circuit-auditor"
+    },
+    {
+      "prompt": "Review the FRI query schedule and grinding configuration of our hand-rolled STARK verifier: number of queries, blowup factor, proof-of-work bits, and whether the claimed 100-bit soundness budget actually holds for the composition polynomial degree we test.",
+      "expected_route": "zk-circuit-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit these Cairo prover hints and felt252 arithmetic in our Starknet contract: hint output validation, builtin usage, and whether the Sierra-to-CASM compilation preserves the soundness of the hinted square-root computation.",
+      "expected_route": "cairo-auditor"
+    },
+    {
+      "prompt": "Review our FRI implementation purely as a polynomial commitment scheme: degree bound enforcement in the commit/open API, batch opening soundness, and evaluation proof verification. It is a standalone PCS library, not a full STARK protocol.",
+      "expected_route": "commitment-scheme-auditor"
+    }
+  ],
+  "required_sources": [
+    "ethSTARK",
+    "DEEP-FRI"
+  ],
+  "required_output_fields": [
+    "AIR constraint group",
+    "trace segment",
+    "composition/quotient step",
+    "FRI parameter",
+    "next verification or reporting route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "zk-circuit-auditor",
+      "output_fields_present": [
+        "affected constraints/transcript steps/verifier equations/setup assumptions",
+        "witness/public-input or proof path involved",
+        "AIR constraint group/trace segment/composition-quotient step/FRI parameter",
+        "soundness/privacy/batching classification",
+        "next verification or reporting route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "cairo-auditor",
+      "output_fields_present": [
+        "hint functions/felt252 operations/builtins involved",
+        "validation or constraint gap under review",
+        "hint-level/arithmetic/builtin/compiler classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

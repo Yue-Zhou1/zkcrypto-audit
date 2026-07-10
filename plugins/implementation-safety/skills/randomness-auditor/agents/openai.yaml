@@ -1,0 +1,7 @@
+display_name: randomness-auditor
+short_description: Audit CSPRNG/DRBG seeding and reseeding, entropy availability,
+  fork/snapshot RNG duplication, RFC 6979/8032 deterministic nonce derivation, and
+  nonce reuse across retries, crashes, persistence, and concurrency.
+default_prompt: Use randomness-auditor for this task. Audit how every security-relevant
+  random value is generated and how it lives across fork/snapshot boundaries, retries,
+  crash recovery, persistence, logging, and concurrent use.

@@ -5,7 +5,7 @@ zero-knowledge systems and cryptographic protocols.
 
 ## Project Layout
 
-- `plugins/` contains 7 category plugins housing 31 audit skills.
+- `plugins/` contains 7 category plugins housing 36 audit skills.
 - `.claude-plugin/marketplace.json` is the root marketplace manifest.
 - `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
 - `.agents/plugins/marketplace.schema.json` validates Codex marketplace structure.
