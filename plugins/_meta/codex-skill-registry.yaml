@@ -154,6 +154,11 @@ skills:
     canonical_path: plugins/protocol-auditors/skills/privacy-protocol-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: vrf-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/vrf-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: lattice-auditor
     plugin_category: post-quantum-auditors
@@ -163,6 +168,16 @@ skills:
   - skill_name: fhe-auditor
     plugin_category: post-quantum-auditors
     canonical_path: plugins/post-quantum-auditors/skills/fhe-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: pqc-kem-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/pqc-kem-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: pqc-signature-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/pqc-signature-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 
@@ -186,6 +201,11 @@ skills:
     canonical_path: plugins/implementation-safety/skills/randomness-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: fault-injection-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/fault-injection-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: zkbugs-index
     plugin_category: evidence-and-tooling
@@ -205,5 +225,10 @@ skills:
   - skill_name: formal-verification-bridge
     plugin_category: evidence-and-tooling
     canonical_path: plugins/evidence-and-tooling/skills/formal-verification-bridge/SKILL.md
+    phase: verification
+    trigger_mode: user_triggered_only
+  - skill_name: differential-test-harness-gen
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/differential-test-harness-gen/SKILL.md
     phase: verification
     trigger_mode: user_triggered_only

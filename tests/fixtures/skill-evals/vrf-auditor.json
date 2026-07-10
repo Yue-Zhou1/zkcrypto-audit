@@ -1,0 +1,58 @@
+{
+  "skill_name": "vrf-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit our ECVRF implementation against RFC 9381: the ECVRF-EDWARDS25519-SHA512-TAI ciphersuite, encode_to_curve with the try-and-increment loop, cofactor clearing before proof_to_hash, and whether the verifier checks the Gamma point before deriving the beta output. Validators use the output for leader election.",
+      "expected_route": "vrf-auditor"
+    },
+    {
+      "prompt": "Review this RSA-FDH-VRF prover and verifier: MGF1-based full-domain hashing of the alpha input, the suite string and domain separation octets, and whether proof_to_hash is applied in the right order so that the VRF output is only trusted after RSASSA verification passes.",
+      "expected_route": "vrf-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit our Wesolowski VDF verifier: the Fiat-Shamir challenge prime derivation, the repeated-squaring delay parameter, and whether a malformed proof can shortcut the sequentiality check in the class group setting.",
+      "expected_route": "vdf-auditor"
+    },
+    {
+      "prompt": "Review this ordinary Ed25519 signing service for signature correctness: canonical s range checks, batch versus single verification consistency, and public key validation. It produces plain signatures, not verifiable random outputs.",
+      "expected_route": "signature-scheme-auditor"
+    }
+  ],
+  "required_sources": [
+    "RFC 9381"
+  ],
+  "required_output_fields": [
+    "vrf_family",
+    "prove_or_verify_path",
+    "uniqueness_or_pseudorandomness_invariant",
+    "evidence",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "vrf-auditor",
+      "output_fields_present": [
+        "vrf_family",
+        "prove_or_verify_path",
+        "uniqueness_or_pseudorandomness_invariant",
+        "evidence",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "vdf-auditor",
+      "output_fields_present": [
+        "VDF construction and verifier routine involved",
+        "challenge derivation inputs and sequentiality invariant at risk",
+        "parameter/verifier/modulus-setup/batching classification",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

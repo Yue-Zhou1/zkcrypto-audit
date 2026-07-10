@@ -1,0 +1,60 @@
+{
+  "skill_name": "fault-injection-auditor",
+  "positive_prompts": [
+    {
+      "prompt": "Audit our RSA-CRT signing implementation for Bellcore-style fault attacks: is there a verify-after-sign check, and can a single injected fault during the CRT recombination leak a factor of the modulus through a faulty signature? The device is deployed in an environment where voltage/clock glitching is in the threat model.",
+      "expected_route": "fault-injection-auditor"
+    },
+    {
+      "prompt": "Review our deterministic EdDSA signer for differential fault analysis resistance: because the nonce is deterministic, one correct and one glitched signature over the same message could reveal the key. Check for redundant computation, fault detection, and whether a verification-skip glitch can bypass the signature check entirely.",
+      "expected_route": "fault-injection-auditor"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "Audit this scalar multiplication for passive timing and cache side-channel leakage: the double-and-add loop branches on secret key bits and the window table is indexed by secret nibbles. The attacker is a passive local observer measuring timing, with no ability to inject faults.",
+      "expected_route": "side-channel-auditor"
+    },
+    {
+      "prompt": "Review our Ed25519 signature verification for canonical s range enforcement, small-order point handling, and batch versus single verification consistency. This is a pure protocol-correctness review with no physical attacker or fault model.",
+      "expected_route": "signature-scheme-auditor"
+    }
+  ],
+  "required_sources": [
+    "Boneh",
+    "DeMillo",
+    "Lipton"
+  ],
+  "required_output_fields": [
+    "fault_model",
+    "injection_point",
+    "redundancy_or_detection_invariant",
+    "evidence_limitations",
+    "disposition",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "fault-injection-auditor",
+      "output_fields_present": [
+        "fault_model",
+        "injection_point",
+        "redundancy_or_detection_invariant",
+        "evidence_limitations",
+        "disposition",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "side-channel-auditor",
+      "output_fields_present": [
+        "secret-bearing value and affected control/data path",
+        "leakage class (timing, cache, memory, power, operational)",
+        "tool-backed evidence status",
+        "next verification or reporting route"
+      ]
+    }
+  ]
+}

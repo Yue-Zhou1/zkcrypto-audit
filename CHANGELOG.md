@@ -41,6 +41,42 @@ Versioning.
   `references/stark-air-patterns.md`, `references/spec-sources.md`, and
   `workflows/stark-air-review.md`; the `zk_constraints_transcript_verifier`
   predicate now names STARK/AIR/trace/composition review.
+- `vrf-auditor` (protocol-auditors): audits RFC 9381 VRFs (ECVRF and
+  RSA-FDH-VRF) for key validation, ciphersuite domain separation,
+  encode-to-curve and cofactor handling, deterministic prover nonces,
+  proof-to-hash ordering, uniqueness/pseudorandomness assumptions, and
+  application-level output grinding. Routed by
+  `vrf_rfc9381_output_grinding`.
+- `pqc-kem-auditor` (post-quantum-auditors): audits ML-KEM/FIPS 203
+  implementations for encapsulation/decapsulation conformance, implicit
+  rejection, input validation, compression/rounding, and
+  decapsulation-failure oracle resistance; boundary with `lattice-auditor`
+  (generic LWE/RLWE parameter and sampler reasoning) made explicit in both
+  skills. Routed by `pqc_kem_decapsulation`.
+- `pqc-signature-auditor` (post-quantum-auditors): audits ML-DSA
+  (FIPS 204), SLH-DSA (FIPS 205), FN-DSA/Falcon (standardization status
+  pinned), and stateful XMSS/LMS/HSS (NIST SP 800-208) for
+  rejection-sampling correctness, verification bound enforcement, signing
+  modes, and OTS index persistence/crash-recovery/backup/cloning, with a
+  dedicated stateful-hash-signature workflow. Routed by
+  `pqc_signature_state_management`.
+- `differential-test-harness-gen` (evidence-and-tooling, user-triggered
+  only): generates cross-implementation differential test harnesses with
+  official-vector and Wycheproof replay, result/error normalization, and
+  reproducible divergence corpora for `crypto-fp-check`. No routing rule;
+  added to `user_triggered_only_exclusions`.
+- `zkvm-auditor` extension: zkEVM equivalence coverage (Scroll, Polygon
+  zkEVM, Linea) — EVM opcode equivalence, gas/circuit divergence,
+  state/storage trie encoding, memory expansion, and precompile
+  equivalence against mainnet EVM semantics — via
+  `references/zkevm-patterns.md` and `references/spec-sources.md`; the
+  `zkvm_guest_memory_precompile` predicate now names zkEVM equivalence.
+- `fault-injection-auditor` (implementation-safety): audits active
+  fault-injection attacks — RSA-CRT Bellcore faults, deterministic
+  ECDSA/EdDSA differential fault analysis, verification-skip glitches,
+  redundancy bypass, and verify-after-sign gaps — under a stated fault
+  model, distinct from `side-channel-auditor`'s passive scope. Routed by
+  `fault_injection_glitch_dfa`.
 
 ## [0.5.0] - 2026-06-12
 

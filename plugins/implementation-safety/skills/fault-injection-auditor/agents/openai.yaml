@@ -1,0 +1,8 @@
+display_name: fault-injection-auditor
+short_description: Audit cryptographic code for active fault attacks — RSA-CRT
+  Bellcore faults, deterministic-signature differential fault analysis,
+  verification-skip glitches, redundancy bypass, and verify-after-sign gaps.
+default_prompt: Use fault-injection-auditor for this task. Under a stated fault
+  model, audit RSA-CRT signing, deterministic signatures, and verification gates
+  for Bellcore/DFA/instruction-skip bypasses, assess countermeasure coverage, and
+  report with explicit evidence limitations.

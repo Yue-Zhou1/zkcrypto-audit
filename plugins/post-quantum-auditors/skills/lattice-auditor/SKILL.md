@@ -25,6 +25,10 @@ Domain auditor for lattice-based cryptographic implementations.
 ## When NOT to Use
 
 - Traditional ECC-only audits without lattice constructs
+- Standardized KEM API/state/serialization/decapsulation conformance
+  (ML-KEM/FIPS 203 implicit rejection, input checks, rounding) ->
+  `pqc-kem-auditor`; this skill keeps generic LWE/RLWE parameter and
+  sampler reasoning
 - High-level protocol reviews detached from parameter/sampling internals
 - Declaring suspected lattice issues confirmed without verification gates
 

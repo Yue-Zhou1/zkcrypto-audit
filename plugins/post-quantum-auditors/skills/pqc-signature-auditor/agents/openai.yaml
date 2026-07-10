@@ -1,0 +1,8 @@
+display_name: pqc-signature-auditor
+short_description: Audit post-quantum signatures — ML-DSA (FIPS 204), SLH-DSA
+  (FIPS 205), FN-DSA/Falcon (pre-standard), and stateful XMSS/LMS/HSS (SP 800-208) —
+  for rejection-sampling correctness, verification bounds, and OTS state management.
+default_prompt: Use pqc-signature-auditor for this task. Audit the post-quantum
+  signature implementation's signing and verification paths — rejection sampling,
+  bound enforcement, signing modes, hash addressing — and, for stateful schemes,
+  the OTS index persistence, crash recovery, backup/restore, and cloning behavior.

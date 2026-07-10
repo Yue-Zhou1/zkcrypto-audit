@@ -24,9 +24,9 @@ State transitions and mutation boundaries are defined in
 <!-- BEGIN GENERATED DOMAIN SKILLS -->
 - **ZK and VM auditors**: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`, `onchain-verifier-auditor`
 - **Crypto primitive auditors**: `ecc-pairing-auditor`, `commitment-scheme-auditor`, `hash-function-auditor`, `fiat-shamir-auditor`, `merkle-tree-auditor`, `encryption-scheme-auditor`, `ethereum-crypto-auditor`, `signature-scheme-auditor`
-- **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`, `threshold-ecdsa-auditor`, `privacy-protocol-auditor`
-- **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`
-- **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`, `randomness-auditor`
+- **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`, `threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
+- **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`, `pqc-signature-auditor`
+- **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`, `randomness-auditor`, `fault-injection-auditor`
 <!-- END GENERATED DOMAIN SKILLS -->
 - Preserve each domain skill's output contract instead of flattening everything into prose
 - Append open findings and unresolved assumptions to session state after each domain handoff
@@ -49,7 +49,7 @@ State transitions and mutation boundaries are defined in
 
 - Send verified findings to `crypto-report-writer`
 - Use `zkbugs-index` only for prior-art lookup or for verified, index-worthy findings
-- Optionally trigger `kani-harness-gen`, `fuzz-harness-gen`, or `formal-verification-bridge` for findings that benefit from machine-checked evidence (user-triggered only)
+- Optionally trigger `kani-harness-gen`, `fuzz-harness-gen`, `formal-verification-bridge`, or `differential-test-harness-gen` for findings that benefit from machine-checked or differential evidence (user-triggered only)
 - Record report/index references in session state and refresh `next_steps`
 - **Stop condition:** each verified finding has consistent report evidence, and
   any indexing action references the same verified claim set

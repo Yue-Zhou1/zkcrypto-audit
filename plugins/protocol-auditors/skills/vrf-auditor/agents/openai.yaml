@@ -1,0 +1,8 @@
+display_name: vrf-auditor
+short_description: Audit RFC 9381 VRFs (ECVRF and RSA-FDH-VRF) for key validation,
+  ciphersuite domain separation, encode-to-curve and cofactor handling, proof-to-hash
+  ordering, and application-level output grinding.
+default_prompt: Use vrf-auditor for this task. Audit the VRF prover, verifier, and
+  consumers for RFC 9381 conformance-critical behavior — key validation, suite-string
+  domain separation, nonce derivation, verification completeness, proof-to-hash
+  ordering, and grinding resistance.

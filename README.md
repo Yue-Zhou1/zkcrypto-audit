@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F36_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F41_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -93,7 +93,7 @@ install all 7 plugins for full coverage:
 - A guided starting point through `crypto-audit-router`
 - A staged workflow for context, spec review, domain analysis, verification,
   and reporting
-- 7 plugin categories covering 36 skills across ZK systems, cryptographic
+- 7 plugin categories covering 41 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
 For OpenAI Codex, this repository ships category plugin manifests, a Codex
@@ -251,8 +251,8 @@ Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
 ### `zk-and-vm-auditors`
 
 Use this category for circuits, proving systems (including generic STARK/AIR
-verifiers), Cairo/Starknet, Noir, gnark, zkVM review, and on-chain
-proof-verifier contracts.
+verifiers), Cairo/Starknet, Noir, gnark, zkVM and zkEVM-equivalence review,
+and on-chain proof-verifier contracts.
 
 Skills: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`,
 `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`,
@@ -272,34 +272,36 @@ Skills: `ecc-pairing-auditor`, `hash-function-auditor`,
 ### `protocol-auditors`
 
 Use this category for threshold systems, DKG flows, MPC protocols, threshold
-ECDSA, shielded-pool privacy protocols, and VDFs.
+ECDSA, shielded-pool privacy protocols, VRFs, and VDFs.
 
 Skills: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`,
-`threshold-ecdsa-auditor`, `privacy-protocol-auditor`
+`threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
 
 ### `post-quantum-auditors`
 
-Use this category for lattice-based cryptography and fully homomorphic
-encryption review.
+Use this category for lattice-based cryptography, fully homomorphic
+encryption, and standardized post-quantum KEM and signature review.
 
-Skills: `lattice-auditor`, `fhe-auditor`
+Skills: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`,
+`pqc-signature-auditor`
 
 ### `implementation-safety`
 
 Use this category for cross-cutting implementation risks such as unsafe Rust,
-side-channel exposure, dependency hygiene, randomness and nonce lifecycles,
-and operational safety checks.
+side-channel exposure, fault-injection resistance, dependency hygiene,
+randomness and nonce lifecycles, and operational safety checks.
 
 Skills: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`,
-`randomness-auditor`
+`randomness-auditor`, `fault-injection-auditor`
 
 ### `evidence-and-tooling`
 
 Use this category when you need prior-art lookup, stronger reproduction,
-harness generation, fuzzing support, or bridges to external verification tools.
+harness generation, fuzzing support, differential test harnesses, or bridges
+to external verification tools.
 
 Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
-`formal-verification-bridge`
+`formal-verification-bridge`, `differential-test-harness-gen`
 
 ## Repository Notes
 

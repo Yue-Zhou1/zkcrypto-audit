@@ -50,7 +50,7 @@
     {
       "name": "protocol-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), and VDFs (Wesolowski, Pietrzak).",
+      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), VRFs (RFC 9381 ECVRF/RSA-FDH-VRF), and VDFs (Wesolowski, Pietrzak).",
       "category": "protocol-auditors",
       "policy": {
         "routing": "router-first",
@@ -65,7 +65,7 @@
     {
       "name": "post-quantum-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE) and fully homomorphic encryption (FHE).",
+      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE), fully homomorphic encryption (FHE), standardized post-quantum KEMs (ML-KEM/FIPS 203), and post-quantum signatures (ML-DSA/FIPS 204, SLH-DSA/FIPS 205, FN-DSA/Falcon, XMSS/LMS per SP 800-208).",
       "category": "post-quantum-auditors",
       "policy": {
         "routing": "router-first",
@@ -80,7 +80,7 @@
     {
       "name": "implementation-safety",
       "version": "0.1.0",
-      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, and randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces).",
+      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
       "category": "implementation-safety",
       "policy": {
         "routing": "router-first",
@@ -95,7 +95,7 @@
     {
       "name": "evidence-and-tooling",
       "version": "0.1.0",
-      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, and formal verification bridge. Kani/fuzz/formal-verification skills are user-triggered only.",
+      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, formal verification bridge, and differential test harness generation. Kani/fuzz/formal-verification/differential-test skills are user-triggered only.",
       "category": "evidence-and-tooling",
       "policy": {
         "routing": "router-first",

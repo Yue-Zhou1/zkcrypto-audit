@@ -34,6 +34,7 @@ user_triggered_only_exclusions:
   - kani-harness-gen
   - fuzz-harness-gen
   - formal-verification-bridge
+  - differential-test-harness-gen
 routing_rules:
   - rule_id: spec_governed_code
     predicate: The code claims to follow an RFC, paper, or reference implementation.
@@ -80,11 +81,26 @@ routing_rules:
     phase: domain
     route_to:
       - lattice-auditor
+  - rule_id: pqc_signature_state_management
+    predicate: The issue touches post-quantum signatures — ML-DSA/Dilithium (FIPS 204) rejection sampling or verification bounds, SLH-DSA/SPHINCS+ (FIPS 205) addressing or randomizers, FN-DSA/Falcon samplers, or XMSS/LMS/HSS stateful one-time-signature index persistence, crash recovery, backup/restore, or cloning under NIST SP 800-208.
+    phase: domain
+    route_to:
+      - pqc-signature-auditor
+  - rule_id: pqc_kem_decapsulation
+    predicate: The issue touches standardized post-quantum KEMs — ML-KEM/Kyber (FIPS 203) encapsulation or decapsulation, implicit rejection, ciphertext validation, compression/rounding, or decapsulation-failure oracles — as opposed to generic LWE/RLWE parameter or sampler design, which routes to lattice-auditor.
+    phase: domain
+    route_to:
+      - pqc-kem-auditor
   - rule_id: fhe_noise_bootstrap_modswitch
     predicate: The issue touches FHE noise budgets, bootstrapping, modulus switching, key switching, or plaintext leakage.
     phase: domain
     route_to:
       - fhe-auditor
+  - rule_id: fault_injection_glitch_dfa
+    predicate: The issue touches active fault-injection attacks — RSA-CRT Bellcore faults, deterministic ECDSA/EdDSA differential fault analysis, verification-skip or instruction-skip glitches, redundant-computation bypass, or verify-after-sign gaps — under a threat model with an attacker who can glitch computation, as distinct from passive timing/cache/power leakage.
+    phase: domain
+    route_to:
+      - fault-injection-auditor
   - rule_id: side_channel_constant_time
     predicate: The issue touches timing leaks, cache or power side channels, secret-dependent branching, or constant-time regressions.
     phase: domain
@@ -111,7 +127,7 @@ routing_rules:
     route_to:
       - noir-auditor
   - rule_id: zkvm_guest_memory_precompile
-    predicate: The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida).
+    predicate: The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida), or zkEVM EVM-equivalence provers (Scroll, Polygon zkEVM, Linea) — EVM opcode equivalence, gas/circuit divergence, state/storage trie encoding, memory expansion, or precompile equivalence.
     phase: domain
     route_to:
       - zkvm-auditor
@@ -145,6 +161,11 @@ routing_rules:
     phase: domain
     route_to:
       - dkg-threshold-auditor
+  - rule_id: vrf_rfc9381_output_grinding
+    predicate: The issue touches Verifiable Random Functions — RFC 9381 ECVRF or RSA-FDH-VRF, encode-to-curve or cofactor handling, VRF key validation, proof-to-hash ordering, uniqueness or pseudorandomness assumptions, or VRF output grinding in leader election and lotteries.
+    phase: domain
+    route_to:
+      - vrf-auditor
   - rule_id: privacy_nullifier_shielded_pool
     predicate: The issue touches shielded pools, mixers, nullifier derivation or spent-set semantics, note or value commitments and ownership binding, deposit/withdraw front-running, or privacy-protocol state transitions and replay domains.
     phase: domain
