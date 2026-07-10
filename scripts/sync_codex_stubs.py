@@ -4,110 +4,26 @@
 from __future__ import annotations
 
 import argparse
-import json
-import re
 import sys
 from pathlib import Path
-from typing import Any
+
+if str(Path(__file__).resolve().parents[1]) not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from scripts.orchestration_metadata import (  # noqa: E402
+    CODEX_SKILLS_DIR,
+    REGISTRY_PATH,
+    ROUTER_MATRIX_PATH,
+    _normalize_metadata_text,
+    load_registry,
+    load_router_matrix,
+    validate_registry,
+    validate_router_matrix_consistency,
+    validate_router_reachability,
+)
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-REGISTRY_PATH = REPO_ROOT / "plugins" / "_meta" / "codex-skill-registry.yaml"
-ROUTER_MATRIX_PATH = REPO_ROOT / "plugins" / "_meta" / "router-matrix.yaml"
-CODEX_SKILLS_DIR = REPO_ROOT / ".codex" / "skills"
-
-REQUIRED_SKILL_FIELDS = {
-    "skill_name",
-    "plugin_category",
-    "canonical_path",
-    "phase",
-    "trigger_mode",
-}
-VALID_PHASES = {"intake", "domain", "verification", "reporting", "indexing"}
-VALID_TRIGGER_MODES = {"router_auto", "user_triggered_only"}
-
-
-def _strip_quotes(value: str) -> str:
-    value = value.strip()
-    if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
-        return value[1:-1]
-    return value
-
-
-def _parse_registry_skills_fallback(text: str) -> list[dict[str, str]]:
-    """Parse skills from registry without third-party YAML dependencies.
-
-    This intentionally supports the subset used in this repository:
-    - top-level `skills:`
-    - entries with scalar fields:
-      - skill_name
-      - plugin_category
-      - canonical_path
-      - phase
-      - trigger_mode
-    """
-
-    lines = text.splitlines()
-    in_skills = False
-    current: dict[str, str] | None = None
-    skills: list[dict[str, str]] = []
-
-    item_re = re.compile(r"^\s{2}-\s+skill_name:\s*(.+?)\s*$")
-    field_re = re.compile(r"^\s{4}([a-z_]+):\s*(.+?)\s*$")
-
-    for line in lines:
-        if not in_skills:
-            if line.strip() == "skills:":
-                in_skills = True
-            continue
-
-        if not line.strip():
-            continue
-        if re.match(r"^\S", line):
-            break
-
-        item_match = item_re.match(line)
-        if item_match:
-            if current is not None:
-                skills.append(current)
-            current = {"skill_name": _strip_quotes(item_match.group(1))}
-            continue
-
-        field_match = field_re.match(line)
-        if field_match and current is not None:
-            key, raw_value = field_match.groups()
-            current[key] = _strip_quotes(raw_value)
-
-    if current is not None:
-        skills.append(current)
-
-    return skills
-
-
-def load_registry(path: Path) -> dict[str, Any]:
-    text = path.read_text(encoding="utf-8")
-
-    try:
-        import yaml  # type: ignore
-    except ModuleNotFoundError:
-        yaml = None
-
-    if yaml is not None:
-        try:
-            loaded = yaml.safe_load(text)
-            if isinstance(loaded, dict):
-                return loaded
-        except Exception:
-            pass
-
-    stripped = text.lstrip()
-    if stripped.startswith("{"):
-        loaded = json.loads(text)
-        if not isinstance(loaded, dict):
-            raise ValueError("Registry JSON must decode to an object.")
-        return loaded
-
-    return {"skills": _parse_registry_skills_fallback(text)}
 
 
 def expected_stub_text(skill_name: str, canonical_path: str) -> str:
@@ -125,132 +41,14 @@ def expected_stub_text(skill_name: str, canonical_path: str) -> str:
     )
 
 
-def _extract_router_route_targets(router_matrix_text: str) -> set[str]:
-    return set(re.findall(r"^ {6}- ([a-z0-9-]+)\s*$", router_matrix_text, flags=re.M))
-
-
-def _extract_user_triggered_exclusions(router_matrix_text: str) -> set[str]:
-    match = re.search(
-        r"user_triggered_only_exclusions:\n((?: {2}- [a-z0-9-]+\n)+)",
-        router_matrix_text,
-        flags=re.M,
-    )
-    if not match:
-        return set()
-    return set(re.findall(r"^ {2}- ([a-z0-9-]+)$", match.group(1), flags=re.M))
-
-
-def _normalize_metadata_text(text: str) -> str:
-    return text.lower().replace("—", "-").replace("–", "-")
-
-
-def validate_router_matrix_consistency(skills: list[dict[str, str]]) -> list[str]:
-    errors: list[str] = []
-    if not ROUTER_MATRIX_PATH.exists():
-        return [f"Router matrix file is missing: {ROUTER_MATRIX_PATH.relative_to(REPO_ROOT).as_posix()}"]
-
-    matrix_text = ROUTER_MATRIX_PATH.read_text(encoding="utf-8")
-    registry_skill_names = {entry["skill_name"] for entry in skills}
-
-    route_targets = _extract_router_route_targets(matrix_text)
-    if not route_targets:
-        errors.append("Router matrix has no route_to targets.")
-    else:
-        missing_route_targets = sorted(route_targets - registry_skill_names)
-        if missing_route_targets:
-            errors.append(
-                "Router matrix contains route_to targets not present in registry: "
-                + ", ".join(f"`{name}`" for name in missing_route_targets)
-            )
-
-    user_triggered_registry = {
-        entry["skill_name"] for entry in skills if entry["trigger_mode"] == "user_triggered_only"
-    }
-    user_triggered_exclusions = _extract_user_triggered_exclusions(matrix_text)
-    if user_triggered_exclusions != user_triggered_registry:
-        missing = sorted(user_triggered_registry - user_triggered_exclusions)
-        extra = sorted(user_triggered_exclusions - user_triggered_registry)
-        details: list[str] = []
-        if missing:
-            details.append("missing: " + ", ".join(f"`{name}`" for name in missing))
-        if extra:
-            details.append("extra: " + ", ".join(f"`{name}`" for name in extra))
-        errors.append(
-            "user_triggered_only_exclusions mismatch with registry trigger_mode entries ("
-            + "; ".join(details)
-            + ")"
-        )
-
-    return errors
-
-
-def validate_registry(registry: dict[str, Any]) -> tuple[list[dict[str, str]], list[str]]:
-    errors: list[str] = []
-    raw_skills = registry.get("skills")
-
-    if not isinstance(raw_skills, list) or not raw_skills:
-        return [], ["Registry must contain a non-empty `skills` list."]
-
-    skills: list[dict[str, str]] = []
-    seen_skill_names: set[str] = set()
-
-    for idx, entry in enumerate(raw_skills, start=1):
-        if not isinstance(entry, dict):
-            errors.append(f"skills[{idx}] is not an object.")
-            continue
-
-        missing = sorted(REQUIRED_SKILL_FIELDS - set(entry.keys()))
-        if missing:
-            errors.append(f"skills[{idx}] missing required fields: {', '.join(missing)}")
-            continue
-
-        normalized: dict[str, str] = {}
-        for field in REQUIRED_SKILL_FIELDS:
-            value = entry.get(field)
-            if not isinstance(value, str) or not value.strip():
-                errors.append(f"skills[{idx}].{field} must be a non-empty string.")
-                continue
-            normalized[field] = value.strip()
-
-        if set(normalized.keys()) != REQUIRED_SKILL_FIELDS:
-            continue
-
-        entry_invalid = False
-
-        phase = normalized["phase"]
-        if phase not in VALID_PHASES:
-            errors.append(
-                f"skills[{idx}] `{normalized['skill_name']}` has invalid phase `{phase}`; "
-                f"expected one of {sorted(VALID_PHASES)}."
-            )
-            entry_invalid = True
-
-        trigger_mode = normalized["trigger_mode"]
-        if trigger_mode not in VALID_TRIGGER_MODES:
-            errors.append(
-                f"skills[{idx}] `{normalized['skill_name']}` has invalid trigger_mode "
-                f"`{trigger_mode}`; expected one of {sorted(VALID_TRIGGER_MODES)}."
-            )
-            entry_invalid = True
-
-        skill_name = normalized["skill_name"]
-        if skill_name in seen_skill_names:
-            errors.append(f"Duplicate skill_name in registry: `{skill_name}`.")
-            entry_invalid = True
-
-        if entry_invalid:
-            continue
-
-        seen_skill_names.add(skill_name)
-        skills.append(normalized)
-
-    return skills, errors
-
-
 def sync_stubs(*, check_mode: bool) -> int:
     registry = load_registry(REGISTRY_PATH)
     skills, errors = validate_registry(registry)
     errors.extend(validate_router_matrix_consistency(skills))
+
+    if not errors:
+        router_matrix = load_router_matrix(ROUTER_MATRIX_PATH)
+        errors.extend(validate_router_reachability(skills, router_matrix))
 
     updated = 0
     expected_skill_names = {entry["skill_name"] for entry in skills}

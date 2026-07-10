@@ -122,7 +122,23 @@ class CodexOrchestrationScaffoldingTests(unittest.TestCase):
 
     def test_all_skills_have_openai_ui_metadata(self) -> None:
         skill_paths = sorted((REPO_ROOT / "plugins").glob("*/skills/*/SKILL.md"))
-        self.assertEqual(len(skill_paths), 31)
+        self.assertTrue(skill_paths)
+
+        canonical_skill_names = {path.parent.name for path in skill_paths}
+        registry_skill_names = {entry["skill_name"] for entry in _load_registry_entries()}
+        stub_skill_names = {
+            path.name
+            for path in (REPO_ROOT / ".codex" / "skills").iterdir()
+            if path.is_dir() and (path / "SKILL.md").exists()
+        }
+        metadata_skill_names = {
+            path.parent.parent.name
+            for path in (REPO_ROOT / "plugins").glob("*/skills/*/agents/openai.yaml")
+        }
+
+        self.assertEqual(canonical_skill_names, registry_skill_names)
+        self.assertEqual(canonical_skill_names, stub_skill_names)
+        self.assertEqual(canonical_skill_names, metadata_skill_names)
 
         for skill_path in skill_paths:
             metadata_path = skill_path.parent / "agents" / "openai.yaml"
@@ -134,7 +150,13 @@ class CodexOrchestrationScaffoldingTests(unittest.TestCase):
 
     def test_registry_references_resolve_to_real_files(self) -> None:
         entries = _load_registry_entries()
-        self.assertEqual(len(entries), 31)
+        self.assertTrue(entries)
+
+        canonical_skill_names = {
+            path.parent.name for path in (REPO_ROOT / "plugins").glob("*/skills/*/SKILL.md")
+        }
+        registry_skill_names = {entry["skill_name"] for entry in entries}
+        self.assertEqual(registry_skill_names, canonical_skill_names)
 
         expected_fields = {
             "skill_name",

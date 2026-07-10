@@ -722,16 +722,22 @@ class CryptoAuditPluginScaffoldingTests(unittest.TestCase):
         self.assertIn("investigation notes", internal_template.read_text().lower())
         self.assertIn("disclosure timeline", disclosure_template.read_text().lower())
 
-    def test_collection_docs_reflect_final_plugin_count_and_todo_progress(self) -> None:
+    def test_collection_docs_reflect_registry_skill_count(self) -> None:
+        from scripts.orchestration_metadata import expected_skill_count
+
+        count = expected_skill_count()
         readme_text = (REPO_ROOT / "README.md").read_text()
         claude_text = (REPO_ROOT / "CLAUDE.md").read_text()
+
+        self.assertIn(f"plugins-7_categories%2F{count}_skills", readme_text)
+        self.assertIn(f"7 category plugins housing {count} audit skills", claude_text)
+
+    def test_todo_progress_markers_when_present(self) -> None:
         todo_path = REPO_ROOT / "TODO.md"
         if not todo_path.exists():
             self.skipTest("TODO.md is not present in this checkout")
         todo_text = todo_path.read_text()
 
-        self.assertIn("plugins-7_categories%2F31_skills", readme_text)
-        self.assertIn("7 category plugins housing 31 audit skills", claude_text)
         self.assertIn("Phase 1: Auditor Expansion", todo_text)
         self.assertIn("- [x] `formal-verification-bridge`", todo_text)
         self.assertIn("- [x] Add report template variants (client/internal/public-disclosure)", todo_text)

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Yue-Zhou1/zkcrypto-audit/tests/fixtures/skill-evals/schema.json",
+  "title": "Skill evaluation fixture",
+  "description": "Positive/negative routing and output-contract evaluation case for a single audit skill or skill extension.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "skill_name",
+    "positive_prompts",
+    "negative_prompts",
+    "required_sources",
+    "required_output_fields"
+  ],
+  "properties": {
+    "skill_name": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "The registry skill_name this fixture evaluates. For an extension fixture, this is the extended skill's name."
+    },
+    "positive_prompts": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/promptCase" }
+    },
+    "negative_prompts": {
+      "type": "array",
+      "minItems": 2,
+      "items": { "$ref": "#/$defs/promptCase" }
+    },
+    "required_sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "required_output_fields": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "forward_test_notes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/forwardTestNote" }
+    }
+  },
+  "$defs": {
+    "promptCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt", "expected_route"],
+      "properties": {
+        "prompt": { "type": "string", "minLength": 1 },
+        "expected_route": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "forwardTestNote": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["prompt_kind", "observed_route", "output_fields_present"],
+      "properties": {
+        "prompt_kind": {
+          "type": "string",
+          "enum": ["positive", "negative"]
+        },
+        "observed_route": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+        },
+        "output_fields_present": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}
