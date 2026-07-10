@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F41_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F42_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -93,7 +93,7 @@ install all 7 plugins for full coverage:
 - A guided starting point through `crypto-audit-router`
 - A staged workflow for context, spec review, domain analysis, verification,
   and reporting
-- 7 plugin categories covering 41 skills across ZK systems, cryptographic
+- 7 plugin categories covering 42 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
 For OpenAI Codex, this repository ships category plugin manifests, a Codex
@@ -112,6 +112,8 @@ A typical review follows this path:
 6. Use `crypto-report-writer` to turn verified issues into report-ready output.
 7. Use `zkbugs-index`, harness generation, or formal verification support when
    you need prior art or stronger evidence.
+8. When a fix is supplied for a verified finding, use `fix-verification` to
+   confirm the patch removes the root cause and record a remediation verdict.
 
 The canonical workflow is documented in
 `plugins/core-audit-flow/skills/crypto-audit-router/workflows/full-audit-flow.md`.
@@ -246,7 +248,8 @@ Start here if you are new to the repository, unsure which auditor to use, or
 want a guided review path from start to finish.
 
 Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
-`spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`
+`spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`,
+`fix-verification`
 
 ### `zk-and-vm-auditors`
 

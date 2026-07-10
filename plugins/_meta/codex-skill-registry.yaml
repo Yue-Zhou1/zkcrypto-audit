@@ -51,6 +51,11 @@ skills:
     canonical_path: plugins/core-audit-flow/skills/crypto-report-writer/SKILL.md
     phase: reporting
     trigger_mode: router_auto
+  - skill_name: fix-verification
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/fix-verification/SKILL.md
+    phase: verification
+    trigger_mode: router_auto
 
   - skill_name: zk-circuit-auditor
     plugin_category: zk-and-vm-auditors

@@ -48,6 +48,7 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches Solidity, Vyper, or Huff proof-verifier contracts, pairing precompile calls (EIP-196/197/2537, addresses 0x06/0x07/0x08), scalar-field reduction checks on public inputs, verification-key storage or upgrades, or proof calldata decoding. | `onchain-verifier-auditor` |
 | The issue touches Nova, HyperNova, ProtoStar folding equations, accumulator update, running instance threading, or cycle-of-curves encoding. | `folding-scheme-auditor` |
 | The issue has survived domain review and needs truth/impact validation. | `crypto-fp-check` |
+| A previously verified finding has a supplied patch/fix reference (commit, PR, or diff) and the fix must be checked — reproduce the original PoC on the vulnerable revision, confirm it fails for the intended reason on the fixed revision, verify the root cause (not just the demonstrated input) is removed, search sibling paths for incomplete remediation, run regression tests, and record a remediation verdict. | `fix-verification` |
 | The issue is verified and needs report prose. | `crypto-report-writer` |
 | The issue is verified and may need prior-art lookup or index storage. | `zkbugs-index` |
 <!-- END GENERATED ROUTING RULES -->

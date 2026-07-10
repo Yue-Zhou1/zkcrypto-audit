@@ -5,7 +5,9 @@ Maintain a local session state file at every handoff boundary:
 `zk-findings/sessions/<engagement-id>.json`.
 
 State transitions and mutation boundaries are defined in
-`../references/state-machine.md`.
+`../references/state-machine.md`. Session files use schema version 2
+(`schema_version: 2`): keep the strict core fields at the root and preserve any
+engagement-specific content under `extensions`.
 
 ## Phase 1: Intake
 
@@ -63,3 +65,20 @@ State transitions and mutation boundaries are defined in
 - Confirm session state captures final handoff status for future conversations
 - **Stop condition:** session state is schema-valid and all required handoff
   artifacts are internally consistent
+
+## Phase 6: Remediation verification (on supplied fix)
+
+- Enter only when a fix reference is supplied for a previously verified finding;
+  transition session state `closed -> remediation_in_progress`
+- Route to `fix-verification`: reproduce the original PoC on the vulnerable
+  revision, confirm it fails for the intended reason on the fixed revision,
+  verify the root cause (not just the demonstrated input) is removed, and search
+  sibling paths for incomplete remediation
+- Record each fix outcome as a `remediation_verifications` entry (`finding_id`,
+  `fix_ref`, `verdict`, `regression_evidence_refs`, `verified_at`) without
+  rewriting the original `verified_findings` claim
+- If the patch changes the original claim or introduces a candidate regression,
+  transition `remediation_in_progress -> verification_in_progress` and re-run
+  the relevant domain/verification steps
+- **Stop condition:** every targeted finding has a remediation verdict with
+  evidence; transition `remediation_in_progress -> closed`

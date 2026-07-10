@@ -1,0 +1,59 @@
+{
+  "skill_name": "fix-verification",
+  "positive_prompts": [
+    {
+      "prompt": "We previously confirmed a Critical soundness finding (SE-CORE-001: duplicate attestations counted toward finality) with a passing PoC against commit a1b2c3d. The maintainer just pushed fix commit 9f8e7d6 that deduplicates attesting indices. Verify the fix: re-run the original PoC against the vulnerable revision, confirm it now fails for the right reason on the fixed revision, check the root cause is removed and not just the demonstrated input, and record a remediation verdict.",
+      "expected_route": "fix-verification"
+    },
+    {
+      "prompt": "Finding F-05 (Prysm keystore decryption lacks MAC verification) was verified and reported. A patch PR #418 adds checksum validation to the load path. I want a remediation review that reproduces the original exploit on the pre-patch revision, confirms the patched revision rejects the crafted ciphertext for the intended reason, searches sibling loaders for the same missing check, runs the regression tests, and updates the session's remediation_verifications record.",
+      "expected_route": "fix-verification"
+    }
+  ],
+  "negative_prompts": [
+    {
+      "prompt": "I have a suspected under-constrained signal in a Circom template and I think a malicious prover could forge a witness, but I have not written a PoC yet and there is no fix. Decide whether this is a true positive or a false positive and whether the severity is justified before anyone reports it.",
+      "expected_route": "crypto-fp-check"
+    },
+    {
+      "prompt": "Please turn this verified Medium finding about non-canonical scalar decomposition into report-ready prose with severity, impact, root cause, and the test evidence. No patch has been supplied; I just need the written finding for the report.",
+      "expected_route": "crypto-report-writer"
+    }
+  ],
+  "required_sources": [
+    "NIST SP 800-115",
+    "Keep a Changelog"
+  ],
+  "required_output_fields": [
+    "finding_id",
+    "fix_ref",
+    "root_cause_status",
+    "regression_evidence",
+    "verdict",
+    "next_route"
+  ],
+  "forward_test_notes": [
+    {
+      "prompt_kind": "positive",
+      "observed_route": "fix-verification",
+      "output_fields_present": [
+        "finding_id",
+        "fix_ref",
+        "root_cause_status",
+        "regression_evidence",
+        "verdict",
+        "next_route"
+      ]
+    },
+    {
+      "prompt_kind": "negative",
+      "observed_route": "crypto-fp-check",
+      "output_fields_present": [
+        "verdict",
+        "severity",
+        "poc_gate_result",
+        "recommended_next_step"
+      ]
+    }
+  ]
+}

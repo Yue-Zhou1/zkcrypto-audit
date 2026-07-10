@@ -9,6 +9,13 @@ Versioning.
 
 ### Added
 
+- `fix-verification` (core-audit-flow): verifies that a supplied patch actually
+  fixes a previously verified finding — reproduces the original PoC on the
+  vulnerable revision, confirms it fails for the intended reason on the fixed
+  revision, checks the root cause (not just the demonstrated input) is removed,
+  searches sibling paths for incomplete remediation, runs regression tests, and
+  records a `remediation_verifications` verdict. Routed by
+  `fix_verification_patch_regression`.
 - `onchain-verifier-auditor` (zk-and-vm-auditors): audits Solidity/Vyper/Huff
   proof-verifier contracts for EIP-196/197/2537 precompile invocation
   semantics, missing scalar-field checks on public inputs, point encoding,
@@ -77,6 +84,16 @@ Versioning.
   redundancy bypass, and verify-after-sign gaps — under a stated fault
   model, distinct from `side-channel-auditor`'s passive scope. Routed by
   `fault_injection_glitch_dfa`.
+
+### Changed
+
+- Session state schema upgraded to version 2 (`schema_version: 2`): a strict
+  core contract (including `route_dispositions`, `fp_check_verdicts`,
+  `artifacts`, and `remediation_verifications`) plus an `extensions` object that
+  preserves engagement-specific evidence. Adds the `remediation_in_progress`
+  phase and its transitions. All tracked engagement sessions were migrated.
+  A new `scripts/validate_session_state.py` and `requirements-dev.txt`
+  (`jsonschema`, `rfc3339-validator`) enforce the schema in CI and pre-push.
 
 ## [0.5.0] - 2026-06-12
 

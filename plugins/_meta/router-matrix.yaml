@@ -201,6 +201,11 @@ routing_rules:
     phase: verification
     route_to:
       - crypto-fp-check
+  - rule_id: fix_verification_patch_regression
+    predicate: A previously verified finding has a supplied patch/fix reference (commit, PR, or diff) and the fix must be checked — reproduce the original PoC on the vulnerable revision, confirm it fails for the intended reason on the fixed revision, verify the root cause (not just the demonstrated input) is removed, search sibling paths for incomplete remediation, run regression tests, and record a remediation verdict.
+    phase: verification
+    route_to:
+      - fix-verification
   - rule_id: report_verified_finding
     predicate: The issue is verified and needs report prose.
     phase: reporting

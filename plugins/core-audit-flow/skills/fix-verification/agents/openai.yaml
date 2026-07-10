@@ -1,0 +1,8 @@
+display_name: fix-verification
+short_description: Verifies that a supplied patch actually fixes a previously verified
+  ZK or cryptographic finding. Use when a fix/patch reference is provided to confirm
+  the root cause is removed and record a remediation verdict.
+default_prompt: Use fix-verification for this task. Verifies that a supplied patch
+  actually fixes a previously verified ZK or cryptographic finding, confirming the
+  root cause is removed (not just the demonstrated input), checking sibling paths for
+  incomplete remediation, and recording a remediation verdict.
