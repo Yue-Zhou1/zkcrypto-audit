@@ -9,3 +9,9 @@ plugins/evidence-and-tooling/.cache/
 docs/*
 !docs/codex/
 !docs/codex/*.md
+
+# emu audit UI tool build artifacts
+tools/emu/node_modules/
+tools/emu/frontend/node_modules/
+tools/emu/frontend/dist/
+tools/emu/backend/.venv/
