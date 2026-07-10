@@ -1,6 +1,6 @@
 ---
 name: pqc-kem-auditor
-description: Codex compatibility stub for the pqc-kem-auditor plugin skill.
+description: "Audit standardized post-quantum KEM implementations — currently ML-KEM / FIPS 203 — for encapsulation/decapsulation conformance, implicit-rejection correctness, ciphertext and key validation, compression/rounding, and decapsulation-failure oracle resistance. Use when reviewing ML-KEM/Kyber APIs, serialization, or decapsulation paths."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: fault-injection-auditor
-description: Codex compatibility stub for the fault-injection-auditor plugin skill.
+description: "Audit cryptographic code for active fault-injection attacks: RSA-CRT Bellcore faults, ECDSA/EdDSA differential fault analysis, verification-skip glitches, redundant-computation bypass, and verify-after-sign gaps. Use when the threat model includes an attacker who can glitch computation, distinct from passive side-channel leakage."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

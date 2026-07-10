@@ -19,8 +19,7 @@ governing source in `references/spec-sources.md`.
       zero pairs returns success (1). A contract that builds the pairing
       input from attacker-controlled arrays must not allow an empty input.
 - [ ] EIP-2537 call sites use the post-Pectra addresses and fixed operand
-      sizes, and rely on the mandated subgroup checks only where EIP-2537
-      actually mandates them (all BLS12-381 precompile inputs).
+      sizes. G1ADD/G2ADD do not subgroup-check; G1MSM/G2MSM and pairing do.
 - [ ] Enough gas is forwarded to the precompile; a gas-starved staticcall
       fails and must be surfaced, not swallowed.
 
@@ -44,12 +43,10 @@ governing source in `references/spec-sources.md`.
       the EIP-197 coefficient ordering (imaginary component first:
       x_im, x_re, y_im, y_re). Swapped ordering makes valid proofs fail —
       or worse, lets a crafted point pass a hand-rolled decoder.
-- [ ] The contract does not assume the precompile performs subgroup checks
-      that it does not: EIP-196/197 validate on-curve membership and reject
-      invalid encodings, and the BN254 G2 pairing input is checked for
-      correct-subgroup membership by the precompile; EIP-2537 mandates
-      explicit subgroup checks. Any point used OUTSIDE a precompile
-      (e.g., hashed, compared, or stored) needs contract-side validation.
+- [ ] The required subgroup invariant is provided by the operation actually
+      invoked: EIP-197 pairing checks its G2 inputs; EIP-2537 subgroup checks
+      apply to MSM/pairing, not G1ADD/G2ADD. Validate points before any
+      contract-side use that needs subgroup membership.
 - [ ] Point-at-infinity (encoded as (0, 0) in EIP-196/197) handling is
       explicit where a zero point would trivialize an equation.
 

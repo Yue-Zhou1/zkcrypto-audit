@@ -1,6 +1,6 @@
 ---
 name: fiat-shamir-auditor
-description: Codex compatibility stub for the fiat-shamir-auditor plugin skill.
+description: "Audit Fiat-Shamir transcript implementations for completeness, domain separation, challenge derivation order, and public input binding across interactive-to-non-interactive proof transforms."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

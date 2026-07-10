@@ -24,8 +24,7 @@ optional in one is the key-extraction bug in another.
       responder proves its response value in range (MtA), and MtAwc
       additionally proves consistency with the committed/known share.
 - [ ] Range proofs are actually verified — not just parsed. A skipped or
-      "TODO" verification is the Alpha-Rays (tss-lib CVE-2021-*, "GG18/GG20
-      missing range proof") key-extraction class.
+      "TODO" verification is the Alpha-Rays key-extraction class.
 - [ ] The Beta' masking value is sampled from the full required interval and
       never reused.
 - [ ] Homomorphic operations on Paillier ciphertexts reduce correctly and

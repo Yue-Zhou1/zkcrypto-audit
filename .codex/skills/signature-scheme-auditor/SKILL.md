@@ -1,6 +1,6 @@
 ---
 name: signature-scheme-auditor
-description: Codex compatibility stub for the signature-scheme-auditor plugin skill.
+description: "Audit classical signature schemes — generic ECDSA across curves, Schnorr/ BIP-340, EdDSA/Ed25519, RSA-PSS and PKCS#1 v1.5 — for verification-equation correctness, malleability, canonical encoding, public-key validation, and hash/prehash semantics. Use for standalone signature library review outside Ethereum application encoding, BLS, or threshold protocols."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

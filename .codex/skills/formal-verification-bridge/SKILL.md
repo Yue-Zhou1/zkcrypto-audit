@@ -1,6 +1,6 @@
 ---
 name: formal-verification-bridge
-description: Codex compatibility stub for the formal-verification-bridge plugin skill.
+description: "Bridge validated audit findings into optional external formal-verification tooling (Ecne, Picus, Circomspect) with explicit environment checks, reproducible exports, and tool-scoped caveat capture."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

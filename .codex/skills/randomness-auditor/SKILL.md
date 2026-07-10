@@ -1,6 +1,6 @@
 ---
 name: randomness-auditor
-description: Codex compatibility stub for the randomness-auditor plugin skill.
+description: "Audit randomness and nonce lifecycles: CSPRNG/DRBG initialization and reseeding, entropy availability, fork/clone/snapshot duplication, deterministic nonce derivation (RFC 6979, EdDSA), and reuse across retries, crashes, persistence, and concurrent state. Use when any secret-dependent random value's generation or lifetime is in question."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -14,9 +14,10 @@ behavior.
   pair units, G2 coefficient ordering (imaginary component first), 32-byte
   0/1 return word, empty input returning 1 (success), and failure on
   malformed input or points not on the curve / not in the correct subgroup.
-- EIP-2537 — "Precompile for BLS12-381 curve operations" (Final, scheduled in
-  Pectra). Defines BLS12-381 precompile addresses, fixed operand sizes, and
-  mandatory subgroup checks on all inputs.
+- EIP-2537 — "Precompile for BLS12-381 curve operations" (Final, activated
+  with Pectra). Defines BLS12-381 precompile addresses and operand formats.
+  G1ADD/G2ADD validate encodings and curve membership but do not subgroup-check;
+  G1MSM/G2MSM and pairing require subgroup-valid inputs.
 - EIP-1108 — "Reduce alt_bn128 precompile gas costs" (Final). Governs current
   gas budgeting for 0x06/0x07/0x08 call sites.
 - Groth16: Jens Groth, "On the Size of Pairing-based Non-interactive

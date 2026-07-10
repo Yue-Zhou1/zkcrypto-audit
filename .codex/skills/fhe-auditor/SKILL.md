@@ -1,6 +1,6 @@
 ---
 name: fhe-auditor
-description: Codex compatibility stub for the fhe-auditor plugin skill.
+description: "Audit FHE implementations for noise-budget accounting, bootstrapping correctness, modulus-switching safety, plaintext leakage, and key-switch parameter integrity."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: lattice-auditor
-description: Codex compatibility stub for the lattice-auditor plugin skill.
+description: "Audit lattice-based cryptography for LWE/RLWE parameter soundness, noise sampling correctness, rejection-sampling safety, and decryption-failure assumptions."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

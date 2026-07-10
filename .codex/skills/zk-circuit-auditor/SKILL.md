@@ -1,6 +1,6 @@
 ---
 name: zk-circuit-auditor
-description: Codex compatibility stub for the zk-circuit-auditor plugin skill.
+description: "Audit ZK circuits, proof systems, and verifier code for soundness and transcript failures. Use when reviewing witness constraints, Fiat-Shamir flows, KZG/PCS setup assumptions, public input encoding, or recursive proof threading."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

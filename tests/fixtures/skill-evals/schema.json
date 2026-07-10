@@ -10,7 +10,8 @@
     "positive_prompts",
     "negative_prompts",
     "required_sources",
-    "required_output_fields"
+    "required_output_fields",
+    "forward_test_notes"
   ],
   "properties": {
     "skill_name": {
@@ -40,6 +41,7 @@
     },
     "forward_test_notes": {
       "type": "array",
+      "minItems": 2,
       "items": { "$ref": "#/$defs/forwardTestNote" }
     }
   },

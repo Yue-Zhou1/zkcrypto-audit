@@ -1,6 +1,6 @@
 ---
 name: crypto-audit-context
-description: Codex compatibility stub for the crypto-audit-context plugin skill.
+description: "Builds initial audit context for ZK and cryptographic code before vulnerability hunting. Use when starting a crypto audit, mapping trust boundaries, prioritizing code paths, or applying dimensional analysis to protocol values."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

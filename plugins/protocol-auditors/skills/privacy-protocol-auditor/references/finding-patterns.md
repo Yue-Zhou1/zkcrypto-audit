@@ -37,11 +37,11 @@
 
 ## P6: Root acceptance too wide
 
-- **Pattern:** any historical root accepted forever, or root parameter not
-  checked against the tree's history at all.
-- **Impact:** proofs against a root containing since-invalidated state;
-  combined with tree reorganization or migration, enables spends of
-  removed notes.
+- **Pattern:** a root is accepted outside the protocol's declared history,
+  finality, migration, or invalidation policy — not merely because it is old.
+- **Impact:** if old roots can contain state the protocol later invalidates,
+  a proof may spend against that state. An intentionally unbounded root
+  history is a policy choice; assess it as such.
 
 ## P7: Deposit commitment front-running
 

@@ -1,6 +1,6 @@
 ---
 name: commitment-scheme-auditor
-description: Codex compatibility stub for the commitment-scheme-auditor plugin skill.
+description: "Audit polynomial commitment schemes (KZG, FRI, IPA, Pedersen) for degree bound enforcement, evaluation proof verification, trusted setup provenance, and batch opening soundness."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

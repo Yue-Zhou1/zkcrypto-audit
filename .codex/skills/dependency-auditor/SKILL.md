@@ -1,6 +1,6 @@
 ---
 name: dependency-auditor
-description: Codex compatibility stub for the dependency-auditor plugin skill.
+description: "Audit cryptographic dependency sets for vulnerable versions, security-significant feature flags, advisory coverage, transitive risk, and stale fork provenance."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

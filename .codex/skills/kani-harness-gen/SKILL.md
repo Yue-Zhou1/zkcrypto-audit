@@ -1,6 +1,6 @@
 ---
 name: kani-harness-gen
-description: Codex compatibility stub for the kani-harness-gen plugin skill.
+description: "Generate Kani proof harnesses for Rust crypto code. User-triggered only — never auto-invoked by the audit flow. Produces formal verification evidence for crypto-fp-check."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: cairo-auditor
-description: Codex compatibility stub for the cairo-auditor plugin skill.
+description: "Audit Cairo and Starknet code for hint validation failures, felt252 overflow, builtin misuse, and Sierra-to-CASM soundness gaps. Use when reviewing Cairo contracts, prover hints, or Starknet-specific proof construction."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

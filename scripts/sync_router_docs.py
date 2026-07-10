@@ -72,6 +72,13 @@ CATEGORY_ORDER = [
 DOMAIN_CATEGORY_EXCLUSIONS = {"core-audit-flow"}
 
 
+def _display_path(path: Path) -> str:
+    try:
+        return path.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def render_routing_rules_table(router_matrix: dict) -> str:
     lines = ["| Situation | Route |", "|---|---|"]
     for rule in router_matrix.get("routing_rules", []):
@@ -168,15 +175,13 @@ def sync_router_docs(*, check_mode: bool) -> int:
         drift = False
         if updated_routing_matrix_text != routing_matrix_text:
             print(
-                "sync_router_docs: drift detected in "
-                f"{ROUTING_MATRIX_DOC_PATH.relative_to(REPO_ROOT).as_posix()}",
+                "sync_router_docs: drift detected in " + _display_path(ROUTING_MATRIX_DOC_PATH),
                 file=sys.stderr,
             )
             drift = True
         if updated_full_audit_flow_text != full_audit_flow_text:
             print(
-                "sync_router_docs: drift detected in "
-                f"{FULL_AUDIT_FLOW_DOC_PATH.relative_to(REPO_ROOT).as_posix()}",
+                "sync_router_docs: drift detected in " + _display_path(FULL_AUDIT_FLOW_DOC_PATH),
                 file=sys.stderr,
             )
             drift = True

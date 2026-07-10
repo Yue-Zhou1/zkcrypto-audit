@@ -1,6 +1,6 @@
 ---
 name: gnark-auditor
-description: Codex compatibility stub for the gnark-auditor plugin skill.
+description: "Audit gnark circuits and Go witness pipelines for frontend/backend mismatch, public/private witness exposure, constraint API misuse, and serialization boundary errors."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

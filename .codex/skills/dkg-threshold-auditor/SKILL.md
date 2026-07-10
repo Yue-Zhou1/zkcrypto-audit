@@ -1,6 +1,6 @@
 ---
 name: dkg-threshold-auditor
-description: Codex compatibility stub for the dkg-threshold-auditor plugin skill.
+description: "Audit DKG, threshold-signature, and FROST/MuSig-style code for rogue-key, nonce-binding, share-verification, and session-isolation failures. Use when reviewing key aggregation, VSS share checks, threshold reconstruction, or concurrent signing state."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

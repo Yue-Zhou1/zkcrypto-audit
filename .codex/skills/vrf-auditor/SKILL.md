@@ -1,6 +1,6 @@
 ---
 name: vrf-auditor
-description: Codex compatibility stub for the vrf-auditor plugin skill.
+description: "Audit Verifiable Random Function implementations (RFC 9381 ECVRF and RSA-FDH-VRF) for key validation, ciphersuite/suite-string domain separation, encode-to-curve and cofactor handling, proof-to-hash ordering, and uniqueness/pseudorandomness assumptions, plus application-level output grinding. Use when reviewing VRF provers, verifiers, or consumers of VRF outputs (leader election, lotteries, randomness beacons)."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

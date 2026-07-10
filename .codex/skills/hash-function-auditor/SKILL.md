@@ -1,6 +1,6 @@
 ---
 name: hash-function-auditor
-description: Codex compatibility stub for the hash-function-auditor plugin skill.
+description: "Audit ZK-friendly hash functions (Poseidon, Rescue, MiMC, Pedersen) for parameter selection, sponge construction, domain separation, and algebraic attack resistance."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

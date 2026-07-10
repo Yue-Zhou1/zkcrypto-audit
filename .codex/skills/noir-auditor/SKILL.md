@@ -1,6 +1,6 @@
 ---
 name: noir-auditor
-description: Codex compatibility stub for the noir-auditor plugin skill.
+description: "Audit Noir circuits for unconstrained function boundary failures, oracle validation gaps, Brillig/ACIR consistency issues, and witness-generation soundness bugs."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: onchain-verifier-auditor
-description: Codex compatibility stub for the onchain-verifier-auditor plugin skill.
+description: "Audit Solidity, Vyper, or Huff proof-verifier contracts for pairing precompile misuse, missing scalar-field checks on public inputs, calldata decoding errors, and verification-key provenance or upgrade risks. Use when reviewing on-chain SNARK/STARK verifier contracts or EIP-196/197/2537 precompile call sites."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

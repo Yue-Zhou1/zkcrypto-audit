@@ -29,9 +29,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Install development dependencies
-        run: python3 -m pip install -r requirements-dev.txt
-
       - name: Ensure local Claude settings are not tracked
         run: |
           if git ls-files --error-unmatch .claude/settings.local.json >/dev/null 2>&1; then

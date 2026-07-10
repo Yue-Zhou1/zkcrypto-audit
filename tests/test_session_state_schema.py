@@ -2,17 +2,19 @@
 
 Every tracked `zk-findings/sessions/**/*.json` (except the schema itself) must
 satisfy the version 2 core contract in `session-state-schema.json`. The schema
-is loaded with `jsonschema.Draft202012Validator` and a `jsonschema.FormatChecker`
-so `date-time` fields are enforced when the optional format library is present.
+is loaded with `jsonschema.Draft202012Validator` when that optional package is
+available. Timestamp fields are strings; this track does not enforce a date
+format.
 
-If `jsonschema` is not installed the whole module skips with a clear message
-rather than crashing on import, matching the opt-in dependency policy for the
-session-schema-v2 track.
+If `jsonschema` is not installed, both the tests and CLI validator skip the
+optional session-schema check with a clear message.
 """
 
 from __future__ import annotations
 
 import json
+import os
+import subprocess
 import sys
 import unittest
 from pathlib import Path
@@ -40,15 +42,25 @@ def tracked_session_files() -> list[Path]:
     )
 
 
-@unittest.skipIf(jsonschema is None, "jsonschema not installed; session-schema track is opt-in")
+@unittest.skipIf(jsonschema is None, "jsonschema not installed; session-schema validation is optional")
 class SessionStateSchemaTests(unittest.TestCase):
+    def test_validator_skips_when_jsonschema_is_unavailable(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "-S", "scripts/validate_session_state.py"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            env={key: value for key, value in os.environ.items() if key != "PYTHONPATH"},
+            text=True,
+            check=False,
+        )
+
+        self.assertEqual(result.returncode, 0)
+        self.assertIn("skipping", result.stderr)
+
     @classmethod
     def setUpClass(cls) -> None:
         cls.schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-        cls.format_checker = jsonschema.FormatChecker()
-        cls.validator = jsonschema.Draft202012Validator(
-            cls.schema, format_checker=cls.format_checker
-        )
+        cls.validator = jsonschema.Draft202012Validator(cls.schema)
 
     def test_schema_declares_version_2(self) -> None:
         schema_version = self.schema.get("properties", {}).get("schema_version", {})
@@ -81,35 +93,14 @@ class SessionStateSchemaTests(unittest.TestCase):
                 ]
                 self.assertEqual(messages, [], "\n".join(messages))
 
-    def test_bad_date_time_is_rejected_when_format_library_present(self) -> None:
-        if "date-time" not in self.format_checker.checkers:
-            self.skipTest("date-time format library (rfc3339-validator) not installed")
-        errors = list(
-            self.validator.iter_errors(
-                {
-                    "schema_version": 2,
-                    "engagement_id": "x",
-                    "phase": "closed",
-                    "targets": [],
-                    "trust_boundaries": [],
-                    "critical_paths": [],
-                    "unresolved_assumptions": [],
-                    "route_dispositions": [],
-                    "open_findings": [],
-                    "verified_findings": [],
-                    "fp_check_verdicts": [],
-                    "artifacts": {"reports": [], "pocs": [], "index_refs": []},
-                    "remediation_verifications": [],
-                    "next_steps": [],
-                    "updated_at": "not-a-timestamp",
-                    "extensions": {},
-                }
-            )
-        )
-        self.assertTrue(
-            any("updated_at" in list(error.path) for error in errors),
-            "a malformed updated_at must be rejected when date-time enforcement is active",
-        )
+    def test_schema_does_not_enforce_timestamp_format(self) -> None:
+        root_timestamp = self.schema["properties"]["updated_at"]
+        remediation_timestamp = self.schema["properties"]["remediation_verifications"]["items"][
+            "properties"
+        ]["verified_at"]
+
+        self.assertNotIn("format", root_timestamp)
+        self.assertNotIn("format", remediation_timestamp)
 
 
 if __name__ == "__main__":

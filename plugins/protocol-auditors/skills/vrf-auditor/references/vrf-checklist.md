@@ -52,6 +52,9 @@ All section references are to RFC 9381 unless noted.
 
 ## Verification and proof_to_hash (§5.3, §5.4.4, §5.2)
 
+- [ ] RSA-FDH-VRF: reject a proof representative outside the modulus, apply
+      RSAVP1, and compare its result exactly to the suite-string/MGF1
+      representative. Do not apply RSASSA/PKCS#1 padding-parser rules.
 - [ ] decode_proof validates Gamma, c, s ranges/encodings and fails on
       malformed components.
 - [ ] The verification equations recompute U = s*B - c*Y and

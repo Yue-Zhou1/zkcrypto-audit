@@ -9,7 +9,7 @@
   and parameter sets (§8). Pin reviews to the FINAL version — it differs
   from the initial public draft and from round-3 Kyber in the shared-secret
   derivation.
-- NIST SP 800-227 (draft) — "Recommendations for Key-Encapsulation
+- NIST SP 800-227 (final) — "Recommendations for Key-Encapsulation
   Mechanisms": KEM usage, key-combiner, and shared-secret handling
   guidance for the downstream checks.
 

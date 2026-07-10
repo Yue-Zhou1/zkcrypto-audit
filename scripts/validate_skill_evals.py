@@ -15,10 +15,13 @@ For every fixture in tests/fixtures/skill-evals/*.json (excluding schema.json):
   spec-sources.md).
 - Confirms every required_output_field appears in the skill's
   `## Output Contract` section.
-- Confirms positive/negative expected_route values resolve to real registry
-  skills, and that positive routes for router_auto skills are reachable by a
-  machine rule or phase default. For user_triggered_only skills, confirms the
-  skill is excluded from all automatic routes/defaults instead.
+- Confirms each positive case routes to its fixture skill, negative expected
+  routes resolve to real registry skills, and router_auto skills are reachable
+  by a machine rule or phase default. User-triggered positive prompts must
+  explicitly name the requested skill.
+- Confirms forward-test notes include positive and negative observations; the
+  positive observation must route to the fixture skill and include its output
+  contract fields.
 - Rejects any fixture or referenced skill file containing an unresolved
   scaffold marker (see scripts/init_audit_skill.py).
 """
@@ -95,6 +98,7 @@ def _validate_shape_fallback(fixture: dict) -> list[str]:
         "negative_prompts",
         "required_sources",
         "required_output_fields",
+        "forward_test_notes",
     }
     missing = sorted(required_top_level - set(fixture.keys()))
     if missing:
@@ -121,7 +125,12 @@ def _validate_shape_fallback(fixture: dict) -> list[str]:
     if not isinstance(required_output_fields, list) or len(required_output_fields) < 1:
         errors.append("required_output_fields must contain at least 1 entry.")
 
-    for note in fixture.get("forward_test_notes", []) or []:
+    forward_test_notes = fixture.get("forward_test_notes")
+    if not isinstance(forward_test_notes, list) or len(forward_test_notes) < 2:
+        errors.append("forward_test_notes must contain at least 2 entries.")
+        return errors
+
+    for note in forward_test_notes:
         if not isinstance(note, dict):
             errors.append("forward_test_notes entries must be objects.")
             continue
@@ -129,6 +138,8 @@ def _validate_shape_fallback(fixture: dict) -> list[str]:
             errors.append(f"forward_test_notes entry has invalid prompt_kind: {note.get('prompt_kind')!r}")
         if "observed_route" not in note or "output_fields_present" not in note:
             errors.append("forward_test_notes entry missing observed_route or output_fields_present.")
+        elif not isinstance(note["output_fields_present"], list):
+            errors.append("forward_test_notes output_fields_present must be a list.")
 
     return errors
 
@@ -215,12 +226,18 @@ def validate_fixture(
             )
 
     reachable_routes = _reachable_router_auto_routes(router_matrix)
-    user_triggered_only_names = {
-        name for name, entry in registry_skills.items() if entry["trigger_mode"] == "user_triggered_only"
-    }
-
     for prompt_case in fixture["positive_prompts"]:
         expected_route = prompt_case["expected_route"]
+        if expected_route != skill_name:
+            errors.append(
+                f"positive expected_route `{expected_route}` must equal skill_name `{skill_name}`."
+            )
+        if skill_entry["trigger_mode"] == "user_triggered_only" and skill_name not in prompt_case[
+            "prompt"
+        ].lower():
+            errors.append(
+                f"user_triggered_only positive prompt must explicitly name `{skill_name}`."
+            )
         target_entry = registry_skills.get(expected_route)
         if target_entry is None:
             errors.append(f"positive expected_route `{expected_route}` does not resolve to a registered skill.")
@@ -244,12 +261,50 @@ def validate_fixture(
         if expected_route not in registry_skills:
             errors.append(f"negative expected_route `{expected_route}` does not resolve to a registered skill.")
 
-    for note in fixture.get("forward_test_notes", []) or []:
+    positive_observed = False
+    negative_observed = False
+    negative_expected_routes = {
+        prompt_case["expected_route"] for prompt_case in fixture["negative_prompts"]
+    }
+    required_output_fields = set(fixture["required_output_fields"])
+
+    for note in fixture["forward_test_notes"]:
+        prompt_kind = note["prompt_kind"]
         observed_route = note.get("observed_route")
         if observed_route and observed_route not in registry_skills:
             errors.append(
                 f"forward_test_notes observed_route `{observed_route}` does not resolve to a registered skill."
             )
+            continue
+
+        if prompt_kind == "positive":
+            positive_observed = True
+            if observed_route != skill_name:
+                errors.append(
+                    f"positive forward-test observed_route `{observed_route}` must equal "
+                    f"skill_name `{skill_name}`."
+                )
+            missing_output_fields = sorted(
+                required_output_fields - set(note["output_fields_present"])
+            )
+            if missing_output_fields:
+                errors.append(
+                    "positive forward-test missing required output fields: "
+                    + ", ".join(f"`{field}`" for field in missing_output_fields)
+                    + "."
+                )
+        else:
+            negative_observed = True
+            if observed_route not in negative_expected_routes:
+                errors.append(
+                    f"negative forward-test observed_route `{observed_route}` must match a negative "
+                    "expected_route."
+                )
+
+    if not positive_observed:
+        errors.append("forward_test_notes must include a positive forward-test observation.")
+    if not negative_observed:
+        errors.append("forward_test_notes must include a negative forward-test observation.")
 
     return errors
 

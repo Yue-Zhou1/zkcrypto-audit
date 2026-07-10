@@ -1,6 +1,6 @@
 ---
 name: folding-scheme-auditor
-description: Codex compatibility stub for the folding-scheme-auditor plugin skill.
+description: "Audit folding scheme and IVC implementations for accumulator soundness, step circuit binding, cycle-of-curves correctness, and running instance completeness. Use when reviewing Nova, HyperNova, ProtoStar, or custom folding-based proof systems in Rust."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

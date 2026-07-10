@@ -51,9 +51,8 @@
 
 ## Disposition note
 
-Most fault findings are theoretical without lab hardware. State the
-evidence basis explicitly and prefer `residual_risk`/`observation` unless a
-fault-simulation harness (instruction-skip emulation, single-bit
-corruption in a test double) demonstrates the bypass — that simulation is
-the acceptable executable evidence when physical injection is out of scope.
-Passive leakage observed along the way routes to `side-channel-auditor`.
+State the fault model, attacker access, repeatability, and evidence basis.
+An instruction-skip or corruption simulation can validate the software path,
+but does not by itself establish physical exploitability; use
+`unverified`/`residual_risk` when the deployment model is unproven. Passive
+leakage observed along the way routes to `side-channel-auditor`.

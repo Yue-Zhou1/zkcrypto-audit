@@ -23,6 +23,7 @@ from scripts.orchestration_metadata import VALID_PHASES, VALID_TRIGGER_MODES  # 
 
 
 SKILL_NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
+RESOURCE_FILENAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*\.md$")
 
 SCAFFOLD_MARKER = "SCAFFOLD_TODO"
 
@@ -35,6 +36,23 @@ def _validate_skill_name(skill_name: str) -> None:
     if not SKILL_NAME_RE.match(skill_name):
         raise InitAuditSkillError(
             f"skill name `{skill_name}` must be lowercase hyphenated (e.g. `example-auditor`)."
+        )
+
+
+def _validate_category(category: str, *, repo_root: Path) -> None:
+    if not SKILL_NAME_RE.match(category):
+        raise InitAuditSkillError(
+            f"category `{category}` must be an existing lowercase-hyphenated plugin directory."
+        )
+
+    if not (repo_root / "plugins" / category).is_dir():
+        raise InitAuditSkillError(f"plugin category `{category}` does not exist under plugins/.")
+
+
+def _validate_resource_filename(filename: str, *, label: str) -> None:
+    if not RESOURCE_FILENAME_RE.match(filename):
+        raise InitAuditSkillError(
+            f"{label} `{filename}` must be a lowercase-hyphenated .md filename without a path."
         )
 
 
@@ -177,6 +195,18 @@ def _fixture_dict(*, skill_name: str) -> dict:
         ],
         "required_sources": [f"{SCAFFOLD_MARKER}: a governing standard or primary paper"],
         "required_output_fields": [f"{SCAFFOLD_MARKER}_field"],
+        "forward_test_notes": [
+            {
+                "prompt_kind": "positive",
+                "observed_route": skill_name,
+                "output_fields_present": [f"{SCAFFOLD_MARKER}_field"],
+            },
+            {
+                "prompt_kind": "negative",
+                "observed_route": "scaffold-todo-replace-me",
+                "output_fields_present": [f"{SCAFFOLD_MARKER}_field"],
+            },
+        ],
     }
 
 
@@ -191,6 +221,9 @@ def init_audit_skill(
     repo_root: Path = REPO_ROOT,
 ) -> list[Path]:
     _validate_skill_name(skill_name)
+    _validate_category(category, repo_root=repo_root)
+    _validate_resource_filename(checklist, label="checklist")
+    _validate_resource_filename(workflow, label="workflow")
 
     if phase not in VALID_PHASES:
         raise InitAuditSkillError(f"phase `{phase}` must be one of {sorted(VALID_PHASES)}.")

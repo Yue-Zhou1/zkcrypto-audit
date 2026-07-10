@@ -53,9 +53,11 @@
   Algorand/Ouroboros-class caveat; usually `observation`/`residual_risk`
   with quantified bias.
 
-## P8: RSA-FDH-VRF hashing shortcuts
+## P8: RSA-FDH-VRF representative mismatch
 
-- **Pattern:** truncated MGF1 domain, missing suite octets, or
-  proof_to_hash applied to the signature before RSASSA verification.
-- **Impact:** outputs distinguishable from random or forgeable by
-  Bleichenbacher-style parsing tolerance in the underlying RSA verify.
+- **Pattern:** wrong MGF1 input/length or suite octets, accepting a proof
+  representative outside the RSA modulus, or not comparing `RSAVP1(pi)` to
+  the exact RFC-derived MGF1 representative.
+- **Impact:** invalid proofs can be accepted or outputs become
+  non-interoperable. RSA-FDH-VRF does not use PKCS#1 v1.5/RSASSA padding, so
+  PKCS#1 parser-tolerance findings do not apply.

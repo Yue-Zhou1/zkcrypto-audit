@@ -38,7 +38,10 @@
       "output_fields_present": [
         "affected constraints/transcript steps/verifier equations/setup assumptions",
         "witness/public-input or proof path involved",
-        "AIR constraint group/trace segment/composition-quotient step/FRI parameter",
+        "AIR constraint group",
+        "trace segment",
+        "composition/quotient step",
+        "FRI parameter",
         "soundness/privacy/batching classification",
         "next verification or reporting route"
       ]

@@ -395,11 +395,29 @@ def validate_router_reachability(
     phase_flow = router_matrix.get("phase_flow") or []
     routing_rules = router_matrix.get("routing_rules") or []
 
-    phase_defaults = {
-        entry["phase"]: entry["default_skill"]
-        for entry in phase_flow
-        if entry.get("phase") and entry.get("default_skill")
-    }
+    phase_defaults: dict[str, str] = {}
+    for entry in phase_flow:
+        phase = entry.get("phase")
+        default_skill = entry.get("default_skill")
+        if not phase or not default_skill:
+            continue
+
+        if default_skill not in skills_by_name:
+            errors.append(
+                f"Phase `{phase}` has unknown default_skill `{default_skill}`."
+            )
+            continue
+        if phase_by_skill[default_skill] != phase:
+            errors.append(
+                f"Phase `{phase}` default_skill `{default_skill}` is registered as phase "
+                f"`{phase_by_skill[default_skill]}`."
+            )
+        if default_skill in user_triggered_only:
+            errors.append(
+                f"Phase `{phase}` default_skill `{default_skill}` is `user_triggered_only`; "
+                "phase defaults must not be auto-routed user-triggered skills."
+            )
+        phase_defaults[phase] = default_skill
 
     route_to_targets: set[str] = set()
     seen_rule_ids: set[str] = set()
@@ -429,13 +447,6 @@ def validate_router_reachability(
                     f"Routing rule `{rule_id}` routes to `user_triggered_only` skill `{target}`; "
                     "user-triggered skills must not be auto-routed."
                 )
-
-    for phase, default_skill in phase_defaults.items():
-        if default_skill in user_triggered_only:
-            errors.append(
-                f"Phase `{phase}` default_skill `{default_skill}` is `user_triggered_only`; "
-                "phase defaults must not be auto-routed user-triggered skills."
-            )
 
     reachable = route_to_targets | set(phase_defaults.values())
     unreachable = sorted(router_auto - reachable)

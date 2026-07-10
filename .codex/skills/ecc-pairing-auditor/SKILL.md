@@ -1,6 +1,6 @@
 ---
 name: ecc-pairing-auditor
-description: Codex compatibility stub for the ecc-pairing-auditor plugin skill.
+description: "Audit elliptic-curve, pairing, and BLS signature code for point-validation, subgroup, serialization, DST, and pairing-equation failures. Use when reviewing deserialization, `hash_to_curve`, aggregate verification, or batch pairing logic."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

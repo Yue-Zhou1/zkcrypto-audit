@@ -1,6 +1,6 @@
 ---
 name: privacy-protocol-auditor
-description: Codex compatibility stub for the privacy-protocol-auditor plugin skill.
+description: "Audit shielded-pool and mixer protocol logic: nullifier derivation, uniqueness, and spent-set semantics; note/value commitments and ownership binding; deposit/withdraw front-running; and state-transition replay domains. Use when reviewing privacy-protocol design above the circuit and Merkle layers."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

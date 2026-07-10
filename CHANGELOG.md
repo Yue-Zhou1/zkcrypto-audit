@@ -92,8 +92,8 @@ Versioning.
   `artifacts`, and `remediation_verifications`) plus an `extensions` object that
   preserves engagement-specific evidence. Adds the `remediation_in_progress`
   phase and its transitions. All tracked engagement sessions were migrated.
-  A new `scripts/validate_session_state.py` and `requirements-dev.txt`
-  (`jsonschema`, `rfc3339-validator`) enforce the schema in CI and pre-push.
+  `scripts/validate_session_state.py` is invoked in CI and pre-push, and
+  performs optional structural validation when `jsonschema` is available.
 
 ## [0.5.0] - 2026-06-12
 

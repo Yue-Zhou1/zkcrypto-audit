@@ -1,6 +1,6 @@
 ---
 name: zkvm-auditor
-description: Codex compatibility stub for the zkvm-auditor plugin skill.
+description: "Audit zkVM guest programs and proof systems for memory consistency, continuation proof soundness, precompile safety, and guest-host boundary violations across SP1, RISC Zero, and Valida."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

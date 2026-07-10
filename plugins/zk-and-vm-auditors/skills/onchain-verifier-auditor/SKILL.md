@@ -66,7 +66,8 @@ checks public inputs, and delegates pairing math to precompiles.
 - Verify pairing input length handling and the EIP-197 empty-input case
 - Verify every public input is range-checked below the scalar field modulus
 - Verify point encodings match the precompile's expected layout and that any
-  subgroup checks not performed by the precompile are performed in-contract
+  required subgroup invariant is enforced by the specific precompile operation
+  or before contract-side point use
 
 ### Phase 3: Pattern hunt
 

@@ -1,6 +1,6 @@
 ---
 name: merkle-tree-auditor
-description: Codex compatibility stub for the merkle-tree-auditor plugin skill.
+description: "Audit Merkle tree implementations for second-preimage attacks, leaf-node domain separation, sparse tree edge cases, and proof verification soundness."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

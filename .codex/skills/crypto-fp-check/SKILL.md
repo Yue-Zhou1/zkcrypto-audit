@@ -1,6 +1,6 @@
 ---
 name: crypto-fp-check
-description: Codex compatibility stub for the crypto-fp-check plugin skill.
+description: "Verifies suspected ZK and cryptographic findings before reporting. Use when deciding whether a suspected vulnerability is a TRUE POSITIVE or FALSE POSITIVE, assigning severity, or enforcing the Critical/High PoC gate."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

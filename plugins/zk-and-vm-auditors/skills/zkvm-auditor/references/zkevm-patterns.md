@@ -1,11 +1,11 @@
 # zkEVM Equivalence Finding Patterns
 
-Patterns specific to zkEVMs — provers that attest to EVM state transitions
-(Scroll, Polygon zkEVM, Linea, and similar) — as opposed to general-purpose
-RISC-V/other-ISA zkVMs (SP1, RISC Zero, Valida), which the base checklist
-and finding-patterns cover. The shared question here is EQUIVALENCE: does
-the circuit compute exactly what mainnet EVM computes? A divergence lets a
-prover attest to a state the L1 would reject.
+Patterns specific to zkEVMs — provers that attest to an EVM-like state
+transition (Scroll, Polygon zkEVM, Linea, and similar) — as opposed to
+general-purpose RISC-V/other-ISA zkVMs. First pin the target's claim:
+Ethereum execution equivalence, an L2 execution variant, or a bridge
+commitment. Do not assume a mainnet Merkle-Patricia root or fee policy; a
+divergence matters when it violates that declared boundary.
 
 ## Z1: Opcode semantic divergence
 
@@ -20,12 +20,11 @@ prover attest to a state the L1 would reject.
 
 ## Z2: Gas accounting divergence
 
-- **Pattern:** the circuit's gas metering differs from geth/the Yellow
-  Paper — memory-expansion gas, dynamic gas for CALL/SSTORE (EIP-2929/2200
-  warm/cold and refund rules), or intrinsic gas.
-- **Impact:** a transaction that runs out of gas on L1 succeeds in the
-  proof (or vice versa), producing a state transition L1 would not accept;
-  out-of-gas boundary is a control-flow fork.
+- **Pattern:** execution gas differs from the target fork's EVM rules —
+  memory expansion, CALL/SSTORE warm/cold costs, refunds, or intrinsic gas.
+- **Impact:** an out-of-gas boundary changes control flow and can prove an
+  invalid transition. L2 fee pricing or data fees may intentionally differ;
+  compare those only to the L2's declared policy.
 
 ## Z3: Memory-expansion mismatch
 
@@ -37,13 +36,13 @@ prover attest to a state the L1 would reject.
 
 ## Z4: State/storage trie encoding errors
 
-- **Pattern:** the account or storage Merkle-Patricia trie encoding used
-  for the state root diverges from the EVM's (RLP encoding, secure-trie
-  key hashing, empty-account/empty-storage pruning rules, or a substituted
-  tree such as a zk-friendly trie without a proven-equivalent root).
-- **Impact:** the proven state root does not match what L1 clients
-  compute — bridges and light clients accept an inconsistent root, or a
-  withdrawal proves against a state that never existed.
+- **Pattern:** the circuit, prover, and bridge disagree on the specified
+  state commitment. For Ethereum-root claims, check MPT/RLP, secure-key
+  hashing, and pruning; for a native zk-friendly trie, check its declared
+  encoding and the bridge conversion/commitment instead.
+- **Impact:** a bridge or verifier accepts a root inconsistent with its own
+  commitment semantics, so a withdrawal can be proved against nonexistent
+  state.
 
 ## Z5: Precompile equivalence gaps
 

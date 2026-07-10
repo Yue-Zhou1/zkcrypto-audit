@@ -1,6 +1,6 @@
 ---
 name: ethereum-crypto-auditor
-description: Codex compatibility stub for the ethereum-crypto-auditor plugin skill.
+description: "Audit Rust application code that uses Ethereum cryptography. Use when reviewing secp256k1/ECDSA usage, keccak/EIP-712 hashing, BN254/BLS12-381 precompile interaction, KZG/EIP-4844 patterns, or alloy/ethers-rs API usage."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: audit-common
-description: Codex compatibility stub for the audit-common plugin skill.
+description: "Provides shared severity, testing-evidence, and finding-contract references for ZK and cryptographic audit skills. Use when classifying findings, checking whether test evidence is sufficient, or writing findings in a consistent structure."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -23,8 +23,8 @@ Domain auditor for zkVM guest execution and proof integrity.
 - Validating guest-host boundary constraints for host-supplied values
 - Auditing zkEVM EVM-equivalence provers (Scroll, Polygon zkEVM, Linea):
   opcode equivalence, gas/circuit divergence, state/storage trie encoding,
-  memory expansion, and precompile equivalence against mainnet EVM
-  semantics
+  memory expansion, and precompile equivalence against the target chain's
+  declared execution and bridge semantics
 
 ## When NOT to Use
 
@@ -62,7 +62,8 @@ Domain auditor for zkVM guest execution and proof integrity.
 - For zkEVM equivalence provers (Scroll, Polygon zkEVM, Linea), also read
   `references/zkevm-patterns.md` and check opcode semantics, gas accounting,
   memory expansion, state/storage trie encoding, and precompile results
-  against mainnet EVM semantics (Ethereum Yellow Paper / execution-specs)
+  against the target's declared execution and bridge semantics. Apply mainnet
+  Ethereum rules only when that is the stated equivalence boundary.
 
 ### Phase 4: Handoff
 
@@ -77,7 +78,7 @@ Produce a zkVM-specific handoff that includes:
 - The exact missing constraint, state binding, or trace invariant
 - Whether the issue is runtime-boundary, memory-consistency, precompile, or continuation related
 - For zkEVM targets: the opcode_or_precompile_equivalence at issue, any
-  gas_or_circuit_divergence from mainnet EVM semantics, and the
+  gas_or_circuit_divergence from the target semantics, and the
   state_or_storage_encoding involved
 - The next verification or reporting route
 

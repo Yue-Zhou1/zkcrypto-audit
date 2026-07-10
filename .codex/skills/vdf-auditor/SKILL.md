@@ -1,6 +1,6 @@
 ---
 name: vdf-auditor
-description: Codex compatibility stub for the vdf-auditor plugin skill.
+description: "Audit VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation integrity, and modulus/group setup risks."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

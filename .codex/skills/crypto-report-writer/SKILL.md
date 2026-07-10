@@ -1,6 +1,6 @@
 ---
 name: crypto-report-writer
-description: Codex compatibility stub for the crypto-report-writer plugin skill.
+description: "Write final audit findings for ZK and cryptographic reviews. Use when a finding has survived verification and needs to be turned into clear report prose with severity, impact, root cause, and test evidence."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

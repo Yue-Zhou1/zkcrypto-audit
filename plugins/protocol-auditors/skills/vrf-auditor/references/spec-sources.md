@@ -13,7 +13,8 @@
   hash_to_curve/ELL2 encode_to_curve variants and DST construction rules.
 - RFC 6979 / RFC 8032 — deterministic nonce derivation referenced by
   RFC 9381 §5.4.2 for the P-256 and edwards25519 suites respectively.
-- RFC 8017 — RSASSA/MGF1 primitives underlying RSA-FDH-VRF.
+- RFC 8017 — RSASP1/RSAVP1 and MGF1 primitives used by RSA-FDH-VRF; its
+  RSASSA encoding methods are not part of the RFC 9381 RSA-FDH-VRF check.
 
 ## Informative
 

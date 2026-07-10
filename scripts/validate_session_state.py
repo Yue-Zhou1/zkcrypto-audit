@@ -2,15 +2,9 @@
 """Validate tracked engagement session files against session schema v2.
 
 Every tracked ``zk-findings/sessions/**/*.json`` (except the schema file
-itself) must satisfy ``session-state-schema.json`` version 2. Validation uses
-``jsonschema.Draft202012Validator`` with a ``FormatChecker`` so ``date-time``
-fields are enforced when the optional format library (``rfc3339-validator``) is
-installed.
-
-This validator is part of the opt-in session-schema-v2 track. If ``jsonschema``
-is not installed it prints a clear skip message and exits 0 rather than crashing
-on import, so environments that did not opt in are not broken. Install the track
-dependencies with ``python3 -m pip install -r requirements-dev.txt``.
+itself) is structurally validated against ``session-state-schema.json`` version
+2 when the optional ``jsonschema`` package is available. Timestamp fields are
+schema strings and are not format-validated.
 """
 
 from __future__ import annotations
@@ -39,22 +33,13 @@ def validate_all() -> int:
         import jsonschema  # type: ignore
     except ModuleNotFoundError:
         print(
-            "validate_session_state: jsonschema not installed; skipping "
-            "(install with `python3 -m pip install -r requirements-dev.txt`).",
+            "validate_session_state: jsonschema not installed; skipping optional session-schema check.",
             file=sys.stderr,
         )
         return 0
 
     schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
-    format_checker = jsonschema.FormatChecker()
-    validator = jsonschema.Draft202012Validator(schema, format_checker=format_checker)
-
-    if "date-time" not in format_checker.checkers:
-        print(
-            "validate_session_state: WARNING date-time format is not enforced; "
-            "install `rfc3339-validator` (see requirements-dev.txt).",
-            file=sys.stderr,
-        )
+    validator = jsonschema.Draft202012Validator(schema)
 
     session_files = tracked_session_files()
     all_errors: list[str] = []

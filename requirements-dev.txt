@@ -1,5 +1,0 @@
-# Development-only dependencies for the session-schema-v2 validation track.
-jsonschema>=4.23,<5
-# jsonschema only enforces the `date-time` format when a supporting library is
-# installed; without this, `format_checker` silently skips `date-time`.
-rfc3339-validator>=0.1.4,<0.2

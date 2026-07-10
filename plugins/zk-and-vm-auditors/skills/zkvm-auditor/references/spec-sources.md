@@ -5,8 +5,8 @@
 - Ethereum Yellow Paper (Wood; the Berlin/London and later revisions
   matching the deployment's target hardfork) — the formal EVM state
   transition, opcode semantics, gas accounting, memory expansion, exception
-  handling, and the Merkle-Patricia trie/RLP state-root definitions.
-  Normative for every zkEVM equivalence check (Z1-Z6).
+  handling, and Merkle-Patricia trie/RLP state-root definitions. Normative
+  only when the target claims Ethereum execution or an Ethereum-root bridge.
 - Ethereum Execution Layer Specifications (execution-specs / EELS) — the
   executable Python spec of the EVM; the practical differential oracle for
   opcode and gas equivalence when the Yellow Paper is ambiguous.
@@ -21,9 +21,9 @@
 - RISC-V ISA specification and the SP1 / RISC Zero / Valida documentation —
   for the general-purpose zkVM base checks (memory consistency, syscalls,
   continuations) that precede the zkEVM-specific equivalence layer.
-- Scroll, Polygon zkEVM, and Linea architecture/spec documents — concrete
-  zkEVM designs whose opcode/precompile/trie choices the equivalence
-  patterns are calibrated against.
+- Scroll, Polygon zkEVM, and Linea architecture/spec documents — determine
+  each target's execution, state-tree, fee, and bridge commitments before
+  applying an Ethereum-equivalence check.
 - go-ethereum (`core/vm`) — the de facto reference implementation used as
   the differential baseline for opcode and gas behavior; pair with
   `differential-test-harness-gen` to produce equivalence evidence.

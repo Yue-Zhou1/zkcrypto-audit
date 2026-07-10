@@ -1,6 +1,6 @@
 ---
 name: crypto-audit-router
-description: Codex compatibility stub for the crypto-audit-router plugin skill.
+description: "Route a full cryptographic or ZK audit across the framework. Use when you need to decide which skill should run next, which domain auditors apply, or how to move from initial context to verified finding, report, and index flow."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: mpc-auditor
-description: Codex compatibility stub for the mpc-auditor plugin skill.
+description: "Audit MPC implementations for garbled-circuit integrity, oblivious transfer misuse, share validation, Beaver triple authenticity, and transcript/session binding issues."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

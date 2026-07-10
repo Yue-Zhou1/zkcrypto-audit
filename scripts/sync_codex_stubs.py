@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import json
+import re
 import sys
 from pathlib import Path
 
@@ -26,11 +28,39 @@ from scripts.orchestration_metadata import (  # noqa: E402
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
-def expected_stub_text(skill_name: str, canonical_path: str) -> str:
+def _canonical_description(canonical_path: Path) -> str | None:
+    """Extract the folded `description` field from a canonical SKILL.md."""
+
+    text = canonical_path.read_text(encoding="utf-8")
+    frontmatter_match = re.match(r"\A---\n(.*?)\n---\n", text, flags=re.S)
+    if frontmatter_match is None:
+        return None
+
+    lines = frontmatter_match.group(1).splitlines()
+    for index, line in enumerate(lines):
+        if not line.startswith("description:"):
+            continue
+
+        value = line.removeprefix("description:").strip()
+        if value not in {">", ">-", "|", "|-"}:
+            return value.strip("'\"") or None
+
+        continuation: list[str] = []
+        for candidate in lines[index + 1 :]:
+            if not candidate.startswith((" ", "\t")):
+                break
+            continuation.append(candidate.strip())
+        return " ".join(part for part in continuation if part) or None
+
+    return None
+
+
+def expected_stub_text(skill_name: str, canonical_path: str, description: str) -> str:
+    yaml_description = json.dumps(description, ensure_ascii=False)
     return (
         "---\n"
         f"name: {skill_name}\n"
-        f"description: Codex compatibility stub for the {skill_name} plugin skill.\n"
+        f"description: {yaml_description}\n"
         "generated_from: scripts/sync_codex_stubs.py\n"
         "---\n\n"
         "This file is auto-generated for OpenAI Codex skill discovery.\n"
@@ -64,6 +94,13 @@ def sync_stubs(*, check_mode: bool) -> int:
             )
             continue
 
+        description = _canonical_description(canonical_path)
+        if description is None:
+            errors.append(
+                f"Canonical skill `{skill_name}` is missing a frontmatter description: {canonical_rel}"
+            )
+            continue
+
         if check_mode:
             openai_meta = canonical_path.parent / "agents" / "openai.yaml"
             if not openai_meta.exists():
@@ -81,7 +118,7 @@ def sync_stubs(*, check_mode: bool) -> int:
 
         stub_dir = CODEX_SKILLS_DIR / skill_name
         stub_path = stub_dir / "SKILL.md"
-        expected_text = expected_stub_text(skill_name, canonical_rel)
+        expected_text = expected_stub_text(skill_name, canonical_rel, description)
 
         if check_mode:
             if not stub_path.exists():

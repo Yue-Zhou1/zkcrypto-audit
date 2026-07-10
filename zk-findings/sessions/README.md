@@ -49,6 +49,9 @@ legacy content under `extensions` rather than dropping evidence.
 Validate with:
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
 python3 scripts/validate_session_state.py
 ```
+
+The validator performs structural schema validation when `jsonschema` is
+available. Otherwise it reports that the optional check was skipped. Timestamp
+fields are strings and do not require a specific date format.

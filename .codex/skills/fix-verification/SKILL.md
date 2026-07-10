@@ -1,6 +1,6 @@
 ---
 name: fix-verification
-description: Codex compatibility stub for the fix-verification plugin skill.
+description: "Use when a supplied patch claims to fix a previously verified ZK or cryptographic finding and the remediation needs independent verification."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

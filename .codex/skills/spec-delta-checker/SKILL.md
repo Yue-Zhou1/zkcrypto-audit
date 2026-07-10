@@ -1,6 +1,6 @@
 ---
 name: spec-delta-checker
-description: Codex compatibility stub for the spec-delta-checker plugin skill.
+description: "Compare cryptographic code against a reference specification or paper. Use when implementation details look close to a standard but may have drifted in validation, transcript binding, parameter negotiation, or caller obligations."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

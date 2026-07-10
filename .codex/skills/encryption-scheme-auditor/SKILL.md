@@ -1,6 +1,6 @@
 ---
 name: encryption-scheme-auditor
-description: Codex compatibility stub for the encryption-scheme-auditor plugin skill.
+description: "Audit encryption implementations for AEAD nonce handling, decrypt oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error side effects."
 generated_from: scripts/sync_codex_stubs.py
 ---
 

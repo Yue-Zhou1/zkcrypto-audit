@@ -1,6 +1,6 @@
 ---
 name: side-channel-auditor
-description: Codex compatibility stub for the side-channel-auditor plugin skill.
+description: "Audit timing, cache, memory-access, and power-analysis leakage patterns, including compiler and feature-flag regressions that break constant-time assumptions."
 generated_from: scripts/sync_codex_stubs.py
 ---
 
