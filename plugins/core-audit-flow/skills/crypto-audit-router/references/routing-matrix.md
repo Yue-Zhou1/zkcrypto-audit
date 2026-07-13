@@ -12,7 +12,6 @@ Before selecting a route from this table, enforce trigger policy from
 
 Use this matrix to choose the right skill after `crypto-audit-context`.
 
-<!-- BEGIN GENERATED ROUTING RULES -->
 | Situation | Route |
 |---|---|
 | The code claims to follow an RFC, paper, or reference implementation. | `spec-delta-checker` |
@@ -51,7 +50,6 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | A previously verified finding has a supplied patch/fix reference (commit, PR, or diff) and the fix must be checked — reproduce the original PoC on the vulnerable revision, confirm it fails for the intended reason on the fixed revision, verify the root cause (not just the demonstrated input) is removed, search sibling paths for incomplete remediation, run regression tests, and record a remediation verdict. | `fix-verification` |
 | The issue is verified and needs report prose. | `crypto-report-writer` |
 | The issue is verified and may need prior-art lookup or index storage. | `zkbugs-index` |
-<!-- END GENERATED ROUTING RULES -->
 
 Multiple routes can apply. Prefer running `spec-delta-checker` alongside the
 relevant domain auditor when the code is adapting a standard construction.

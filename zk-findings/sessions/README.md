@@ -46,12 +46,6 @@ Each `route_dispositions` entry carries `skill`, `status` (one of `verified`,
 The root is closed (`additionalProperties: false`). Preserve engagement-specific
 legacy content under `extensions` rather than dropping evidence.
 
-Validate with:
-
-```bash
-python3 scripts/validate_session_state.py
-```
-
-The validator performs structural schema validation when `jsonschema` is
-available. Otherwise it reports that the optional check was skipped. Timestamp
-fields are strings and do not require a specific date format.
+Session files are validated manually against `session-state-schema.json`
+(version 2) when needed; there is no automated CI check. Timestamp fields are
+strings and do not require a specific date format.

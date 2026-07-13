@@ -5,17 +5,10 @@ This guide describes the Codex-native orchestration flow for `zkcrypto-audit`.
 ## Prerequisites
 
 - Repository checked out locally.
-- Python 3.10+ available for scaffolding checks.
 
 ## Codex Startup Flow
 
-1. Verify generated compatibility stubs and metadata:
-
-```bash
-python3 scripts/sync_codex_stubs.py --check
-```
-
-2. Ensure Codex is reading:
+1. Ensure Codex is reading:
    - `.agents/plugins/marketplace.json`
    - `plugins/*/.codex-plugin/plugin.json`
    - `plugins/*/skills/*/agents/openai.yaml`

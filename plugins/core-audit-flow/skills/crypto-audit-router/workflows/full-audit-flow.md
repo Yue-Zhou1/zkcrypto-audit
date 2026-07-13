@@ -23,13 +23,11 @@ engagement-specific content under `extensions`.
 
 - Use `spec-delta-checker` whenever a reference specification or paper governs the code
 - Consult `references/routing-matrix.md` to select the applicable domain skill(s); multiple may apply in parallel
-<!-- BEGIN GENERATED DOMAIN SKILLS -->
 - **ZK and VM auditors**: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`, `onchain-verifier-auditor`
 - **Crypto primitive auditors**: `ecc-pairing-auditor`, `commitment-scheme-auditor`, `hash-function-auditor`, `fiat-shamir-auditor`, `merkle-tree-auditor`, `encryption-scheme-auditor`, `ethereum-crypto-auditor`, `signature-scheme-auditor`
 - **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`, `threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
 - **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`, `pqc-signature-auditor`
 - **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`, `randomness-auditor`, `fault-injection-auditor`
-<!-- END GENERATED DOMAIN SKILLS -->
 - Preserve each domain skill's output contract instead of flattening everything into prose
 - Append open findings and unresolved assumptions to session state after each domain handoff
 - **Stop condition:** domain output contracts are recorded and unresolved issues

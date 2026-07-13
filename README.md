@@ -40,18 +40,12 @@ and easier to verify.
 ### Quick Start in Codex
 
 1. Keep this repository checked out locally.
-2. Verify Codex orchestration metadata and generated stubs:
-
-```bash
-python3 scripts/sync_codex_stubs.py --check
-```
-
-3. Ensure your Codex environment can read:
+2. Ensure your Codex environment can read:
    - `.agents/plugins/marketplace.json` (plugin catalog)
    - `plugins/*/.codex-plugin/plugin.json` (category plugin manifests)
    - `.codex/skills/*/SKILL.md` (compatibility invocation paths)
 
-4. Start the audit from the router using the prompt below.
+3. Start the audit from the router using the prompt below.
 
 ## Best-Practice Codex Prompt
 
@@ -333,7 +327,7 @@ Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
 - The repository moved from a flat Codex stub model to package+registry orchestration.
 - Canonical skill sources remain `plugins/*/skills/*/SKILL.md`; routing policy now lives in `plugins/_meta/*.yaml`.
 - `.codex/skills/*` stubs remain valid Codex invocation paths for backward compatibility.
-- Do not edit `.codex/skills/*` directly, regenerate via `scripts/sync_codex_stubs.py`.
+- `.codex/skills/*` stubs are maintained by hand; keep them in sync with `plugins/_meta/*.yaml` when adding or renaming skills.
 
 ## Advanced Note
 
