@@ -1,6 +1,7 @@
 ---
 title: raiko2 crypto/soundness audit — guests/ and crates/
 date: 2026-07-13
+target: branch `main`
 scope: guests/risc0, guests/sp1, crates/guests, crates/guest-common, crates/prover,
   crates/primitives, crates/primitives-shasta, crates/protocol-shasta, crates/stateless,
   crates/sgx-runtime
