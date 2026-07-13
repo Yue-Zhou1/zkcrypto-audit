@@ -1,7 +1,7 @@
 {
   "name": "implementation-safety",
   "version": "0.1.0",
-  "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, and dependency hygiene.",
+  "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
   "author": {
     "name": "Yue Zhou"
   }

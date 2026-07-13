@@ -1,22 +1,50 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://zkcrypto-audit.local/session-state-schema.json",
-  "title": "zkcrypto-audit session state",
+  "title": "zkcrypto-audit session state (v2)",
+  "description": "Version 2 engagement session handoff. Strict core fields plus an `extensions` object that preserves engagement-specific evidence instead of dropping it.",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "schema_version",
     "engagement_id",
+    "phase",
     "targets",
     "trust_boundaries",
+    "critical_paths",
+    "unresolved_assumptions",
+    "route_dispositions",
     "open_findings",
     "verified_findings",
-    "next_steps"
+    "fp_check_verdicts",
+    "artifacts",
+    "remediation_verifications",
+    "next_steps",
+    "updated_at",
+    "extensions"
   ],
   "properties": {
+    "schema_version": {
+      "const": 2,
+      "description": "Session schema version. Must be the integer 2."
+    },
     "engagement_id": {
       "type": "string",
       "minLength": 1,
       "description": "Stable local identifier for the engagement."
+    },
+    "phase": {
+      "type": "string",
+      "enum": [
+        "intake_pending",
+        "domain_in_progress",
+        "verification_in_progress",
+        "reporting_in_progress",
+        "indexing_in_progress",
+        "remediation_in_progress",
+        "closed"
+      ],
+      "description": "Current lifecycle phase per the router state machine."
     },
     "targets": {
       "type": "array",
@@ -44,6 +72,73 @@
           },
           "evidence": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "critical_paths": {
+      "type": "array",
+      "description": "Prioritized code paths carrying the highest security weight.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name"],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "entry": {
+            "type": "string"
+          },
+          "risk": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "unresolved_assumptions": {
+      "type": "array",
+      "description": "Open trust/spec assumptions not yet discharged.",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "route_dispositions": {
+      "type": "array",
+      "description": "Per-skill routing outcomes with a bounded disposition status.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["skill", "status", "summary", "evidence_refs"],
+        "properties": {
+          "skill": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "verified",
+              "false_positive",
+              "unverified",
+              "observation",
+              "residual_risk"
+            ]
+          },
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       }
@@ -100,6 +195,92 @@
         }
       }
     },
+    "fp_check_verdicts": {
+      "type": "array",
+      "description": "crypto-fp-check dispositions for reviewed finding candidates.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "verdict"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verdict": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reports", "pocs", "index_refs"],
+      "description": "Produced artifacts grouped by kind.",
+      "properties": {
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pocs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "index_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "remediation_verifications": {
+      "type": "array",
+      "description": "Fix-verification outcomes for previously verified findings.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "finding_id",
+          "fix_ref",
+          "verdict",
+          "regression_evidence_refs",
+          "verified_at"
+        ],
+        "properties": {
+          "finding_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "fix_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verdict": {
+            "type": "string",
+            "enum": ["fixed", "partially_fixed", "not_fixed", "regressed"]
+          },
+          "regression_evidence_refs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verified_at": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "next_steps": {
       "type": "array",
       "description": "Ordered checklist for the next handoff boundary.",
@@ -109,8 +290,11 @@
       }
     },
     "updated_at": {
-      "type": "string",
-      "format": "date-time"
+      "type": "string"
+    },
+    "extensions": {
+      "type": "object",
+      "description": "Engagement-specific evidence preserved verbatim from earlier session shapes. Never drop reports, PoCs, verdicts, scope notes, or prior-art references; carry them here when they do not map to a core field."
     }
   }
 }

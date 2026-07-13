@@ -1,7 +1,7 @@
 {
   "name": "core-audit-flow",
   "version": "0.1.0",
-  "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, and shared severity/evidence framework.",
+  "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, remediation fix verification, and shared severity/evidence framework.",
   "author": {
     "name": "Yue Zhou"
   }

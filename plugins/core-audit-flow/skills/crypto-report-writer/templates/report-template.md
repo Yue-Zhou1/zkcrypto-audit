@@ -53,6 +53,16 @@ or availability.
 
 Describe the required enforcement change, not just the intended caller behavior.
 
+## Remediation Verification
+
+Populate only when a fix has been supplied and checked by `fix-verification`.
+
+- **Fix reference**: commit/PR/tag/diff
+- **Verdict**: `fixed`, `partially_fixed`, `not_fixed`, or `regressed`
+- **Root cause status**: invariant now enforced vs only the demonstrated input blocked
+- **Regression evidence**: original PoC re-run result on the vulnerable and fixed
+  revisions, plus regression-test output
+
 ## Residual Risk
 
 State any remaining assumptions, rollout hazards, or verification gaps.

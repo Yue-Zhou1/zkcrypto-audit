@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F31_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F42_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -40,18 +40,12 @@ and easier to verify.
 ### Quick Start in Codex
 
 1. Keep this repository checked out locally.
-2. Verify Codex orchestration metadata and generated stubs:
-
-```bash
-python3 scripts/sync_codex_stubs.py --check
-```
-
-3. Ensure your Codex environment can read:
+2. Ensure your Codex environment can read:
    - `.agents/plugins/marketplace.json` (plugin catalog)
    - `plugins/*/.codex-plugin/plugin.json` (category plugin manifests)
    - `.codex/skills/*/SKILL.md` (compatibility invocation paths)
 
-4. Start the audit from the router using the prompt below.
+3. Start the audit from the router using the prompt below.
 
 ## Best-Practice Codex Prompt
 
@@ -93,7 +87,7 @@ install all 7 plugins for full coverage:
 - A guided starting point through `crypto-audit-router`
 - A staged workflow for context, spec review, domain analysis, verification,
   and reporting
-- 7 plugin categories covering 31 skills across ZK systems, cryptographic
+- 7 plugin categories covering 42 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
 For OpenAI Codex, this repository ships category plugin manifests, a Codex
@@ -112,6 +106,8 @@ A typical review follows this path:
 6. Use `crypto-report-writer` to turn verified issues into report-ready output.
 7. Use `zkbugs-index`, harness generation, or formal verification support when
    you need prior art or stronger evidence.
+8. When a fix is supplied for a verified finding, use `fix-verification` to
+   confirm the patch removes the root cause and record a remediation verdict.
 
 The canonical workflow is documented in
 `plugins/core-audit-flow/skills/crypto-audit-router/workflows/full-audit-flow.md`.
@@ -246,54 +242,63 @@ Start here if you are new to the repository, unsure which auditor to use, or
 want a guided review path from start to finish.
 
 Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
-`spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`
+`spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`,
+`fix-verification`
 
 ### `zk-and-vm-auditors`
 
-Use this category for circuits, proving systems, Cairo/Starknet, Noir, gnark,
-and zkVM review.
+Use this category for circuits, proving systems (including generic STARK/AIR
+verifiers), Cairo/Starknet, Noir, gnark, zkVM and zkEVM-equivalence review,
+and on-chain proof-verifier contracts.
 
 Skills: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`,
-`zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`
+`zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`,
+`onchain-verifier-auditor`
 
 ### `crypto-primitive-auditors`
 
 Use this category for elliptic curves, pairings, BLS, hash functions,
-commitment schemes, Merkle trees, Fiat-Shamir transcripts, and encryption
-schemes.
+commitment schemes, Merkle trees, Fiat-Shamir transcripts, encryption
+schemes, and classical signature schemes.
 
 Skills: `ecc-pairing-auditor`, `hash-function-auditor`,
 `commitment-scheme-auditor`, `merkle-tree-auditor`,
 `fiat-shamir-auditor`, `encryption-scheme-auditor`,
-`ethereum-crypto-auditor`
+`ethereum-crypto-auditor`, `signature-scheme-auditor`
 
 ### `protocol-auditors`
 
-Use this category for threshold systems, DKG flows, MPC protocols, and VDFs.
+Use this category for threshold systems, DKG flows, MPC protocols, threshold
+ECDSA, shielded-pool privacy protocols, VRFs, and VDFs.
 
-Skills: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`
+Skills: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`,
+`threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
 
 ### `post-quantum-auditors`
 
-Use this category for lattice-based cryptography and fully homomorphic
-encryption review.
+Use this category for lattice-based cryptography, fully homomorphic
+encryption, and standardized post-quantum KEM and signature review.
 
-Skills: `lattice-auditor`, `fhe-auditor`
+Skills: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`,
+`pqc-signature-auditor`
 
 ### `implementation-safety`
 
 Use this category for cross-cutting implementation risks such as unsafe Rust,
-side-channel exposure, dependency hygiene, and operational safety checks.
+side-channel exposure, fault-injection resistance, dependency hygiene,
+randomness and nonce lifecycles, and operational safety checks.
 
-Skills: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`
+Skills: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`,
+`randomness-auditor`, `fault-injection-auditor`
 
 ### `evidence-and-tooling`
 
 Use this category when you need prior-art lookup, stronger reproduction,
-harness generation, fuzzing support, or bridges to external verification tools.
+harness generation, fuzzing support, differential test harnesses, or bridges
+to external verification tools.
 
 Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
-`formal-verification-bridge`
+`formal-verification-bridge`, `differential-test-harness-gen`
 
 ## Repository Notes
 
@@ -322,7 +327,7 @@ Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
 - The repository moved from a flat Codex stub model to package+registry orchestration.
 - Canonical skill sources remain `plugins/*/skills/*/SKILL.md`; routing policy now lives in `plugins/_meta/*.yaml`.
 - `.codex/skills/*` stubs remain valid Codex invocation paths for backward compatibility.
-- Do not edit `.codex/skills/*` directly, regenerate via `scripts/sync_codex_stubs.py`.
+- `.codex/skills/*` stubs are maintained by hand; keep them in sync with `plugins/_meta/*.yaml` when adding or renaming skills.
 
 ## Advanced Note
 

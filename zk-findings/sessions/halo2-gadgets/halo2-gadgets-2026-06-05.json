@@ -1,51 +1,51 @@
 {
+  "schema_version": 2,
   "engagement_id": "halo2-gadgets-2026-06-05",
+  "phase": "closed",
   "targets": [
     "halo2_gadgets v0.4.0 @ /home/zhouy/personal_projects/halo2/halo2_gadgets",
     "git HEAD 32a87582 (zcash/halo2 main with OrchardZSA deltas merged)"
   ],
-  "phase": "intake_complete",
-  "scope_note": "halo2_gadgets folder ONLY. In-circuit constraint gadgets for Halo2/Orchard on the Pallas curve. Modules: ecc, poseidon, sinsemilla, sha256 (gated behind unstable-sha256-gadget), utilities. ~20K LoC. Crate sets #![deny(unsafe_code)].",
   "trust_boundaries": [
     {
       "name": "TB-1 ZSA delta: LookupRangeCheck4_5BConfig (optimized 4/5-bit lookup)",
       "assumption": "The optimized 4/5/K-bit combined lookup soundly binds a witnessed word to <=4 or <=5 bits via the table_range_check_tag lookup, AND the running-sum / short-lookup paths are mutually exclusive per row.",
-      "evidence": "utilities/lookup_range_check.rs:504-859. New code vs upstream (zcash/halo2 only ships LookupRangeCheckConfig). The combined meta.lookup builds a single q_lookup input mixing running_sum_lookup + short_lookup + q_range_check*z_cur, plus a second tuple (num_bits -> table_range_check_tag). Soundness of the tag binding must be proven."
+      "evidence": "utilities/lookup_range_check.rs:504-859. New code vs upstream (zcash/halo2 only ships LookupRangeCheckConfig). Soundness of the tag binding must be proven."
     },
     {
       "name": "TB-2 ZSA delta: Sinsemilla allow_init_from_private_point",
-      "assumption": "Initializing the Sinsemilla hash accumulator from a *private* (witnessed) point Q (instead of a fixed public Q) does not break domain separation or allow a prover to choose Q adversarially to forge a hash/commitment collision.",
-      "evidence": "sinsemilla/chip/hash_to_point.rs:72-214. hash_message_with_private_init + private_q_initialization are new. Gated by config.allow_init_from_private_point; returns Error::IllegalHashFromPrivatePoint otherwise. Need to confirm where the flag is enabled and whether the caller constrains Q."
+      "assumption": "Initializing the Sinsemilla hash accumulator from a private (witnessed) point Q does not break domain separation or allow a prover to choose Q adversarially to forge a hash/commitment collision.",
+      "evidence": "sinsemilla/chip/hash_to_point.rs:72-214. Gated by config.allow_init_from_private_point; returns Error::IllegalHashFromPrivatePoint otherwise."
     },
     {
       "name": "TB-3 Variable-base scalar mul overflow / canonicity",
-      "assumption": "overflow_check correctly enforces that the 255-bit decomposition of alpha represents a canonical scalar < q (Pallas scalar modulus 2^254 + t_q), preventing a malleable/non-canonical scalar.",
-      "evidence": "ecc/chip/mul/overflow.rs. Constraints s_check, recovery, lo_zero, s_minus_lo_130_check, canonicity. Inherited from upstream but central to ECC soundness; re-verify because it interacts with the lookup_config which may be the new 4_5B variant."
+      "assumption": "overflow_check correctly enforces that the 255-bit decomposition of alpha represents a canonical scalar < q, preventing a malleable/non-canonical scalar.",
+      "evidence": "ecc/chip/mul/overflow.rs. Constraints s_check, recovery, lo_zero, s_minus_lo_130_check, canonicity."
     },
     {
       "name": "TB-4 ecc complete addition gate (12 polynomials)",
       "assumption": "The complete-addition gate correctly handles all exceptional cases (P=O, Q=O, P=-Q, P=Q) so the output is the true group sum for any witnessed input points.",
-      "evidence": "ecc/chip/add.rs:77-193. Canonical Halo2 complete addition. inv0 hints alpha/beta/gamma/delta witnessed in assign_region; gate enforces correctness. Heavily audited upstream; spot-check only."
+      "evidence": "ecc/chip/add.rs:77-193. Canonical Halo2 complete addition."
     },
     {
       "name": "TB-5 witness_point on-curve check",
       "assumption": "A witnessed point is constrained to be either identity-(0,0) or a valid curve point y^2 = x^3 + 5; non-identity witness rejects (0,0).",
-      "evidence": "ecc/chip/witness_point.rs:48-86. Note the deliberate non-parenthesized q_point*x*curve_eqn form (kept for pinned-vk compatibility) - verify it still enforces the intended disjunction."
+      "evidence": "ecc/chip/witness_point.rs:48-86. Non-parenthesized q_point*x*curve_eqn form kept for pinned-vk compatibility."
     },
     {
       "name": "TB-6 Sinsemilla Merkle path/root",
       "assumption": "MerkleCRH path hashing binds position bits (left/right ordering) and the layer, so a prover cannot produce a valid path to a root for a leaf not in the tree.",
-      "evidence": "sinsemilla/merkle.rs, sinsemilla/merkle/chip.rs. Uses cond_swap for sibling ordering + Sinsemilla hash. Position/layer binding is the classic Merkle soundness target."
+      "evidence": "sinsemilla/merkle.rs, sinsemilla/merkle/chip.rs. Uses cond_swap for sibling ordering + Sinsemilla hash."
     },
     {
       "name": "TB-7 cond_swap",
       "assumption": "The conditional swap gate constrains the swap bit to be boolean and the outputs to be a correct swap/no-swap of the inputs.",
-      "evidence": "utilities/cond_swap.rs. Used by Merkle sibling ordering and elsewhere; bool-check of the swap flag is critical."
+      "evidence": "utilities/cond_swap.rs. Used by Merkle sibling ordering; bool-check of the swap flag is critical."
     },
     {
       "name": "TB-8 Poseidon Pow5 sponge",
       "assumption": "The Pow5 Poseidon chip correctly implements the permutation (full/partial rounds, MDS, round constants) and sponge padding for the configured rate/width, matching halo2_poseidon primitives.",
-      "evidence": "poseidon/pow5.rs. Round constants and MDS come from halo2_poseidon dependency; the chip wires the permutation. Parameter/round-count correctness + sponge absorb/squeeze ordering."
+      "evidence": "poseidon/pow5.rs. Round constants and MDS come from halo2_poseidon dependency."
     },
     {
       "name": "TB-9 decompose_running_sum",
@@ -53,178 +53,245 @@
       "evidence": "utilities/decompose_running_sum.rs. Shared primitive underpinning scalar/field decompositions across ecc + sinsemilla."
     }
   ],
-  "dimension_map_anomalies": [
+  "critical_paths": [
     {
-      "id": "DIM-1",
-      "location": "utilities/lookup_range_check.rs:553-612 (LookupRangeCheck4_5BConfig::configure_with_tag)",
-      "description": "The combined lookup multiplexes three modes (running-sum, short, 4/5-bit-tagged) into one lookup input via selector arithmetic. q_range_check is derived as 1-(1-q4)(1-q5). When q_range_check=1 the input is q_lookup*z_cur and the second tuple constrains num_bits via table_range_check_tag. SEQUENCE/SEMANTIC-ROLE dimension: must verify q_running, q_range_check_4, q_range_check_5 cannot be simultaneously asserted in a way that lets a >5-bit value pass. Also verify short_range_check (num_bits 4/5 branch) does NOT additionally constrain via the bitshift gate (it returns after enabling tag selectors) - is the tag lookup alone sufficient?",
-      "severity_hint": "HIGH (soundness if under-constrained)"
+      "id": "CP-1",
+      "name": "Variable-base scalar multiplication incomplete-addition loop",
+      "entry": "ecc/chip/mul/incomplete.rs::double_and_add",
+      "risk": "HIGH — addend binding to base is the primary re-audit target (M-1)"
     },
     {
-      "id": "DIM-2",
-      "location": "sinsemilla/chip/hash_to_point.rs:72-107, 183-214",
-      "description": "TRUST-LEVEL + PROTOCOL-CONTEXT: Q goes from a fixed public generator (trusted, domain-separated) to a witnessed private NonIdentityEccPoint. If a caller can pick Q freely, the Sinsemilla output S(Q,m) is no longer bound to a fixed domain. Need to find every enabler of allow_init_from_private_point and confirm Q is itself a constrained output of a prior in-circuit hash (legitimate ZSA use) and never raw prover input.",
-      "severity_hint": "HIGH (if Q unconstrained) / INFORMATIONAL (if always a constrained sub-hash)"
+      "id": "CP-2",
+      "name": "Sinsemilla hash-to-point with private init",
+      "entry": "sinsemilla/chip/hash_to_point.rs::hash_message_with_private_init",
+      "risk": "MEDIUM — caller-obligation shift for domain separation (INFO-1)"
     },
     {
-      "id": "DIM-3",
-      "location": "utilities/lookup_range_check.rs:455-490 (base short_range_check) and witness_short_check assert num_bits<=K",
-      "description": "RunningSum::witness_short asserts num_bits < K but witness_short_check asserts num_bits <= K. Boundary num_bits==K path: short_range_check enables q_lookup at row 0 and row 1 + q_bitshift; for num_bits==K shifted = element*2^0 = element. Confirm no off-by-one lets a K-bit-plus value through at the boundary.",
-      "severity_hint": "LOW (verify boundary)"
-    },
-    {
-      "id": "DIM-4",
-      "location": "ecc/chip/mul/incomplete.rs:240-252 vs hash_to_point.rs incomplete addition",
-      "description": "Incomplete addition assumes x_p != x_a (no exceptional case). incomplete.rs guards with error_if_known_and on (x_p==x_a etc.) at witness time, but that is a witness-time check, NOT a constraint. The SECANT/gradient constraints must independently make a colliding-x witness unsatisfiable. Verify the gate (not just the assign-time guard) rejects x_p==x_a.",
-      "severity_hint": "MEDIUM (standard pattern, but verify constraint-level enforcement)"
-    },
-    {
-      "id": "DIM-5",
-      "location": "sinsemilla/chip/hash_to_point.rs:258-286 (final y_a + dummy lambda2/x_p)",
-      "description": "SEQUENCE: dummy lambda_2 and x_p are assigned 0 on the final row 'since they are multiplied by zero'. Confirm the final-row gate actually zeroes their contribution (q_s2=2 path) and there is no rotation where these dummies feed a live constraint.",
-      "severity_hint": "LOW"
+      "id": "CP-3",
+      "name": "Optimized 4/5-bit combined lookup range check",
+      "entry": "utilities/lookup_range_check.rs::LookupRangeCheck4_5BConfig::configure_with_tag",
+      "risk": "MEDIUM — new ZSA construction, tag-binding soundness (verified sound in O-1)"
     }
   ],
-  "threat_model_notes": [
-    "Attacker model: a malicious PROVER who fully controls all private witnesses and wants to produce a verifying proof of a false statement (soundness break). The verifier/keygen and the SINSEMILLA_S table / Poseidon constants are trusted (fixed at keygen).",
-    "Primary risk class for an in-circuit gadget library: UNDER-CONSTRAINED witnesses (a gate that admits witness values other than the intended ones), exceptional-case handling in EC arithmetic, non-canonical scalar/field decompositions, and missing boolean/range constraints.",
-    "NOT in scope for this library layer: Fiat-Shamir transcript / proof-system soundness (that lives in halo2_proofs, out of scope), trusted setup (Halo2/IPA has none), key authentication, replay (these are application-level / Orchard-level).",
-    "CSPRNG: not applicable - this crate creates no keys/nonces; randomness is the proof system's concern.",
-    "Spec anchors: gates carry p.z.cash/halo2-0.1:* spec URLs. The governing specs are the Halo2 book 'Design' chapter and the Zcash Orchard/ZSA protocol spec. spec-delta-checker should compare gate polynomials against these anchored specs, with special attention to the ZSA deltas which may not be covered by the original spec URLs.",
-    "Most-changed-vs-upstream (highest priority): (1) LookupRangeCheck4_5BConfig, (2) Sinsemilla allow_init_from_private_point / hash_message_with_private_init, (3) the OrchardZSA trait-genericization of chips (Lookup type param threaded through ecc + sinsemilla + overflow). Bugs are far likelier in these deltas than in the upstream-audited core."
+  "unresolved_assumptions": [
+    "Maintainer decision on M-1: whether the intended contract is 'caller MUST pin the result' (document it) or whether an addend<->base copy was intended in incomplete::double_and_add."
   ],
-  "spec_deltas": [
+  "route_dispositions": [
     {
-      "id": "SD-1",
-      "title": "Sinsemilla private-init shifts Q on-curve + domain obligation to caller",
-      "location": "sinsemilla/chip.rs:225-240 (Initial y_Q gate), sinsemilla/chip/hash_to_point.rs:183-214 (private_q_initialization)",
-      "reference": "Zcash protocol spec sec 5.4.1.9 SinsemillaHashToPoint; halo2-0.1:sinsemilla-constraints. Upstream Sinsemilla initializes from a FIXED public domain Q = H(domain_personalization) (HashDomains::Q()).",
-      "delta": "ZSA adds hash_to_point_with_private_init: Q comes from a witnessed NonIdentityEccPoint (coordinates copied via copy_advice; the Initial y_Q gate reads y_q from advice x_p@prev and only enforces 2*y_q - Y_A = 0). The chip does NOT itself constrain Q to be on-curve or to be a domain-separated generator; it relies on Q already being a constrained in-circuit point.",
-      "classification": "CALLER-OBLIGATION SHIFT. In legit ZSA use Q is the output of a prior in-circuit Sinsemilla hash (a NonIdentityEccPoint produced by the chip, hence on-curve and domain-bound). Risk materializes only if a caller feeds an unconstrained/raw-witness Q. Gated by allow_init_from_private_point and Error::IllegalHashFromPrivatePoint otherwise.",
-      "next": "zk-circuit-auditor + merkle-tree-auditor: confirm every in-tree caller (sinsemilla.rs:358,461; merkle/chip.rs:576) passes a Q that is itself a constrained point; treat as INFORMATIONAL doc-gap unless an unconstrained path exists."
+      "skill": "zk-circuit-auditor",
+      "status": "verified",
+      "summary": "Variable-base scalar-mul incomplete-addition addend is not constrained to the base point (M-1, Medium, PoC-confirmed, caller-mitigated). Sinsemilla private-init and incomplete-add exceptional cases reviewed (INFO-1/INFO-2). LookupRangeCheck4_5BConfig tag binding proven sound (O-1).",
+      "evidence_refs": [
+        "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#M-1",
+        "halo2_gadgets/tests/incomplete_addend_binding_poc.rs"
+      ]
     },
     {
-      "id": "SD-2",
-      "title": "LookupRangeCheck4_5BConfig is a new construction not in upstream spec anchor",
-      "location": "utilities/lookup_range_check.rs:504-859",
-      "reference": "halo2-0.1:decompose-combined-lookup / decompose-short-lookup describe only the single running-sum + short-lookup table. The 4/5-bit tagged variant has no upstream spec URL.",
-      "delta": "Adds a second lookup tuple (q_lookup*q_range_check*num_bits -> table_range_check_tag) and multiplexes running-sum / short / 4-or-5-bit modes via selector arithmetic q_range_check = 1-(1-q4)(1-q5). short_range_check for num_bits in {4,5} enables ONLY q_lookup + the tag selector (no bitshift gate, unlike the generic <K path).",
-      "classification": "ADAPTATION. Must prove the (z_cur, num_bits)->(table_idx, tag) lookup soundly forces z_cur to be a value whose tagged table rows only exist for indices < 2^num_bits. The generic path's correctness does not transfer automatically.",
-      "next": "zk-circuit-auditor: primary soundness target (DIM-1). Verify the table load (lookup_range_check.rs:687-779) only emits tag=4 rows for idx<2^4 and tag=5 rows for idx<2^5, and that no selector combination lets a running-sum row skip its lookup."
+      "skill": "hash-function-auditor",
+      "status": "observation",
+      "summary": "Poseidon Pow5 S-box/rounds/sponge wiring sound; parameters delegated to halo2_poseidon (out of scope). SHA-256 uses FIPS 180-4 constants, gated off by default. No findings.",
+      "evidence_refs": [
+        "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md"
+      ]
+    },
+    {
+      "skill": "ecc-pairing-auditor",
+      "status": "observation",
+      "summary": "add_incomplete/complete/mul_fixed reviewed; only Lookup type-parameter generification changed vs upstream; no gate logic change. No findings beyond by-design INFO-2.",
+      "evidence_refs": [
+        "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md"
+      ]
+    },
+    {
+      "skill": "merkle-tree-auditor",
+      "status": "observation",
+      "summary": "Merkle root extraction (point.x()) and layer/position binding via cond_swap verified sound (TB-6).",
+      "evidence_refs": [
+        "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md"
+      ]
+    },
+    {
+      "skill": "rust-crypto-safety",
+      "status": "observation",
+      "summary": "#![deny(unsafe_code)] enforced. ~226 unwrap/expect and ~237 shifts operate on compile-time-constant sizes, not proving-time DoS. INFO-3: stale todo!() stubs (maintainability only).",
+      "evidence_refs": [
+        "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#INFO-3"
+      ]
     }
   ],
-  "reaudit_incomplete_rs": {
-    "trigger": "User-requested deep re-audit of ecc/chip/mul/incomplete.rs with explicit instruction NOT to assume safety from prior human audits.",
-    "claim": "The variable-base scalar-mul INCOMPLETE-ADDITION gate does not constrain the addend (x_P,y_P) to equal the base point. double_and_add assigns x_P/y_P via assign_advice (value only, incomplete.rs:309-310), never copy_advice; only z and lambda_1 are equality-enabled; cross-row C0/C0' only enforce addend constancy WITHIN the loop. The [2]T init, complete phase, and LSB DO copy-bind the real base, but the incomplete loop does NOT. DOF: x_P,y_P are 2 free global constants (per-row C2/C3/C4 absorbed by fresh lambda1_i,lambda2_i,x_{A,i-1}; q_mul_1 is 1 eqn absorbed by fresh lambdas).",
-    "poc": {
-      "file": "halo2_gadgets/tests/incomplete_addend_binding_poc.rs (standalone, non-invasive)",
-      "honest_control": "PASS (addend=T accepted)",
-      "forged_addend": "verify()==Ok(()) with accumulator pinned to [2]T constants and addend forged to [7]T != T -> GATE ACCEPTS forged addend",
-      "negative_control": "corrupt lambda2 += 1 -> ConstraintNotSatisfied on q_mul_1/gradient_1/gradient_2 -> proves the reconstructed gate is LIVE and enforcing",
-      "end_to_end": "A test-only forge hook into the REAL EccChip::mul confirmed the forged addend produces result != [alpha]*base: synthesis hit the #[cfg(test)] debug assert at mul.rs:271 (real_mul == result), which is NOT a production constraint. Reaching verify() end-to-end is blocked only by these test-only asserts; in production synthesis would complete and emit a wrong result. (Core-file hooks were reverted after the experiment; only the standalone tests/ PoC remains.)"
-    },
-    "fp_check_verdict": "TRUE POSITIVE (constraint-completeness / under-constraint at the gadget level). Gates 1-3 satisfied with executable evidence (gate-level PoC reaches verify()==Ok with a forged addend; negative control proves liveness; end-to-end debug-assert confirms output corruption).",
-    "severity": "Medium",
-    "severity_rationale": "Base class is a soundness under-constraint in a core EC gadget (would be Critical IF a direct end-to-end break against a realistic caller were demonstrated). DOWNGRADED to Medium per the framework PoC gate: (1) the deployed caller (Orchard [ivk]g_d, and every in-tree mul test) constrain_equal the RESULT against an independently-derived point, which makes a forged-addend (wrong) result UNSATISFIABLE -> those callers are SAFE; (2) no PoC of a real caller that consumes mul's output WITHOUT pinning was produced, so a *useful* end-to-end forgery is not demonstrated. Net: the mul gadget does not SELF-CERTIFY result == [alpha]*base; soundness relies on an UNSTATED caller obligation to pin the result. This matches the Medium definition: 'misuse-prone API boundary' / under-constrained value accepted without a direct break.",
-    "caveat": "This is original upstream zcash/halo2 code (predates ZSA; git cb819e47/5ed3d250), deployed in Orchard for years. The result is NOT a claim that Orchard is broken; Orchard's result-pinning mitigates it. The finding is that the gadget's internal constraints alone do not bind the incomplete-addition addend, so the security argument depends on the caller. A maintainer review is warranted to confirm whether the intended contract is 'caller MUST pin the result' (in which case: document it) or whether an addend<->base copy was intended to be present.",
-    "remediation": "Either (a) copy-constrain the incomplete-addition addend cells to base.x/base.y (e.g. copy_advice instead of assign_advice for x_p/y_p in incomplete::double_and_add, accepting the extra permutation cost), OR (b) explicitly document on EccInstructions::mul that the returned point is only guaranteed to equal [scalar]*base when the caller binds the result, and audit all in-tree callers for compliance.",
-    "next_route": "crypto-report-writer (Medium finding) + maintainer escalation. NOT index-worthy as a confirmed exploit (no end-to-end break); could be recorded as an org-internal 'constraint-completeness / caller-obligation' note."
-  },
-  "open_findings": [
-    {
-      "id": "O-1",
-      "status": "candidate_false_positive_pending_fp_check",
-      "summary": "DIM-1/SD-2: LookupRangeCheck4_5BConfig combined lookup. ANALYSIS: tag binding is SOUND. For num_bits=4 -> tuple (z_cur,4) matches table rows that exist only for idx<2^4; num_bits=5 -> (z_cur,5) only for idx<2^5; running-sum/short -> (word,0) matches tag-0 rows (idx<2^10). Selectors q_range_check_4/5 are fixed columns set deterministically by short_range_check, not prover-controlled, and cannot both be 1 on a 4/5 row. No way to pass a >2^num_bits value. Recommend FALSE POSITIVE.",
-      "owner_skill": "zk-circuit-auditor"
-    },
-    {
-      "id": "O-2",
-      "status": "candidate_informational_pending_fp_check",
-      "summary": "DIM-2/SD-1: Sinsemilla private-init Q. ANALYSIS: when allow_init_from_private_point, the 'Initial y_Q' gate reads y_q from advice (x_p@prev) and enforces 2*y_q - Y_A=0; x_a/y_a are copy_advice'd from the caller's NonIdentityEccPoint. Chip does not re-check Q on-curve; this is a documented CALLER OBLIGATION. All in-tree callers (sinsemilla.rs:358,461; merkle/chip.rs:576) pass a Q that is itself a constrained in-circuit point (output of a prior hash). Gated by Error::IllegalHashFromPrivatePoint. Recommend INFORMATIONAL (doc the caller obligation).",
-      "owner_skill": "zk-circuit-auditor"
-    },
-    {
-      "id": "O-3",
-      "status": "candidate_informational_by_design",
-      "summary": "DIM-4: incomplete-addition gate (ecc/chip/mul/incomplete.rs, sinsemilla hash_piece) does not constrain x_p != x_a at the CONSTRAINT level; collision is only rejected at witness-assignment time via error_if_known_and. If x_a==x_p, gradient_1 leaves lambda_1 free. This is the KNOWN, upstream-audited incomplete-addition design: soundness relies on the scalar-split / Q-initialization completeness theorem (Halo2 book var-base-scalar-mul + Sinsemilla) which proves the exceptional case has negligible probability / yields a hard DL relation. NOT introduced by ZSA. Recommend INFORMATIONAL / by-design.",
-      "owner_skill": "zk-circuit-auditor"
-    },
-    {
-      "id": "O-4",
-      "status": "candidate_false_positive_pending_fp_check",
-      "summary": "TB-3 overflow canonicity (ecc/chip/mul/overflow.rs) and TB-4 complete addition (add.rs), TB-5 witness_point, TB-6 Merkle position/layer binding, TB-7 cond_swap, TB-9 decompose_running_sum: all reviewed and match the upstream-audited Zcash constructions. The ONLY ZSA delta in the ecc/ stack is the Lookup type-parameter generification (mul.rs, overflow.rs, mul_fixed/*, chip.rs) which preserves the [0,2^10) range guarantee for both LookupRangeCheckConfig and LookupRangeCheck4_5BConfig (verified in O-1). No gate polynomial logic changed. Recommend no finding.",
-      "owner_skill": "zk-circuit-auditor"
-    },
-    {
-      "id": "O-5",
-      "status": "no_finding",
-      "summary": "TB-8 Poseidon Pow5 (poseidon/pow5.rs, poseidon.rs): S-box x^5 (alpha=[5,0,0,0]) correct for Pallas/Vesta (gcd(5,p-1)=1). full/partial rounds asserted even; full-round gate applies pow5(state+rc_a) then MDS m_reg; partial-round gate uses single sbox on state[0] + linear layer via m_reg/m_inv; pad-and-add gate absorbs input into rate and preserves the capacity element (initial_state_rate - output_state_rate = 0). Sponge typestate Absorbing->Squeezing correct; ConstantLength<L> hash absorbs L words + padding then squeezes. Round constants, MDS, inverse-MDS, padding and initial-capacity all delegated to the halo2_poseidon crate (OUT OF SCOPE - parameter source). Chip wiring is sound. Sinsemilla S_PERSONALIZATION/K/SINSEMILLA_S delegated to the external `sinsemilla` crate (OUT OF SCOPE). SHA-256 ROUND_CONSTANTS/IV are standard FIPS 180-4 constants (in-folder, publicly verifiable) and the gadget is gated behind the non-default unstable-sha256-gadget feature. No findings.",
-      "owner_skill": "hash-function-auditor"
-    },
-    {
-      "id": "O-6",
-      "status": "no_finding",
-      "summary": "ecc-pairing + merkle-tree domain pass: add_incomplete.rs (poly1/poly2 standard incomplete-add constraints, exceptional case rejected at witness time per O-3), complete.rs (bool_check(k) on each scalar bit + y_switch conditional negation + double-and-add via complete addition; deliberate base_y self-copy no-op is sound), mul_fixed/* (full_width, base_field_elem, short) had only the Lookup type-parameter generification in the ZSA era - windowed fixed-base tables and signed-digit logic match upstream-audited code, no gate logic change. Merkle root extraction (merkle/chip.rs Self::extract = point.x()) and layer/position binding verified in O (TB-6). No findings beyond the by-design O-3.",
-      "owner_skill": "ecc-pairing-auditor + merkle-tree-auditor"
-    },
-    {
-      "id": "O-7",
-      "status": "candidate_informational_pending_fp_check",
-      "summary": "rust-crypto-safety: (1) #![deny(unsafe_code)] enforced - zero unsafe. (2) ~226 unwrap/expect and ~237 1<<K shifts outside tests; ALL operate on compile-time-constant sizes (advices[..5], WIDTH-state arrays, K=10, BLOCK_SIZE) or circuit-author-chosen message lengths, evaluated at keygen/config or fixed-shape synthesis. None are reachable as a PROVING-TIME DoS from a malicious prover's secret witness, because in halo2 the circuit shape is fixed by the verifying key, not the witness. try_into().unwrap() on chunks_exact(K) of to_le_bits() is infallible by construction. from_repr(x.to_repr()).unwrap() are self-roundtrips. (3) Secret handling / zeroize / constant-time: N/A - this crate builds circuits and holds no secret keys. (4) Feature gating: unstable-sha256-gadget correctly isolates the SHA-256 gadget (off by default). (5) MINOR maintainability INFO: stale unimplemented stubs todo!() at ecc/chip.rs:501 and todo!(\"unimplemented for halo2_gadgets v0.1.0\") in mul_fixed/full_width.rs:134 + mul_fixed/short.rs:130 - reachable only by circuit-author API misuse, not a vulnerability. Recommend at most ONE informational note (stale todo stubs).",
-      "owner_skill": "rust-crypto-safety"
-    }
-  ],
+  "open_findings": [],
   "verified_findings": [
     {
       "id": "M-1",
       "severity": "Medium",
-      "summary": "Variable-base scalar-mul incomplete-addition addend is not constrained to the base point. ecc/chip/mul/incomplete.rs assigns the addend (x_P,y_P) via assign_advice (value only), never copy_advice, and only z/lambda_1 are equality-enabled; no constraint or lookup binds these cells to the real base. PoC-confirmed: the exact gate reaches verify()==Ok with a forged addend [7]T != T (accumulator pinned to [2]T); negative control proves the gate is live; an end-to-end forge hook into the real EccChip::mul showed the forged addend yields result != [alpha]*base. The [2]T init, complete phase, and LSB DO bind the real base; only the incomplete loop does not. Impact downgraded from Critical to Medium because the deployed caller (Orchard) and all in-tree mul tests pin the result via constrain_equal against an independently-derived point, defeating the forgery; the gadget simply does not self-certify result==[alpha]*base and relies on an unstated caller obligation. SUPERSEDES the earlier INFO-2 'by-design' note for this file.",
+      "summary": "Variable-base scalar-mul incomplete-addition addend is not constrained to the base point. incomplete.rs assigns the addend (x_P,y_P) via assign_advice (value only), never copy_advice; only z/lambda_1 are equality-enabled. PoC-confirmed: the gate reaches verify()==Ok with a forged addend [7]T != T (accumulator pinned to [2]T); negative control proves liveness; an end-to-end forge hook showed result != [alpha]*base. Downgraded Critical->Medium because deployed callers (Orchard, all in-tree tests) pin the result via constrain_equal. Supersedes the earlier INFO-2 by-design note for this file.",
       "report_ref": "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#M-1"
     },
     {
       "id": "INFO-1",
       "severity": "Informational",
-      "summary": "Sinsemilla hash_to_point_with_private_init shifts the on-curve + domain-separation guarantee of the initial point Q to the caller. The chip (sinsemilla/chip.rs Initial-y_Q gate; hash_to_point.rs private_q_initialization) copies Q's coordinates from a caller-supplied NonIdentityEccPoint and only enforces 2*y_q = Y_A; it does not itself re-check Q on-curve or domain-bound. VERDICT: FALSE POSITIVE for a soundness vuln in THIS crate - all in-tree callers (sinsemilla.rs:358,461; merkle/chip.rs:576) pass a Q that is a constrained in-circuit point, and the path is gated by allow_init_from_private_point / Error::IllegalHashFromPrivatePoint. Documented as a caller obligation for downstream (Orchard/ZSA) integrators. Fails fp-check attacker-control gate for in-tree code.",
+      "summary": "Sinsemilla hash_to_point_with_private_init shifts the on-curve + domain-separation guarantee of Q to the caller. FALSE POSITIVE for a soundness vuln in this crate — all in-tree callers pass a constrained in-circuit Q and the path is gated by Error::IllegalHashFromPrivatePoint. Documented as a caller obligation for downstream integrators.",
       "report_ref": "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#INFO-1"
     },
     {
       "id": "INFO-2",
       "severity": "Informational",
-      "summary": "Incomplete-addition gates (ecc/chip/mul/incomplete.rs, ecc/chip/add_incomplete.rs, sinsemilla hash_piece) do not constrain x_p != x_a at the constraint level; the exceptional case is rejected only at witness-assignment time via error_if_known_and. VERDICT: BY DESIGN / not a vuln - this is the documented upstream Zcash incomplete-addition pattern whose soundness is established by the scalar-split / Q-initialization completeness theorems (Halo2 book) showing the exceptional case occurs with negligible probability or implies a hard discrete-log relation. Unchanged by ZSA. Recorded for completeness.",
+      "summary": "Incomplete-addition gates do not constrain x_p != x_a at the constraint level; the exceptional case is rejected only at witness-assignment time. BY DESIGN — the documented upstream Zcash incomplete-addition pattern whose soundness follows from the completeness theorems. Unchanged by ZSA.",
       "report_ref": "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#INFO-2"
     },
     {
       "id": "INFO-3",
       "severity": "Informational",
-      "summary": "Stale unimplemented stubs: todo!() at ecc/chip.rs:501 and todo!(\"unimplemented for halo2_gadgets v0.1.0\") in ecc/chip/mul_fixed/full_width.rs:134 and short.rs:130. Reachable only by circuit-author API misuse (e.g. unsupported full-width fixed-base mul with a Some magnitude), determined at circuit-construction time, NOT by a malicious prover's witness. Maintainability/hygiene note, not a security vulnerability.",
+      "summary": "Stale unimplemented stubs: todo!() at ecc/chip.rs:501 and todo!(\"unimplemented for halo2_gadgets v0.1.0\") in mul_fixed/full_width.rs:134 and short.rs:130. Reachable only by circuit-author API misuse, not a malicious prover's witness. Maintainability note.",
       "report_ref": "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md#INFO-3"
     }
   ],
-  "fp_check_verdicts": {
-    "O-1": "FALSE POSITIVE (soundness). Verified: tag-row table load (lookup_range_check.rs:715-774) emits tag=4 only for idx<2^4 and tag=5 only for idx<2^5; lookup tuple (z_cur,num_bits) is satisfiable iff z_cur<2^num_bits. No q_lookup=1 row bypasses a range constraint. Selectors are fixed columns, not prover-controlled. SOUND.",
-    "O-2": "INFO-1 (FALSE POSITIVE for in-tree soundness; documented caller obligation).",
-    "O-3": "INFO-2 (by design; upstream-audited completeness theorem).",
-    "O-4": "NO FINDING. overflow/complete-add/witness-point/Merkle/cond_swap/running-sum match upstream; ZSA delta is only Lookup generification (sound per O-1).",
-    "O-5": "NO FINDING. Poseidon/Sinsemilla parameters delegated to halo2_poseidon + sinsemilla dep crates (out of scope); SHA-256 uses FIPS constants, gated off by default.",
-    "O-6": "NO FINDING. add_incomplete/complete/mul_fixed reviewed; no gate logic change vs upstream.",
-    "O-7": "INFO-3 (stale todo stubs; all panics gated at keygen/construction, not proving-time DoS)."
+  "fp_check_verdicts": [
+    {
+      "id": "M-1",
+      "verdict": "TRUE POSITIVE",
+      "rationale": "Constraint-completeness under-constraint at the gadget level. Gates 1-3 satisfied with executable evidence; caller-mitigated in deployed code, hence Medium."
+    },
+    {
+      "id": "O-1",
+      "verdict": "FALSE POSITIVE",
+      "rationale": "Tag-row table load emits tag=4 only for idx<2^4 and tag=5 only for idx<2^5; lookup tuple (z_cur,num_bits) satisfiable iff z_cur<2^num_bits. Selectors are fixed columns. SOUND."
+    },
+    {
+      "id": "O-2",
+      "verdict": "INFO-1 (FALSE POSITIVE for in-tree soundness; documented caller obligation)."
+    },
+    {
+      "id": "O-3",
+      "verdict": "INFO-2 (by design; upstream-audited completeness theorem)."
+    },
+    {
+      "id": "O-4",
+      "verdict": "NO FINDING",
+      "rationale": "overflow/complete-add/witness-point/Merkle/cond_swap/running-sum match upstream; ZSA delta is only Lookup generification (sound per O-1)."
+    },
+    {
+      "id": "O-5",
+      "verdict": "NO FINDING",
+      "rationale": "Poseidon/Sinsemilla parameters delegated to dep crates (out of scope); SHA-256 uses FIPS constants, gated off by default."
+    },
+    {
+      "id": "O-6",
+      "verdict": "NO FINDING",
+      "rationale": "add_incomplete/complete/mul_fixed reviewed; no gate logic change vs upstream."
+    },
+    {
+      "id": "O-7",
+      "verdict": "INFO-3",
+      "rationale": "Stale todo stubs; all panics gated at keygen/construction, not proving-time DoS."
+    }
+  ],
+  "artifacts": {
+    "reports": [
+      "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md"
+    ],
+    "pocs": [
+      "halo2_gadgets/tests/incomplete_addend_binding_poc.rs"
+    ],
+    "index_refs": []
   },
-  "prior_art": {
-    "source": "zkbugs upstream snapshot (zksecurity/zkbugs), 111 entries, 35 halo2",
-    "lookup_range_check": "Matches found ONLY in scroll-tech/zkevm-circuits + mpt-circuit (different halo2 codebase): all are 'Missing range check' / 'Missing Input Constraints' OMISSION bugs. Structurally OPPOSITE to the halo2_gadgets 4/5B lookup, which correctly ADDS a sound tag-bound range constraint. No entry matches LookupRangeCheck4_5BConfig or zcash/halo2.",
-    "sinsemilla_incomplete_add_ecc": "ZERO entries in the halo2 corpus. Corroborates that the Zcash halo2_gadgets Sinsemilla/EC constructions have no documented soundness bugs of the reviewed kind.",
-    "overflow_canonicity": "ZERO entries. No documented scalar-mul overflow/canonicity bug in the halo2 corpus.",
-    "conclusion": "Prior art SUPPORTS the SOUND verdicts for the ZSA deltas. For the re-audit finding M-1: the halo2 corpus contains only 'missing range check' OMISSION bugs (scroll-tech/zkevm-circuits); M-1 (missing addend<->base binding in variable-base scalar mul double-and-add) is a DISTINCT root cause not present in the corpus. M-1 meets the index write criteria (passed fp-check, Medium severity, novel root cause) and is INDEX-WORTHY as an org-internal/local finding (under_embargo / not a disclosed Orchard break, since it is caller-mitigated in deployed code). INFO-1/2/3 are not index-worthy."
-  },
-  "index_action": "M-1 recommended for org/local zkbugs index as: dsl=halo2, vuln=under_constrained, impact=Soundness, severity=Medium, root_cause='variable-base scalar mul incomplete-addition addend (x_P,y_P) assigned via assign_advice and never copy-constrained to the base point; gadget does not self-certify result==[scalar]*base; caller-mitigated by result pinning', repo=zcash/halo2, file=halo2_gadgets/src/ecc/chip/mul/incomplete.rs:309-310, state=under_embargo. (Index build not run in this session; recorded here for ingestion.)",
-  "phase": "complete",
-  "report_ref": "zk-findings/sessions/halo2-gadgets/halo2-gadgets-2026-06-05-report.md",
-  "final_claim_set": "1 Medium (M-1, PoC-confirmed, caller-mitigated) + 3 Informational (INFO-1/2/3). ZSA deltas sound. Report, session state, and prior-art reconciled.",
-  "poc_artifact": "halo2_gadgets/tests/incomplete_addend_binding_poc.rs (3 tests pass: honest accepted; forged addend accepted = verify()==Ok; corrupted rejected = gate live).",
+  "remediation_verifications": [],
   "next_steps": [
     "Maintainer decision on M-1: bind the incomplete-addition addend to base.x/base.y in-circuit (copy_advice) OR document the EccInstructions::mul caller obligation to pin the result; audit all in-tree mul callers for compliance.",
     "Optional: ingest M-1 into org/local zkbugs index (dsl=halo2, under_constrained, Medium, under_embargo) per index_action.",
     "Optional downstream: surface INFO-1 (Sinsemilla private-init Q caller obligation) to the Orchard/ZSA integration team as a doc/defensive-check item."
   ],
-  "updated_at": "2026-06-05T00:00:00Z"
+  "updated_at": "2026-06-05T00:00:00Z",
+  "extensions": {
+    "legacy_schema": "v1",
+    "scope_note": "halo2_gadgets folder ONLY. In-circuit constraint gadgets for Halo2/Orchard on the Pallas curve. Modules: ecc, poseidon, sinsemilla, sha256 (gated behind unstable-sha256-gadget), utilities. ~20K LoC. Crate sets #![deny(unsafe_code)].",
+    "dimension_map_anomalies": [
+      {
+        "id": "DIM-1",
+        "location": "utilities/lookup_range_check.rs:553-612 (LookupRangeCheck4_5BConfig::configure_with_tag)",
+        "description": "The combined lookup multiplexes three modes (running-sum, short, 4/5-bit-tagged) into one lookup input via selector arithmetic. Must verify q_running, q_range_check_4, q_range_check_5 cannot be simultaneously asserted in a way that lets a >5-bit value pass.",
+        "severity_hint": "HIGH (soundness if under-constrained)"
+      },
+      {
+        "id": "DIM-2",
+        "location": "sinsemilla/chip/hash_to_point.rs:72-107, 183-214",
+        "description": "Q goes from a fixed public generator to a witnessed private NonIdentityEccPoint. Need to find every enabler of allow_init_from_private_point and confirm Q is a constrained output of a prior in-circuit hash.",
+        "severity_hint": "HIGH (if Q unconstrained) / INFORMATIONAL (if always a constrained sub-hash)"
+      },
+      {
+        "id": "DIM-3",
+        "location": "utilities/lookup_range_check.rs:455-490 and witness_short_check",
+        "description": "RunningSum::witness_short asserts num_bits < K but witness_short_check asserts num_bits <= K. Confirm no off-by-one lets a K-bit-plus value through at the boundary.",
+        "severity_hint": "LOW (verify boundary)"
+      },
+      {
+        "id": "DIM-4",
+        "location": "ecc/chip/mul/incomplete.rs:240-252 vs hash_to_point.rs incomplete addition",
+        "description": "Incomplete addition assumes x_p != x_a; the guard is a witness-time check, NOT a constraint. Verify the gate (not just the assign-time guard) rejects x_p==x_a.",
+        "severity_hint": "MEDIUM (standard pattern, but verify constraint-level enforcement)"
+      },
+      {
+        "id": "DIM-5",
+        "location": "sinsemilla/chip/hash_to_point.rs:258-286 (final y_a + dummy lambda2/x_p)",
+        "description": "Dummy lambda_2 and x_p are assigned 0 on the final row. Confirm the final-row gate zeroes their contribution and no rotation feeds these dummies to a live constraint.",
+        "severity_hint": "LOW"
+      }
+    ],
+    "threat_model_notes": [
+      "Attacker model: a malicious PROVER who fully controls all private witnesses and wants a verifying proof of a false statement (soundness break). The verifier/keygen and the SINSEMILLA_S table / Poseidon constants are trusted.",
+      "Primary risk class for an in-circuit gadget library: UNDER-CONSTRAINED witnesses, exceptional-case handling in EC arithmetic, non-canonical scalar/field decompositions, and missing boolean/range constraints.",
+      "NOT in scope: Fiat-Shamir transcript / proof-system soundness (halo2_proofs), trusted setup (Halo2/IPA has none), key authentication, replay.",
+      "CSPRNG: not applicable — this crate creates no keys/nonces.",
+      "Most-changed-vs-upstream (highest priority): (1) LookupRangeCheck4_5BConfig, (2) Sinsemilla allow_init_from_private_point, (3) OrchardZSA trait-genericization of chips."
+    ],
+    "spec_deltas": [
+      {
+        "id": "SD-1",
+        "title": "Sinsemilla private-init shifts Q on-curve + domain obligation to caller",
+        "location": "sinsemilla/chip.rs:225-240, sinsemilla/chip/hash_to_point.rs:183-214",
+        "reference": "Zcash protocol spec sec 5.4.1.9 SinsemillaHashToPoint; halo2-0.1:sinsemilla-constraints.",
+        "classification": "CALLER-OBLIGATION SHIFT",
+        "next": "zk-circuit-auditor + merkle-tree-auditor: confirm every in-tree caller passes a constrained Q; treat as INFORMATIONAL doc-gap unless an unconstrained path exists."
+      },
+      {
+        "id": "SD-2",
+        "title": "LookupRangeCheck4_5BConfig is a new construction not in upstream spec anchor",
+        "location": "utilities/lookup_range_check.rs:504-859",
+        "reference": "halo2-0.1:decompose-combined-lookup / decompose-short-lookup describe only the single running-sum + short-lookup table.",
+        "classification": "ADAPTATION",
+        "next": "zk-circuit-auditor: primary soundness target (DIM-1). Verify the table load only emits tag=4 rows for idx<2^4 and tag=5 rows for idx<2^5."
+      }
+    ],
+    "reaudit_incomplete_rs": {
+      "trigger": "User-requested deep re-audit of ecc/chip/mul/incomplete.rs with explicit instruction NOT to assume safety from prior human audits.",
+      "claim": "The variable-base scalar-mul INCOMPLETE-ADDITION gate does not constrain the addend (x_P,y_P) to equal the base point.",
+      "poc": {
+        "file": "halo2_gadgets/tests/incomplete_addend_binding_poc.rs (standalone, non-invasive)",
+        "honest_control": "PASS (addend=T accepted)",
+        "forged_addend": "verify()==Ok(()) with accumulator pinned to [2]T constants and addend forged to [7]T != T",
+        "negative_control": "corrupt lambda2 += 1 -> ConstraintNotSatisfied -> proves the reconstructed gate is LIVE",
+        "end_to_end": "A test-only forge hook into the REAL EccChip::mul confirmed the forged addend produces result != [alpha]*base; reaching verify() end-to-end is blocked only by test-only asserts."
+      },
+      "severity_rationale": "Base class is a soundness under-constraint in a core EC gadget (Critical if a direct end-to-end break against a realistic caller were demonstrated). Downgraded to Medium: deployed callers pin the RESULT via constrain_equal, making a forged-addend result UNSATISFIABLE.",
+      "caveat": "This is original upstream zcash/halo2 code (predates ZSA), deployed in Orchard for years. Orchard's result-pinning mitigates it. The finding is that the gadget's internal constraints alone do not bind the incomplete-addition addend.",
+      "remediation": "Either (a) copy-constrain the incomplete-addition addend cells to base.x/base.y, OR (b) explicitly document on EccInstructions::mul that the returned point equals [scalar]*base only when the caller binds the result.",
+      "next_route": "crypto-report-writer (Medium finding) + maintainer escalation. NOT index-worthy as a confirmed exploit."
+    },
+    "prior_art": {
+      "source": "zkbugs upstream snapshot (zksecurity/zkbugs), 111 entries, 35 halo2",
+      "lookup_range_check": "Matches only in scroll-tech/zkevm-circuits + mpt-circuit: all 'Missing range check' OMISSION bugs, structurally OPPOSITE to the 4/5B lookup. No entry matches LookupRangeCheck4_5BConfig or zcash/halo2.",
+      "sinsemilla_incomplete_add_ecc": "ZERO entries in the halo2 corpus.",
+      "overflow_canonicity": "ZERO entries.",
+      "conclusion": "Prior art SUPPORTS the SOUND verdicts for the ZSA deltas. M-1 (missing addend<->base binding) is a DISTINCT root cause not present in the corpus and is INDEX-WORTHY as an org-internal/local finding (under_embargo)."
+    },
+    "index_action": "M-1 recommended for org/local zkbugs index as: dsl=halo2, vuln=under_constrained, impact=Soundness, severity=Medium, root_cause='variable-base scalar mul incomplete-addition addend assigned via assign_advice and never copy-constrained to the base point', repo=zcash/halo2, file=halo2_gadgets/src/ecc/chip/mul/incomplete.rs:309-310, state=under_embargo. (Index build not run in this session.)",
+    "final_claim_set": "1 Medium (M-1, PoC-confirmed, caller-mitigated) + 3 Informational (INFO-1/2/3). ZSA deltas sound.",
+    "poc_artifact": "halo2_gadgets/tests/incomplete_addend_binding_poc.rs (3 tests pass: honest accepted; forged addend accepted = verify()==Ok; corrupted rejected = gate live).",
+    "finding_details": {
+      "M-1": {
+        "location_range": "ecc/chip/mul/incomplete.rs:309-310",
+        "poc_reaches_verify_ok": true
+      }
+    }
+  }
 }

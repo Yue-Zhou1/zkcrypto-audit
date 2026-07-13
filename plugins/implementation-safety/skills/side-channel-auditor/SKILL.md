@@ -26,6 +26,9 @@ Domain auditor for constant-time assumptions and microarchitectural leakage risk
 
 - Protocol-level correctness audits without side-channel threat surfaces
 - Purely functional bugs unrelated to timing/cache/power leakage
+- Active fault-injection attacks where the attacker glitches/corrupts the
+  computation (RSA-CRT Bellcore, DFA, verification-skip) ->
+  `fault-injection-auditor`; this skill covers PASSIVE leakage only
 - Declaring side-channel concerns confirmed without evidence-backed verification
 
 ## Core Review Areas

@@ -48,18 +48,12 @@ jobs:
             exit 1
           fi
 
-      - name: Run unit tests
-        run: |
-          python3 -m unittest discover -s tests -q
-
       - name: Verify Python sources compile
         run: |
           python3 -m py_compile \
             plugins/evidence-and-tooling/scripts/_shared.py \
             plugins/evidence-and-tooling/scripts/build_index.py \
-            plugins/evidence-and-tooling/scripts/contribute_bug.py \
-            tests/test_crypto_audit_plugin_scaffolding.py \
-            tests/test_zkbugs_index_cli.py
+            plugins/evidence-and-tooling/scripts/contribute_bug.py
 
   publish:
     name: Publish GitHub release

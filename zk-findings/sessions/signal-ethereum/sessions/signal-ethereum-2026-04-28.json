@@ -1,256 +1,357 @@
 {
+  "schema_version": 2,
   "engagement_id": "signal-ethereum-2026-04-28",
-  "target_scope": ["core/", "host/", "methods/", "ssz-multiproofs/"],
-  "system_description": "ZKasper: a RISC Zero zkVM guest that proves Ethereum Casper FFG finality. The host prepares SSZ Merkle multiproofs of beacon state fields plus uncompressed BLS public keys plus state patches; the guest verifies those proofs inside the zkVM, reconstructs validator committees via RANDAO-based shuffle, verifies BLS aggregate signatures over attestations, applies Casper FFG state-transition rules, and commits (pre_state, post_state) as the public journal.",
-  "trust_boundaries": {
-    "attacker_controlled_inputs": [
-      "input_bytes (Input<E>): attestations array, consensus_state checkpoint fields — deserialized from env::read_frame() with bincode inside the guest",
-      "ssz_reader_bytes (StateInput): beacon_block multiproof, beacon_state multiproof, active_validators multiproof, public_keys Vec, patches BTreeMap — all supplied by the (untrusted) host",
-      "StatePatch.randao_mixes (host-supplied, unverified RANDAO values for future epochs)",
-      "StatePatch.validator_exits (host-supplied, partially-validated exit epochs)",
-      "Attestation.aggregation_bits, committee_bits, signature — all attacker-controlled"
-    ],
-    "trust_roots": [
-      "consensus_state.finalized_checkpoint.root — the only externally-anchored root; everything chains from it",
-      "RISC Zero journal commitment: only pre_state and post_state ABI-encoded bytes are public outputs"
-    ],
-    "verified_chain": "finalized_checkpoint.root -> beacon_block.state_root -> beacon_state.validators_root -> per-validator fields",
-    "unverified_data": [
-      "StatePatch.randao_mixes: accepted from host with only plausibility checks in validate_state_patches (churn limit, future-epoch assertions); no Merkle proof of RANDAO values",
-      "StatePatch.validator_exits: validated for churn-limit plausibility but 'once only' and ordering checks use assert!() not Result<>",
-      "public_keys Vec: matched against compressed chunks in proof but PublicKey::deserialize can panic on invalid input"
-    ]
-  },
+  "phase": "closed",
+  "targets": [
+    "core/",
+    "host/",
+    "methods/",
+    "ssz-multiproofs/"
+  ],
+  "trust_boundaries": [
+    {
+      "name": "TB-1 RANDAO mixes (StatePatch.randao_mixes)",
+      "assumption": "Host-supplied RANDAO values for future epochs are accepted with only plausibility checks; no Merkle proof binds them to on-chain state.",
+      "evidence": "UNTRUSTED — host-supplied, no Merkle proof. Affects entire committee assignment for all epochs covered by the patch (get_seed())."
+    },
+    {
+      "name": "TB-2 Validator exits (StatePatch.validator_exits)",
+      "assumption": "Host-supplied exit epochs are validated for churn-limit plausibility only; 'once only' and ordering checks use assert!() not Result<>.",
+      "evidence": "PARTIALLY VALIDATED — churn-limit plausibility only. Host can understate/overstate exits within churn tolerance."
+    },
+    {
+      "name": "TB-3 BLS public keys (public_keys Vec in StateInput)",
+      "assumption": "Public keys are matched byte-for-byte against compressed multiproof chunks; PublicKey::deserialize can panic on invalid input.",
+      "evidence": "UNTRUSTED — host-supplied. deserialize() called without error recovery (conversions.rs:73)."
+    },
+    {
+      "name": "TB-4 SSZ multiproof descriptor/data (StateInput multiproofs)",
+      "assumption": "The verified chain finalized_checkpoint.root -> beacon_block.state_root -> beacon_state.validators_root -> per-validator fields anchors all proven state; multiproof data length is not pre-validated before index arithmetic.",
+      "evidence": "descriptor-driven stack algorithm; no explicit check that data.len() == node_count * CHUNK_SIZE (multiproof.rs:~209)."
+    }
+  ],
   "critical_paths": [
     {
       "id": "CP-1",
       "name": "BLS aggregate signature verification",
       "entry": "core/src/verify.rs:is_valid_indexed_attestation()",
-      "key_call": "signature.eth_fast_aggregate_verify(signing_root, &pubkeys)",
-      "risk": "Depends on correct domain binding (genesis_validators_root, fork, epoch). Domain comes from StateReader::genesis_validators_root() and StateReader::fork() — both served from SSZ proof, verified chain.",
-      "notes": "eth_fast_aggregate_verify semantics: empty pubkey list returns false (guarded by empty-attestation check). Slashed validators are excluded from balance but still included in pubkey list for signature verification — must confirm this is intentional."
+      "risk": "MEDIUM — depends on correct domain binding (genesis_validators_root, fork, epoch), both served from SSZ proof (verified chain). Slashed validators excluded from balance but still in pubkey list — confirm intentional."
     },
     {
       "id": "CP-2",
       "name": "Casper FFG state transition",
       "entry": "core/src/consensus_state.rs:state_transition()",
-      "key_concern": "Only 1-finality and 2-finality paths trigger finalization. The verify() loop asserts exactly one finalization occurs. Code path: link source must equal current_justified or previous_justified checkpoint — checked by value equality, not by epoch range alone.",
       "risk": "LOW — well-tested with explicit test vectors including mainnet inactivity-leak cases."
     },
     {
       "id": "CP-3",
       "name": "SSZ multiproof Merkle verification",
       "entry": "ssz-multiproofs/src/multiproof.rs:verify() -> calculate_compact_multi_merkle_root()",
-      "key_concern": "descriptor-driven stack algorithm; CHUNK_SIZE is a const generic defaulting to 32; no explicit check that data.len() == node_count * CHUNK_SIZE before index arithmetic; panic path via assert_eq!(stack.len(), 1) and panic('root must be computed').",
-      "risk": "Panics in guest = proof abort. Malformed multiproof can cause OOB slice in &data[node_index * CHUNK_SIZE..(node_index+1)*CHUNK_SIZE] if node_index overflows relative to data length."
+      "risk": "MEDIUM — malformed multiproof can cause OOB slice; panics in guest = proof abort (liveness)."
     },
     {
       "id": "CP-4",
       "name": "RANDAO seed derivation (committee shuffle)",
       "entry": "core/src/state_reader.rs:get_seed()",
-      "key_concern": "Seed = SHA-256(domain_type_bytes || epoch_le_bytes || randao_mix). The randao_mix is fetched from StatePatch.randao_mixes — host-supplied and NOT Merkle-proven. An adversarial host can supply wrong RANDAO, causing the shuffle to produce a different committee assignment, which could cause signature verification to pass or fail arbitrarily.",
       "risk": "HIGH — unproven RANDAO is the most significant trust assumption in the system."
     },
     {
       "id": "CP-5",
       "name": "Validator multiproof extraction and public-key matching",
       "entry": "core/src/state_reader/ssz_state_reader.rs:extract_validators_multiproof()",
-      "key_concern": "compressed-chunk matching via has_compressed_chunks(); uncompressed public keys are supplied out-of-band in public_keys Vec; PublicKey::deserialize() is called without error handling in to_validator_info() (conversions.rs:73). Panics on invalid input.",
       "risk": "MEDIUM — host controls public_keys; a mismatched or invalid key causes panic inside the guest."
     },
     {
       "id": "CP-6",
       "name": "State patch validation (validator exits)",
       "entry": "core/src/state_reader/ssz_state_reader.rs:validate_state_patches()",
-      "key_concern": "Uses assert!() macros (not Result) to enforce 'exit_epoch must change only once', ordering, and churn-limit constraints. assert!() panics abort the RISC Zero proof, but do NOT produce a meaningful error. Churn calculation uses a 2x multiplier described as 'seems reasonable' with a shrug emoji, suggesting it is not formally derived.",
-      "risk": "MEDIUM — adversarial host can craft a patch that is slightly outside the valid window, triggering abort; or craft a patch slightly inside to inject a validator exit that inflates or deflates quorum."
+      "risk": "MEDIUM — churn calculation uses a 2x multiplier described as 'seems reasonable'; adversarial host can craft a patch just inside/outside the valid window."
     }
   ],
-  "dimension_map_anomalies": [
+  "unresolved_assumptions": [
+    "OF-6: Confirm the Ethereum spec intends slashed validators to contribute to the aggregate signature check but not the quorum threshold (resolved spec-correct, closed FALSE POSITIVE)."
+  ],
+  "route_dispositions": [
     {
-      "value": "StatePatch.randao_mixes",
-      "algebraic_domain": "B256 (raw bytes)",
-      "trust_level": "UNTRUSTED — host-supplied, no Merkle proof",
-      "semantic_role": "RANDAO mix for committee seed",
-      "protocol_context": "Affects entire committee assignment for all epochs covered by patch",
-      "finding": "UNKNOWN dimension — no proof binding this value to on-chain state"
+      "skill": "ethereum-crypto-auditor",
+      "status": "verified",
+      "summary": "Over-permissive churn budget in validate_state_patches (F-02). Slashed-validator aggregate/quorum handling confirmed spec-correct (OF-6 closed).",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
     },
     {
-      "value": "public_keys Vec in StateInput",
-      "trust_level": "UNTRUSTED — host-supplied, matched only against compressed multiproof chunks",
-      "semantic_role": "BLS public keys for signature verification",
-      "finding": "Matching is done byte-for-byte against compressed chunks; deserialize() called without error recovery"
+      "skill": "zkvm-auditor",
+      "status": "verified",
+      "summary": "Unproven RANDAO enables adversarial committee manipulation (F-01, HIGH soundness). Frame-order and journal boundary reviewed (F-11).",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
     },
     {
-      "value": "StatePatch.validator_exits values",
-      "trust_level": "PARTIALLY VALIDATED — churn-limit plausibility only",
-      "semantic_role": "Exit epoch overrides that affect active validator set",
-      "finding": "No Merkle proof; host can understate exits (inflating validator count) or overstate (deflating) within churn tolerance"
+      "skill": "merkle-tree-auditor",
+      "status": "verified",
+      "summary": "OOB slice panic in calculate_compact_multi_merkle_root (F-03) and empty/non-reducing descriptor panic (F-09).",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
+    },
+    {
+      "skill": "rust-crypto-safety",
+      "status": "verified",
+      "summary": "Multiple unwrap() panics on host-supplied guest input (F-05); legacy-arith saturating semantics active in guest (F-06).",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
+    },
+    {
+      "skill": "dependency-auditor",
+      "status": "verified",
+      "summary": "Personal fork (ec2/lighthouse) for BLS and shuffle (F-04); missing Cargo.lock in root workspace (F-07).",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
+    },
+    {
+      "skill": "crypto-fp-check",
+      "status": "false_positive",
+      "summary": "commit_slice size assertion (ZV-3) and slashed-validator balance exclusion (OF-6) confirmed FALSE POSITIVE.",
+      "evidence_refs": [
+        "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+      ]
     }
   ],
-  "threat_model_notes": [
-    "Replay: consensus_state.finalized_checkpoint is the chain-anchoring root; BLS signing domain includes genesis_validators_root and fork version — provides replay resistance across chains and forks.",
-    "RANDAO manipulation: RANDAO is unproven; host supplies future-epoch RANDAO without on-chain proof. This is the single largest trust gap.",
-    "Downgrade: Config.min_version / max_version restrict fork to Electra only; fork is checked against ChainSpec in ssz_state_reader — downgrade resistance present.",
-    "CSPRNG: No keygen or nonce generation in guest code; all randomness comes from RANDAO — appropriate for consensus protocol.",
-    "Sanitized checkpoints: trusted_checkpoint comes from pre-existing ConsensusState committed in the journal; attacker cannot forge it without breaking the zkVM proof binding."
-  ],
-  "open_findings": [
-    {
-      "id": "OF-1",
-      "title": "Unproven RANDAO in StatePatch enables adversarial committee manipulation",
-      "location": "core/src/state_reader.rs:get_seed(), core/src/state_reader/ssz_state_reader.rs:randao_mix()",
-      "description": "StatePatch.randao_mixes values are host-supplied and accepted without any Merkle proof binding them to the on-chain beacon state. The seed derivation at get_seed() uses these values to compute the shuffling seed. An adversarial or compromised host can supply arbitrary RANDAO values to shift committee assignments, potentially causing a subset of validators to be assigned to a committee they would not otherwise control, undermining the BLS signature threshold check.",
-      "severity_estimate": "HIGH",
-      "routing": "crypto-fp-check"
-    },
-    {
-      "id": "OF-2",
-      "title": "Multiproof data bounds not validated before slice indexing",
-      "location": "ssz-multiproofs/src/multiproof.rs:calculate_compact_multi_merkle_root() line ~209",
-      "description": "The function indexes data as &data[node_index * CHUNK_SIZE..(node_index+1)*CHUNK_SIZE] but does not pre-validate that data.len() == (number of nodes from descriptor) * CHUNK_SIZE. A malformed or truncated multiproof from the host can cause a Rust slice panic (OOB) inside the guest, aborting proof generation. While this is a liveness/DoS issue rather than a soundness issue, it means the guest has no graceful error path for malformed host input.",
-      "severity_estimate": "MEDIUM — liveness; not soundness",
-      "routing": "merkle-tree-auditor + crypto-fp-check"
-    },
-    {
-      "id": "OF-3",
-      "title": "PublicKey::deserialize() panic on invalid host-supplied key",
-      "location": "host/src/conversions.rs:73 (to_validator_info), methods/guest/src/lib.rs via state_input.into_state_reader()",
-      "description": "PublicKey::deserialize(&v.public_key).unwrap() is called without error handling in to_validator_info(). In the guest context (called from into_state_reader()), an invalid or adversarially malformed public key in the public_keys Vec causes an unwrap panic inside the zkVM guest, aborting the proof. No liveness guarantee.",
-      "severity_estimate": "LOW-MEDIUM — liveness/DoS",
-      "routing": "rust-crypto-safety + crypto-fp-check"
-    },
-    {
-      "id": "OF-4",
-      "title": "validate_state_patches uses assert!() with a 2x churn-limit heuristic",
-      "location": "core/src/state_reader/ssz_state_reader.rs:validate_state_patches() line ~207",
-      "description": "The churn budget is calculated as get_balance_churn_limit() * 2, with an inline comment 'seems reasonable ¯\\_(ツ)_/¯', indicating the multiplier is not formally derived. If the true churn window allows fewer exits, an adversarial host can inject validator exits that pass this check but would be invalid on-chain, causing the active validator set to be incorrectly reduced. This deflates the quorum denominator, making the 2/3 supermajority threshold easier to meet.",
-      "severity_estimate": "MEDIUM",
-      "routing": "ethereum-crypto-auditor + crypto-fp-check"
-    },
-    {
-      "id": "OF-5",
-      "title": "Commented-out head-state sanity check in find_finalization_epoch",
-      "location": "host/src/input_builder.rs:103-111",
-      "description": "A sanity check that verifies the head state recognizes the trusted checkpoint as finalized is commented out. Without this check, the host may build an input that is accepted by an outdated or forked chain view, potentially feeding a stale or non-canonical state to the guest.",
-      "severity_estimate": "LOW — host-side only, does not affect zkVM soundness",
-      "routing": "crypto-fp-check"
-    },
-    {
-      "id": "OF-6",
-      "title": "Slashed validators included in signature verification but excluded from balance",
-      "location": "core/src/verify.rs:process_attestation() lines 208-213 vs is_valid_indexed_attestation() line 228",
-      "description": "get_attesting_indices() returns all attesting indices; these are mapped to pubkeys for BLS verification regardless of slashed status. The slashed filter is only applied when computing target_balance. This means a slashed validator's signature contributes to the aggregate signature check but not to the quorum threshold. Per the Ethereum spec this is intentional (slashed validators can still attest and their votes count for the aggregate but their balance is zeroed out for quorum), but it is worth confirming the spec alignment explicitly.",
-      "severity_estimate": "INFO — likely spec-correct, needs spec confirmation",
-      "routing": "ethereum-crypto-auditor"
-    }
-  ],
+  "open_findings": [],
   "verified_findings": [
     {
       "id": "F-01",
-      "title": "Unproven RANDAO enables adversarial committee manipulation",
-      "severity": "HIGH",
-      "verdict": "TRUE POSITIVE",
-      "location": "core/src/state_reader/ssz_state_reader.rs:304-309, core/src/state_reader.rs:60-74",
-      "property": "Soundness",
-      "poc_status": "Algorithmic sketch — no executable PoC; trigger path contains no hidden guards"
+      "severity": "High",
+      "summary": "Unproven RANDAO enables adversarial committee manipulation. StatePatch.randao_mixes values are host-supplied and accepted without any Merkle proof; get_seed() uses them to compute the shuffling seed, letting an adversarial host shift committee assignments to undermine the BLS threshold check. Soundness. PoC: algorithmic sketch, trigger path contains no hidden guards. (ssz_state_reader.rs:304-309, state_reader.rs:60-74)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-02",
-      "title": "Over-permissive churn budget in validate_state_patches",
-      "severity": "MEDIUM",
-      "verdict": "TRUE POSITIVE",
-      "location": "core/src/state_reader/ssz_state_reader.rs:205-207",
-      "property": "Soundness (partial)"
+      "severity": "Medium",
+      "summary": "Over-permissive churn budget in validate_state_patches. The churn budget is get_balance_churn_limit() * 2 ('seems reasonable'); an adversarial host can inject validator exits that pass this check but would be invalid on-chain, deflating the quorum denominator. Soundness (partial). (ssz_state_reader.rs:205-207)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-03",
-      "title": "OOB slice panic in calculate_compact_multi_merkle_root",
-      "severity": "MEDIUM",
-      "verdict": "TRUE POSITIVE",
-      "location": "ssz-multiproofs/src/multiproof.rs:208-210",
-      "property": "Liveness"
+      "severity": "Medium",
+      "summary": "OOB slice panic in calculate_compact_multi_merkle_root. The function indexes data without pre-validating data.len() == node_count * CHUNK_SIZE; a malformed/truncated multiproof causes a Rust slice panic inside the guest. Liveness. (multiproof.rs:208-210)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-04",
-      "title": "Personal fork (ec2/lighthouse) for BLS and shuffle",
-      "severity": "MEDIUM",
-      "verdict": "TRUE POSITIVE",
-      "location": "Cargo.toml (workspace)",
-      "property": "Supply-chain"
+      "severity": "Medium",
+      "summary": "Personal fork (ec2/lighthouse) for BLS and shuffle. Supply-chain. (Cargo.toml workspace)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-05",
-      "title": "Multiple unwrap() panics on host-supplied guest input",
-      "severity": "LOW-MEDIUM",
-      "verdict": "TRUE POSITIVE",
-      "location": "methods/guest/src/lib.rs:26,30; host/src/conversions.rs:73",
-      "property": "Liveness"
+      "severity": "Low-Medium",
+      "summary": "Multiple unwrap() panics on host-supplied guest input. Liveness. (methods/guest/src/lib.rs:26,30; host/src/conversions.rs:73)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-06",
-      "title": "legacy-arith saturating semantics active in guest",
-      "severity": "LOW",
-      "verdict": "TRUE POSITIVE",
-      "location": "core/Cargo.toml, chainspec/Cargo.toml",
-      "property": "Correctness"
+      "severity": "Low",
+      "summary": "legacy-arith saturating semantics active in guest. Correctness. (core/Cargo.toml, chainspec/Cargo.toml)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-07",
-      "title": "Missing Cargo.lock in root workspace",
-      "severity": "LOW",
-      "verdict": "TRUE POSITIVE",
-      "location": "workspace root",
-      "property": "Supply-chain"
+      "severity": "Low",
+      "summary": "Missing Cargo.lock in root workspace. Supply-chain. (workspace root)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-08",
-      "title": "Head-state sanity check commented out in input_builder",
-      "severity": "LOW",
-      "verdict": "TRUE POSITIVE",
-      "location": "host/src/input_builder.rs:103-111",
-      "property": "Liveness (host)"
+      "severity": "Low",
+      "summary": "Head-state sanity check commented out in input_builder. Liveness (host). (host/src/input_builder.rs:103-111)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-09",
-      "title": "Empty/non-reducing descriptor panics in multiproof verifier",
-      "severity": "LOW",
-      "verdict": "TRUE POSITIVE",
-      "location": "ssz-multiproofs/src/multiproof.rs:245-247",
-      "property": "Liveness"
+      "severity": "Low",
+      "summary": "Empty/non-reducing descriptor panics in multiproof verifier. Liveness. (multiproof.rs:245-247)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-10",
-      "title": "risc0-zkvm unstable feature in production guest",
-      "severity": "INFO",
-      "verdict": "TRUE POSITIVE",
-      "location": "methods/guest/Cargo.toml",
-      "property": "Stability"
+      "severity": "Informational",
+      "summary": "risc0-zkvm unstable feature in production guest. Stability. (methods/guest/Cargo.toml)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
     },
     {
       "id": "F-11",
-      "title": "Frame order not asserted before deserialization",
-      "severity": "INFO",
-      "verdict": "TRUE POSITIVE",
-      "location": "methods/guest/src/lib.rs:22-30",
-      "property": "Liveness"
+      "severity": "Informational",
+      "summary": "Frame order not asserted before deserialization. Liveness. (methods/guest/src/lib.rs:22-30)",
+      "report_ref": "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+    }
+  ],
+  "fp_check_verdicts": [
+    {
+      "id": "F-01",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-02",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-03",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-04",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-05",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-06",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-07",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-08",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-09",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-10",
+      "verdict": "TRUE POSITIVE"
+    },
+    {
+      "id": "F-11",
+      "verdict": "TRUE POSITIVE"
     },
     {
       "id": "ZV-3",
-      "title": "commit_slice size assertion missing",
-      "severity": "CLOSED",
       "verdict": "FALSE POSITIVE",
-      "reason": "Cryptographic journal binding makes length assertions redundant"
+      "rationale": "Cryptographic journal binding makes length assertions redundant."
     },
     {
       "id": "OF-6",
-      "title": "Slashed validators in BLS verify excluded from balance",
-      "severity": "CLOSED",
       "verdict": "FALSE POSITIVE",
-      "reason": "Spec-correct behavior per is_valid_indexed_attestation"
+      "rationale": "Spec-correct behavior per is_valid_indexed_attestation."
     }
   ],
-  "audit_status": "COMPLETE",
-  "report_path": "zk-findings/signal-ethereum-audit-report-2026-04-28.md",
-  "next_steps": []
+  "artifacts": {
+    "reports": [
+      "zk-findings/signal-ethereum-audit-report-2026-04-28.md",
+      "zk-findings/reports/signal-ethereum-crypto-audit-report-2026-04-28.md"
+    ],
+    "pocs": [],
+    "index_refs": []
+  },
+  "remediation_verifications": [],
+  "next_steps": [],
+  "updated_at": "2026-04-28T00:00:00Z",
+  "extensions": {
+    "legacy_schema": "v1",
+    "target_scope": ["core/", "host/", "methods/", "ssz-multiproofs/"],
+    "system_description": "ZKasper: a RISC Zero zkVM guest that proves Ethereum Casper FFG finality. The host prepares SSZ Merkle multiproofs of beacon state fields plus uncompressed BLS public keys plus state patches; the guest verifies those proofs inside the zkVM, reconstructs validator committees via RANDAO-based shuffle, verifies BLS aggregate signatures over attestations, applies Casper FFG state-transition rules, and commits (pre_state, post_state) as the public journal.",
+    "trust_roots": [
+      "consensus_state.finalized_checkpoint.root — the only externally-anchored root; everything chains from it",
+      "RISC Zero journal commitment: only pre_state and post_state ABI-encoded bytes are public outputs"
+    ],
+    "unverified_data": [
+      "StatePatch.randao_mixes: accepted with only plausibility checks; no Merkle proof of RANDAO values",
+      "StatePatch.validator_exits: validated for churn-limit plausibility but 'once only' and ordering checks use assert!() not Result<>",
+      "public_keys Vec: matched against compressed chunks in proof but PublicKey::deserialize can panic on invalid input"
+    ],
+    "dimension_map_anomalies": [
+      {
+        "value": "StatePatch.randao_mixes",
+        "algebraic_domain": "B256 (raw bytes)",
+        "trust_level": "UNTRUSTED — host-supplied, no Merkle proof",
+        "semantic_role": "RANDAO mix for committee seed",
+        "protocol_context": "Affects entire committee assignment for all epochs covered by patch",
+        "finding": "UNKNOWN dimension — no proof binding this value to on-chain state"
+      },
+      {
+        "value": "public_keys Vec in StateInput",
+        "trust_level": "UNTRUSTED — host-supplied, matched only against compressed multiproof chunks",
+        "semantic_role": "BLS public keys for signature verification",
+        "finding": "Matching is done byte-for-byte against compressed chunks; deserialize() called without error recovery"
+      },
+      {
+        "value": "StatePatch.validator_exits values",
+        "trust_level": "PARTIALLY VALIDATED — churn-limit plausibility only",
+        "semantic_role": "Exit epoch overrides that affect active validator set",
+        "finding": "No Merkle proof; host can understate exits (inflating validator count) or overstate (deflating) within churn tolerance"
+      }
+    ],
+    "threat_model_notes": [
+      "Replay: consensus_state.finalized_checkpoint is the chain-anchoring root; BLS signing domain includes genesis_validators_root and fork version — replay resistance across chains and forks.",
+      "RANDAO manipulation: RANDAO is unproven; host supplies future-epoch RANDAO without on-chain proof. Single largest trust gap.",
+      "Downgrade: Config.min_version / max_version restrict fork to Electra only — downgrade resistance present.",
+      "CSPRNG: No keygen or nonce generation in guest code; all randomness comes from RANDAO.",
+      "Sanitized checkpoints: trusted_checkpoint comes from pre-existing ConsensusState committed in the journal; attacker cannot forge it without breaking the zkVM proof binding."
+    ],
+    "open_findings_at_verification": [
+      {
+        "id": "OF-1",
+        "title": "Unproven RANDAO in StatePatch enables adversarial committee manipulation",
+        "severity_estimate": "HIGH",
+        "promoted_to": "F-01"
+      },
+      {
+        "id": "OF-2",
+        "title": "Multiproof data bounds not validated before slice indexing",
+        "severity_estimate": "MEDIUM — liveness; not soundness",
+        "promoted_to": "F-03"
+      },
+      {
+        "id": "OF-3",
+        "title": "PublicKey::deserialize() panic on invalid host-supplied key",
+        "severity_estimate": "LOW-MEDIUM — liveness/DoS",
+        "promoted_to": "F-05"
+      },
+      {
+        "id": "OF-4",
+        "title": "validate_state_patches uses assert!() with a 2x churn-limit heuristic",
+        "severity_estimate": "MEDIUM",
+        "promoted_to": "F-02"
+      },
+      {
+        "id": "OF-5",
+        "title": "Commented-out head-state sanity check in find_finalization_epoch",
+        "severity_estimate": "LOW — host-side only",
+        "promoted_to": "F-08"
+      },
+      {
+        "id": "OF-6",
+        "title": "Slashed validators included in signature verification but excluded from balance",
+        "severity_estimate": "INFO — likely spec-correct",
+        "disposition": "closed FALSE POSITIVE"
+      }
+    ],
+    "finding_details": {
+      "F-01": {"property": "Soundness", "poc_status": "Algorithmic sketch — no executable PoC; trigger path contains no hidden guards"},
+      "F-02": {"property": "Soundness (partial)"},
+      "F-03": {"property": "Liveness"},
+      "F-04": {"property": "Supply-chain"},
+      "F-05": {"property": "Liveness"},
+      "F-06": {"property": "Correctness"},
+      "F-07": {"property": "Supply-chain"},
+      "F-08": {"property": "Liveness (host)"},
+      "F-09": {"property": "Liveness"},
+      "F-10": {"property": "Stability"},
+      "F-11": {"property": "Liveness"},
+      "ZV-3": {"title": "commit_slice size assertion missing", "disposition": "CLOSED FALSE POSITIVE"},
+      "OF-6": {"title": "Slashed validators in BLS verify excluded from balance", "disposition": "CLOSED FALSE POSITIVE"}
+    },
+    "audit_status": "COMPLETE"
+  }
 }

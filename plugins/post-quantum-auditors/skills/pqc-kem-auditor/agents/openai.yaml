@@ -1,0 +1,8 @@
+display_name: pqc-kem-auditor
+short_description: Audit ML-KEM/FIPS 203 implementations for decapsulation and
+  implicit-rejection correctness, input validation, compression/rounding conformance,
+  and decapsulation-failure oracle resistance.
+default_prompt: Use pqc-kem-auditor for this task. Audit the ML-KEM implementation's
+  encapsulation/decapsulation paths against FIPS 203 — input checks, re-encryption
+  comparison, implicit rejection, constant-time reject behavior, and rounding — and
+  assess failure-oracle resistance end to end.

@@ -21,7 +21,7 @@
     {
       "name": "core-audit-flow",
       "version": "0.1.0",
-      "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, and shared severity/evidence framework.",
+      "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, remediation fix verification, and shared severity/evidence framework.",
       "author": {
         "name": "Yue Zhou"
       },
@@ -30,7 +30,7 @@
     {
       "name": "zk-and-vm-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), and gnark.",
+      "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), gnark, and on-chain proof-verifier contracts (Solidity/Vyper/Huff, EIP-196/197/2537 precompiles).",
       "author": {
         "name": "Yue Zhou"
       },
@@ -39,7 +39,7 @@
     {
       "name": "crypto-primitive-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, and encryption schemes.",
+      "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, encryption schemes, and classical signature schemes (ECDSA, Schnorr/BIP-340, Ed25519, RSA-PSS/PKCS#1 v1.5).",
       "author": {
         "name": "Yue Zhou"
       },
@@ -48,7 +48,7 @@
     {
       "name": "protocol-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), and VDFs (Wesolowski, Pietrzak).",
+      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), VRFs (RFC 9381 ECVRF/RSA-FDH-VRF), and VDFs (Wesolowski, Pietrzak).",
       "author": {
         "name": "Yue Zhou"
       },
@@ -57,7 +57,7 @@
     {
       "name": "post-quantum-auditors",
       "version": "0.1.0",
-      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE) and fully homomorphic encryption (FHE).",
+      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE), fully homomorphic encryption (FHE), standardized post-quantum KEMs (ML-KEM/FIPS 203), and post-quantum signatures (ML-DSA/FIPS 204, SLH-DSA/FIPS 205, FN-DSA/Falcon, XMSS/LMS per SP 800-208).",
       "author": {
         "name": "Yue Zhou"
       },
@@ -66,7 +66,7 @@
     {
       "name": "implementation-safety",
       "version": "0.1.0",
-      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, and dependency hygiene.",
+      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
       "author": {
         "name": "Yue Zhou"
       },
@@ -75,7 +75,7 @@
     {
       "name": "evidence-and-tooling",
       "version": "0.1.0",
-      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, and formal verification bridge. Kani/fuzz/formal-verification skills are user-triggered only.",
+      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, formal verification bridge, and differential test harness generation. Kani/fuzz/formal-verification/differential-test skills are user-triggered only.",
       "author": {
         "name": "Yue Zhou"
       },

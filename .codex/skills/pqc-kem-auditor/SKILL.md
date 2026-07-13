@@ -1,0 +1,11 @@
+---
+name: pqc-kem-auditor
+description: "Audit standardized post-quantum KEM implementations — currently ML-KEM / FIPS 203 — for encapsulation/decapsulation conformance, implicit-rejection correctness, ciphertext and key validation, compression/rounding, and decapsulation-failure oracle resistance. Use when reviewing ML-KEM/Kyber APIs, serialization, or decapsulation paths."
+---
+
+This file is a Codex skill discovery stub.
+
+Canonical skill source:
+`plugins/post-quantum-auditors/skills/pqc-kem-auditor/SKILL.md`
+
+When this skill is selected, follow the canonical source file above.

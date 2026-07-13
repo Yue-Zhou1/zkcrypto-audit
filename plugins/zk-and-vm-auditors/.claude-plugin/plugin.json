@@ -1,7 +1,7 @@
 {
   "name": "zk-and-vm-auditors",
   "version": "0.1.0",
-  "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), and gnark.",
+  "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), gnark, and on-chain proof-verifier contracts (Solidity/Vyper/Huff, EIP-196/197/2537 precompiles).",
   "author": {
     "name": "Yue Zhou"
   }

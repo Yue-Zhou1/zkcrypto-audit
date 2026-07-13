@@ -7,6 +7,94 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `fix-verification` (core-audit-flow): verifies that a supplied patch actually
+  fixes a previously verified finding — reproduces the original PoC on the
+  vulnerable revision, confirms it fails for the intended reason on the fixed
+  revision, checks the root cause (not just the demonstrated input) is removed,
+  searches sibling paths for incomplete remediation, runs regression tests, and
+  records a `remediation_verifications` verdict. Routed by
+  `fix_verification_patch_regression`.
+- `onchain-verifier-auditor` (zk-and-vm-auditors): audits Solidity/Vyper/Huff
+  proof-verifier contracts for EIP-196/197/2537 precompile invocation
+  semantics, missing scalar-field checks on public inputs, point encoding,
+  verification-key provenance/upgrade risk, and proof calldata decoding.
+  Routed by `onchain_verifier_contract`.
+- `threshold-ecdsa-auditor` (protocol-auditors): audits GG18/GG20/CGGMP21/
+  Lindell-style threshold ECDSA for Paillier modulus validity proofs,
+  MtA/MtAwc range-proof gaps, presignature lifecycle, resharing, concurrent
+  session isolation, and identifiable-abort leakage. Routed by
+  `threshold_ecdsa_paillier_mta`.
+- `randomness-auditor` (implementation-safety): audits CSPRNG/DRBG seeding
+  and reseeding, entropy availability, fork/clone/VM-snapshot RNG
+  duplication, RFC 6979/RFC 8032 deterministic nonce derivation, and nonce
+  reuse across retries, crash recovery, persistence, logging, and concurrent
+  state. Routed by `randomness_nonce_entropy`.
+- `privacy-protocol-auditor` (protocol-auditors): audits shielded-pool and
+  mixer protocol logic for nullifier derivation/uniqueness/spent-set
+  soundness, note and value commitment binding, deposit/withdraw
+  front-running, root acceptance, and cross-domain replay. Routed by
+  `privacy_nullifier_shielded_pool`.
+- `signature-scheme-auditor` (crypto-primitive-auditors): audits classical
+  signatures — generic ECDSA across curves, Schnorr/BIP-340, EdDSA/Ed25519,
+  RSA-PSS and PKCS#1 v1.5 — for verification-equation correctness,
+  malleability, canonical encoding, public-key validation, and hash/prehash
+  semantics. Routed by `classical_signature_verification`.
+- `zk-circuit-auditor` extension: generic STARK/AIR coverage — AIR
+  transition/boundary constraints, trace padding and selectors, composition
+  polynomial degree accounting, FRI query schedule and soundness budget,
+  DEEP out-of-domain sampling, and verifier parameter provenance — via
+  `references/stark-air-patterns.md`, `references/spec-sources.md`, and
+  `workflows/stark-air-review.md`; the `zk_constraints_transcript_verifier`
+  predicate now names STARK/AIR/trace/composition review.
+- `vrf-auditor` (protocol-auditors): audits RFC 9381 VRFs (ECVRF and
+  RSA-FDH-VRF) for key validation, ciphersuite domain separation,
+  encode-to-curve and cofactor handling, deterministic prover nonces,
+  proof-to-hash ordering, uniqueness/pseudorandomness assumptions, and
+  application-level output grinding. Routed by
+  `vrf_rfc9381_output_grinding`.
+- `pqc-kem-auditor` (post-quantum-auditors): audits ML-KEM/FIPS 203
+  implementations for encapsulation/decapsulation conformance, implicit
+  rejection, input validation, compression/rounding, and
+  decapsulation-failure oracle resistance; boundary with `lattice-auditor`
+  (generic LWE/RLWE parameter and sampler reasoning) made explicit in both
+  skills. Routed by `pqc_kem_decapsulation`.
+- `pqc-signature-auditor` (post-quantum-auditors): audits ML-DSA
+  (FIPS 204), SLH-DSA (FIPS 205), FN-DSA/Falcon (standardization status
+  pinned), and stateful XMSS/LMS/HSS (NIST SP 800-208) for
+  rejection-sampling correctness, verification bound enforcement, signing
+  modes, and OTS index persistence/crash-recovery/backup/cloning, with a
+  dedicated stateful-hash-signature workflow. Routed by
+  `pqc_signature_state_management`.
+- `differential-test-harness-gen` (evidence-and-tooling, user-triggered
+  only): generates cross-implementation differential test harnesses with
+  official-vector and Wycheproof replay, result/error normalization, and
+  reproducible divergence corpora for `crypto-fp-check`. No routing rule;
+  added to `user_triggered_only_exclusions`.
+- `zkvm-auditor` extension: zkEVM equivalence coverage (Scroll, Polygon
+  zkEVM, Linea) — EVM opcode equivalence, gas/circuit divergence,
+  state/storage trie encoding, memory expansion, and precompile
+  equivalence against mainnet EVM semantics — via
+  `references/zkevm-patterns.md` and `references/spec-sources.md`; the
+  `zkvm_guest_memory_precompile` predicate now names zkEVM equivalence.
+- `fault-injection-auditor` (implementation-safety): audits active
+  fault-injection attacks — RSA-CRT Bellcore faults, deterministic
+  ECDSA/EdDSA differential fault analysis, verification-skip glitches,
+  redundancy bypass, and verify-after-sign gaps — under a stated fault
+  model, distinct from `side-channel-auditor`'s passive scope. Routed by
+  `fault_injection_glitch_dfa`.
+
+### Changed
+
+- Session state schema upgraded to version 2 (`schema_version: 2`): a strict
+  core contract (including `route_dispositions`, `fp_check_verdicts`,
+  `artifacts`, and `remediation_verifications`) plus an `extensions` object that
+  preserves engagement-specific evidence. Adds the `remediation_in_progress`
+  phase and its transitions. All tracked engagement sessions were migrated.
+  `scripts/validate_session_state.py` is invoked in CI and pre-push, and
+  performs optional structural validation when `jsonschema` is available.
+
 ## [0.5.0] - 2026-06-12
 
 ### Added

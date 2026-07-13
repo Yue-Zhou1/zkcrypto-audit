@@ -1,7 +1,7 @@
 {
   "name": "crypto-primitive-auditors",
   "version": "0.1.0",
-  "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, and encryption schemes.",
+  "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, encryption schemes, and classical signature schemes (ECDSA, Schnorr/BIP-340, Ed25519, RSA-PSS/PKCS#1 v1.5).",
   "author": {
     "name": "Yue Zhou"
   }

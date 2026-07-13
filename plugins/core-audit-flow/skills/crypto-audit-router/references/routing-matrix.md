@@ -14,32 +14,42 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 
 | Situation | Route |
 |---|---|
-| The code claims to follow an RFC, paper, or reference implementation | `spec-delta-checker` |
-| The issue touches points, pairings, BLS verification, DST, or aggregation | `ecc-pairing-auditor` |
-| The issue touches witness constraints, transcripts, verifier equations, KZG, or recursion | `zk-circuit-auditor` |
-| The issue touches Circom templates, signal constraints, circomlib component reuse, or witness generation for `.circom` circuits | `zk-circuit-auditor` |
-| The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs | `gnark-auditor` |
-| The issue touches AEAD nonce handling, decrypt oracles, key derivation, associated-data binding, or encryption mode misuse | `encryption-scheme-auditor` |
-| The issue touches MPC transcripts, garbled circuits, oblivious transfer, share validation, or multi-party reconstruction | `mpc-auditor` |
-| The issue touches VDF sequentiality, Wesolowski or Pietrzak proof verification, delay parameters, or challenge derivation | `vdf-auditor` |
-| The issue touches LWE/RLWE parameters, noise sampling, rejection sampling, or decryption failure assumptions | `lattice-auditor` |
-| The issue touches FHE noise budgets, bootstrapping, modulus switching, key switching, or plaintext leakage | `fhe-auditor` |
-| The issue touches timing leaks, cache or power side channels, secret-dependent branching, or constant-time regressions | `side-channel-auditor` |
-| The issue touches cryptographic dependency versions, advisories, feature flags, transitive risk, or fork provenance | `dependency-auditor` |
-| The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation | `cairo-auditor` |
-| The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation | `noir-auditor` |
-| The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida) | `zkvm-auditor` |
-| The issue touches Poseidon, Rescue, MiMC, Pedersen, or other ZK-friendly hash parameters, sponge construction, or domain separation | `hash-function-auditor` |
-| The issue touches KZG, FRI, IPA, Pedersen commitments, polynomial degree bounds, or evaluation proofs | `commitment-scheme-auditor` |
-| The issue touches Merkle trees, inclusion proofs, sparse trees, or Merkle root computation | `merkle-tree-auditor` |
-| The issue touches Fiat-Shamir transcripts, challenge derivation, transcript completeness, or interactive-to-non-interactive transforms | `fiat-shamir-auditor` |
-| The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation | `dkg-threshold-auditor` |
-| The issue touches constant-time behavior, zeroization, `unsafe`, feature flags, or dependency hygiene | `rust-crypto-safety` |
-| The issue touches secp256k1/ECDSA, keccak/EIP-712, BN254/BLS12-381 precompile input/output, KZG/EIP-4844 usage, or alloy/ethers-rs API patterns in Rust | `ethereum-crypto-auditor` |
-| The issue touches Nova, HyperNova, ProtoStar folding equations, accumulator update, running instance threading, or cycle-of-curves encoding | `folding-scheme-auditor` |
-| The issue has survived domain review and needs truth/impact validation | `crypto-fp-check` |
-| The issue is verified and needs report prose | `crypto-report-writer` |
-| The issue is verified and may need prior-art lookup or index storage | `zkbugs-index` |
+| The code claims to follow an RFC, paper, or reference implementation. | `spec-delta-checker` |
+| The issue touches points, pairings, BLS verification, DST, or aggregation. | `ecc-pairing-auditor` |
+| The issue touches witness constraints, transcripts, verifier equations, KZG, recursion, or generic STARK/AIR review — AIR transition/boundary constraints, execution trace padding, composition polynomials, FRI query schedules, DEEP out-of-domain sampling — outside Cairo/Starknet. | `zk-circuit-auditor` |
+| The issue touches Circom templates, signal constraints, circomlib component reuse, or witness generation for .circom circuits. | `zk-circuit-auditor` |
+| The issue touches gnark frontend/backend mismatch, Go witness assignment, public witness exposure, or gnark constraint APIs. | `gnark-auditor` |
+| The issue touches AEAD nonce handling, decrypt oracles, key derivation, associated-data binding, or encryption mode misuse. | `encryption-scheme-auditor` |
+| The issue touches MPC transcripts, garbled circuits, oblivious transfer, share validation, or multi-party reconstruction. | `mpc-auditor` |
+| The issue touches VDF sequentiality, Wesolowski or Pietrzak proof verification, delay parameters, or challenge derivation. | `vdf-auditor` |
+| The issue touches LWE/RLWE parameters, noise sampling, rejection sampling, or decryption failure assumptions. | `lattice-auditor` |
+| The issue touches post-quantum signatures — ML-DSA/Dilithium (FIPS 204) rejection sampling or verification bounds, SLH-DSA/SPHINCS+ (FIPS 205) addressing or randomizers, FN-DSA/Falcon samplers, or XMSS/LMS/HSS stateful one-time-signature index persistence, crash recovery, backup/restore, or cloning under NIST SP 800-208. | `pqc-signature-auditor` |
+| The issue touches standardized post-quantum KEMs — ML-KEM/Kyber (FIPS 203) encapsulation or decapsulation, implicit rejection, ciphertext validation, compression/rounding, or decapsulation-failure oracles — as opposed to generic LWE/RLWE parameter or sampler design, which routes to lattice-auditor. | `pqc-kem-auditor` |
+| The issue touches FHE noise budgets, bootstrapping, modulus switching, key switching, or plaintext leakage. | `fhe-auditor` |
+| The issue touches active fault-injection attacks — RSA-CRT Bellcore faults, deterministic ECDSA/EdDSA differential fault analysis, verification-skip or instruction-skip glitches, redundant-computation bypass, or verify-after-sign gaps — under a threat model with an attacker who can glitch computation, as distinct from passive timing/cache/power leakage. | `fault-injection-auditor` |
+| The issue touches timing leaks, cache or power side channels, secret-dependent branching, or constant-time regressions. | `side-channel-auditor` |
+| The issue touches CSPRNG/DRBG seeding or reseeding, entropy availability at boot or in constrained environments, fork/clone/VM-snapshot RNG duplication, deterministic nonce derivation (RFC 6979, EdDSA), or nonce/seed reuse across retries, crash recovery, persistence, logging, or concurrent state. | `randomness-auditor` |
+| The issue touches cryptographic dependency versions, advisories, feature flags, transitive risk, or fork provenance. | `dependency-auditor` |
+| The issue touches Cairo hints, felt252 arithmetic, builtins, or Sierra/CASM compilation. | `cairo-auditor` |
+| The issue touches Noir unconstrained functions, oracles, Brillig/ACIR, or Noir witness generation. | `noir-auditor` |
+| The issue touches zkVM guest programs, precompiles, memory consistency, or continuation proofs (SP1, RISC Zero, Valida), or zkEVM EVM-equivalence provers (Scroll, Polygon zkEVM, Linea) — EVM opcode equivalence, gas/circuit divergence, state/storage trie encoding, memory expansion, or precompile equivalence. | `zkvm-auditor` |
+| The issue touches Poseidon, Rescue, MiMC, Pedersen, or other ZK-friendly hash parameters, sponge construction, or domain separation. | `hash-function-auditor` |
+| The issue touches KZG, FRI, IPA, Pedersen commitments, polynomial degree bounds, or evaluation proofs. | `commitment-scheme-auditor` |
+| The issue touches Merkle trees, inclusion proofs, sparse trees, or Merkle root computation. | `merkle-tree-auditor` |
+| The issue touches Fiat-Shamir transcripts, challenge derivation, transcript completeness, or interactive-to-non-interactive transforms. | `fiat-shamir-auditor` |
+| The issue touches generic (non-Ethereum-application) signature scheme review — ECDSA verification or malleability across curves, Schnorr/BIP-340, EdDSA/Ed25519 canonical encoding or batch/single consistency, RSA-PSS or PKCS#1 v1.5 padding — as opposed to Ethereum application encoding (EIP-712, ecrecover), which routes to ethereum-crypto-auditor. | `signature-scheme-auditor` |
+| The issue touches FROST, MuSig2, DKG, VSS shares, nonce binding, or interpolation. | `dkg-threshold-auditor` |
+| The issue touches Verifiable Random Functions — RFC 9381 ECVRF or RSA-FDH-VRF, encode-to-curve or cofactor handling, VRF key validation, proof-to-hash ordering, uniqueness or pseudorandomness assumptions, or VRF output grinding in leader election and lotteries. | `vrf-auditor` |
+| The issue touches shielded pools, mixers, nullifier derivation or spent-set semantics, note or value commitments and ownership binding, deposit/withdraw front-running, or privacy-protocol state transitions and replay domains. | `privacy-protocol-auditor` |
+| The issue touches threshold ECDSA (GG18, GG20, CGGMP21, Lindell 2P-ECDSA), Paillier modulus validity proofs, MtA/MtAwc range or consistency proofs, presignatures, key resharing, concurrent signing session state, or identifiable abort. | `threshold-ecdsa-auditor` |
+| The issue touches constant-time behavior, zeroization, unsafe code, feature flags, or dependency hygiene. | `rust-crypto-safety` |
+| The issue touches secp256k1/ECDSA, keccak/EIP-712, BN254/BLS12-381 precompile input/output, KZG/EIP-4844 usage, or alloy/ethers-rs API patterns in Rust. | `ethereum-crypto-auditor` |
+| The issue touches Solidity, Vyper, or Huff proof-verifier contracts, pairing precompile calls (EIP-196/197/2537, addresses 0x06/0x07/0x08), scalar-field reduction checks on public inputs, verification-key storage or upgrades, or proof calldata decoding. | `onchain-verifier-auditor` |
+| The issue touches Nova, HyperNova, ProtoStar folding equations, accumulator update, running instance threading, or cycle-of-curves encoding. | `folding-scheme-auditor` |
+| The issue has survived domain review and needs truth/impact validation. | `crypto-fp-check` |
+| A previously verified finding has a supplied patch/fix reference (commit, PR, or diff) and the fix must be checked — reproduce the original PoC on the vulnerable revision, confirm it fails for the intended reason on the fixed revision, verify the root cause (not just the demonstrated input) is removed, search sibling paths for incomplete remediation, run regression tests, and record a remediation verdict. | `fix-verification` |
+| The issue is verified and needs report prose. | `crypto-report-writer` |
+| The issue is verified and may need prior-art lookup or index storage. | `zkbugs-index` |
 
 Multiple routes can apply. Prefer running `spec-delta-checker` alongside the
 relevant domain auditor when the code is adapting a standard construction.

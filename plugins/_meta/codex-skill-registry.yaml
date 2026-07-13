@@ -51,6 +51,11 @@ skills:
     canonical_path: plugins/core-audit-flow/skills/crypto-report-writer/SKILL.md
     phase: reporting
     trigger_mode: router_auto
+  - skill_name: fix-verification
+    plugin_category: core-audit-flow
+    canonical_path: plugins/core-audit-flow/skills/fix-verification/SKILL.md
+    phase: verification
+    trigger_mode: router_auto
 
   - skill_name: zk-circuit-auditor
     plugin_category: zk-and-vm-auditors
@@ -80,6 +85,11 @@ skills:
   - skill_name: folding-scheme-auditor
     plugin_category: zk-and-vm-auditors
     canonical_path: plugins/zk-and-vm-auditors/skills/folding-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: onchain-verifier-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/onchain-verifier-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 
@@ -118,6 +128,11 @@ skills:
     canonical_path: plugins/crypto-primitive-auditors/skills/ethereum-crypto-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: signature-scheme-auditor
+    plugin_category: crypto-primitive-auditors
+    canonical_path: plugins/crypto-primitive-auditors/skills/signature-scheme-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: dkg-threshold-auditor
     plugin_category: protocol-auditors
@@ -134,6 +149,21 @@ skills:
     canonical_path: plugins/protocol-auditors/skills/vdf-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: threshold-ecdsa-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/threshold-ecdsa-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: privacy-protocol-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/privacy-protocol-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: vrf-auditor
+    plugin_category: protocol-auditors
+    canonical_path: plugins/protocol-auditors/skills/vrf-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: lattice-auditor
     plugin_category: post-quantum-auditors
@@ -143,6 +173,16 @@ skills:
   - skill_name: fhe-auditor
     plugin_category: post-quantum-auditors
     canonical_path: plugins/post-quantum-auditors/skills/fhe-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: pqc-kem-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/pqc-kem-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: pqc-signature-auditor
+    plugin_category: post-quantum-auditors
+    canonical_path: plugins/post-quantum-auditors/skills/pqc-signature-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 
@@ -159,6 +199,16 @@ skills:
   - skill_name: dependency-auditor
     plugin_category: implementation-safety
     canonical_path: plugins/implementation-safety/skills/dependency-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: randomness-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/randomness-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
+  - skill_name: fault-injection-auditor
+    plugin_category: implementation-safety
+    canonical_path: plugins/implementation-safety/skills/fault-injection-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
 
@@ -180,5 +230,10 @@ skills:
   - skill_name: formal-verification-bridge
     plugin_category: evidence-and-tooling
     canonical_path: plugins/evidence-and-tooling/skills/formal-verification-bridge/SKILL.md
+    phase: verification
+    trigger_mode: user_triggered_only
+  - skill_name: differential-test-harness-gen
+    plugin_category: evidence-and-tooling
+    canonical_path: plugins/evidence-and-tooling/skills/differential-test-harness-gen/SKILL.md
     phase: verification
     trigger_mode: user_triggered_only

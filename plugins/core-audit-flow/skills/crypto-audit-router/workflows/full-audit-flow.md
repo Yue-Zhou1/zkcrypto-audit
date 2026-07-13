@@ -5,7 +5,9 @@ Maintain a local session state file at every handoff boundary:
 `zk-findings/sessions/<engagement-id>.json`.
 
 State transitions and mutation boundaries are defined in
-`../references/state-machine.md`.
+`../references/state-machine.md`. Session files use schema version 2
+(`schema_version: 2`): keep the strict core fields at the root and preserve any
+engagement-specific content under `extensions`.
 
 ## Phase 1: Intake
 
@@ -21,11 +23,11 @@ State transitions and mutation boundaries are defined in
 
 - Use `spec-delta-checker` whenever a reference specification or paper governs the code
 - Consult `references/routing-matrix.md` to select the applicable domain skill(s); multiple may apply in parallel
-- **ZK and VM auditors**: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`
-- **Crypto primitive auditors**: `ecc-pairing-auditor`, `commitment-scheme-auditor`, `hash-function-auditor`, `fiat-shamir-auditor`, `merkle-tree-auditor`, `encryption-scheme-auditor`, `ethereum-crypto-auditor`
-- **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`
-- **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`
-- **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`
+- **ZK and VM auditors**: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`, `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`, `onchain-verifier-auditor`
+- **Crypto primitive auditors**: `ecc-pairing-auditor`, `commitment-scheme-auditor`, `hash-function-auditor`, `fiat-shamir-auditor`, `merkle-tree-auditor`, `encryption-scheme-auditor`, `ethereum-crypto-auditor`, `signature-scheme-auditor`
+- **Protocol auditors**: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`, `threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
+- **Post-quantum auditors**: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`, `pqc-signature-auditor`
+- **Implementation safety**: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`, `randomness-auditor`, `fault-injection-auditor`
 - Preserve each domain skill's output contract instead of flattening everything into prose
 - Append open findings and unresolved assumptions to session state after each domain handoff
 - **Stop condition:** domain output contracts are recorded and unresolved issues
@@ -47,7 +49,7 @@ State transitions and mutation boundaries are defined in
 
 - Send verified findings to `crypto-report-writer`
 - Use `zkbugs-index` only for prior-art lookup or for verified, index-worthy findings
-- Optionally trigger `kani-harness-gen`, `fuzz-harness-gen`, or `formal-verification-bridge` for findings that benefit from machine-checked evidence (user-triggered only)
+- Optionally trigger `kani-harness-gen`, `fuzz-harness-gen`, `formal-verification-bridge`, or `differential-test-harness-gen` for findings that benefit from machine-checked or differential evidence (user-triggered only)
 - Record report/index references in session state and refresh `next_steps`
 - **Stop condition:** each verified finding has consistent report evidence, and
   any indexing action references the same verified claim set
@@ -61,3 +63,20 @@ State transitions and mutation boundaries are defined in
 - Confirm session state captures final handoff status for future conversations
 - **Stop condition:** session state is schema-valid and all required handoff
   artifacts are internally consistent
+
+## Phase 6: Remediation verification (on supplied fix)
+
+- Enter only when a fix reference is supplied for a previously verified finding;
+  transition session state `closed -> remediation_in_progress`
+- Route to `fix-verification`: reproduce the original PoC on the vulnerable
+  revision, confirm it fails for the intended reason on the fixed revision,
+  verify the root cause (not just the demonstrated input) is removed, and search
+  sibling paths for incomplete remediation
+- Record each fix outcome as a `remediation_verifications` entry (`finding_id`,
+  `fix_ref`, `verdict`, `regression_evidence_refs`, `verified_at`) without
+  rewriting the original `verified_findings` claim
+- If the patch changes the original claim or introduces a candidate regression,
+  transition `remediation_in_progress -> verification_in_progress` and re-run
+  the relevant domain/verification steps
+- **Stop condition:** every targeted finding has a remediation verdict with
+  evidence; transition `remediation_in_progress -> closed`

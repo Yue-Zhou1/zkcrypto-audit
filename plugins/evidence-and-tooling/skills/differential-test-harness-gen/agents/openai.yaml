@@ -1,0 +1,9 @@
+display_name: differential-test-harness-gen
+short_description: Generate cross-implementation differential test harnesses with
+  official-vector and Wycheproof replay, result normalization, and reproducible
+  divergence corpora. User-triggered only — never auto-invoked by the audit flow.
+default_prompt: Use differential-test-harness-gen for this task. Build a differential
+  test harness that replays official/Wycheproof vectors against the target and a
+  reference implementation, normalizes result semantics, and captures reproducible
+  divergences for crypto-fp-check. User-triggered only — never auto-invoked by the
+  audit flow.
