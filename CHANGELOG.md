@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-07-13
+
 ### Added
 
 - `fix-verification` (core-audit-flow): verifies that a supplied patch actually
@@ -92,8 +94,18 @@ Versioning.
   `artifacts`, and `remediation_verifications`) plus an `extensions` object that
   preserves engagement-specific evidence. Adds the `remediation_in_progress`
   phase and its transitions. All tracked engagement sessions were migrated.
-  `scripts/validate_session_state.py` is invoked in CI and pre-push, and
-  performs optional structural validation when `jsonschema` is available.
+
+### Removed
+
+- Root `scripts/` and `tests/` maintainer-only scaffolding (routing-doc
+  generation, Codex stub sync, skill-count sync, session-schema validation,
+  and skill-eval fixtures), along with the CI/pre-push steps that ran them.
+  None of this tooling is read by an LLM during an audit; it only validated
+  repo self-consistency for maintainers. `.codex/skills/*` stubs and the
+  generated regions in `routing-matrix.md`/`full-audit-flow.md` are now
+  maintained by hand instead of generated/checked.
+  `plugins/evidence-and-tooling/scripts/` (zkbugs-index tooling) is
+  unaffected since it runs at skill invocation time, not just in CI.
 
 ## [0.5.0] - 2026-06-12
 
