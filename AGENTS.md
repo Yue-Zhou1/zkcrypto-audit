@@ -5,16 +5,21 @@ zero-knowledge systems and cryptographic protocols.
 
 ## Project Layout
 
-- `plugins/` contains 7 category plugins housing 31 audit skills.
-- `.codex-plugin/marketplace.json` is the root marketplace manifest.
+- `plugins/` contains 7 category plugins housing 42 audit skills.
+- `.claude-plugin/marketplace.json` is the root marketplace manifest.
 - `.agents/plugins/marketplace.json` is the Codex marketplace catalog.
 - `.agents/plugins/marketplace.schema.json` validates Codex marketplace structure.
 - `plugins/*/.codex-plugin/plugin.json` contains Codex plugin manifests.
 - `plugins/_meta/codex-skill-registry.yaml` is the routing policy source of truth.
 - `plugins/_meta/router-matrix.yaml` is the machine-readable route matrix.
-- `.codex/skills/` contains generated Codex compatibility stubs.
-- `tests/` contains scaffolding and CLI regression tests.
+- `.codex/skills/` contains hand-maintained Codex compatibility stubs.
+- `plugins/evidence-and-tooling/` carries the zkbugs data plane at its **plugin
+  root** (not inside `skills/`): a pre-built `index/`, plus `scripts/`,
+  `config/`, and `data/`.
 - `zk-findings/sessions/` stores local engagement session-state handoff files.
+
+There is no root-level `scripts/` or `tests/` directory — the maintainer-only
+scaffolding and regression suite were removed in `987d0e7`.
 
 ## Default Audit Flow
 

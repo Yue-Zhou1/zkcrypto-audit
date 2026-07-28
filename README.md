@@ -333,7 +333,15 @@ Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
 
 Some evidence tooling is optional and more technical:
 
-- `zkbugs-index` scripts require Python 3.10+
+- `zkbugs-index` **queries need no tooling at all** — the vulnerability index
+  ships pre-built and committed under
+  `plugins/evidence-and-tooling/index/`, and is read directly as JSON.
+- Python 3.10+ is required only to *rebuild* the index
+  (`scripts/build_index.py`) or *contribute* a finding
+  (`scripts/contribute_bug.py`). Both live at the **plugin root**, not inside
+  `skills/zkbugs-index/`.
+- Rebuilds are usually unnecessary: `.github/workflows/zkbugs-rebuild.yml` syncs
+  against upstream weekly and opens a PR when it drifts.
 - `kani-harness-gen` and `fuzz-harness-gen` can be computationally intensive
   and may take noticeable time and system resources to run
 - Optional script dependencies live in
@@ -342,9 +350,14 @@ Some evidence tooling is optional and more technical:
 ## Contributing
 
 Contributions should preserve the staged workflow of the framework: focused
-plugins, explicit references and workflows, and tests that lock down key
-contracts. If you change plugin structure or installation guidance, update the
-README and the scaffolding tests together.
+plugins with explicit references and workflows.
+
+The repository no longer carries a root-level `tests/` suite, so structural
+guarantees are documentation-enforced. If you change plugin structure or
+installation guidance, update the README, `CLAUDE.md`, `AGENTS.md`, and
+`plugins/_meta/*.yaml` together — and verify that any path a SKILL.md tells an
+agent to read actually resolves from the installed plugin layout, not just from
+a repo checkout.
 
 ## Acknowledgments
 
