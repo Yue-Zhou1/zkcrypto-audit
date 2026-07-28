@@ -1,7 +1,8 @@
 # Vulnerability Taxonomy
 
-Canonical vocabulary for classifying ZK vulnerabilities. Used by `build_index.py`
-(to normalize upstream entries) and `contribute_bug.py` (to validate new entries).
+Canonical vocabulary for classifying ZK vulnerabilities. Used by
+`<plugin-root>/scripts/build_index.py` (to normalize upstream entries) and
+`<plugin-root>/scripts/contribute_bug.py` (to validate new entries).
 
 All Phase 2 skills MUST use these keys when classifying findings.
 
@@ -55,4 +56,4 @@ All Phase 2 skills MUST use these keys when classifying findings.
 4. If no alias matches, attempt substring match (e.g., "constrained" → `under_constrained`)
 5. If still no match, set to `unknown` and log a warning — manual review needed
 
-The alias map is defined in `scripts/_shared.py:VULN_ALIASES`.
+The alias map is defined in `<plugin-root>/scripts/_shared.py:VULN_ALIASES`.
