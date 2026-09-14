@@ -29,3 +29,10 @@
 - [ ] Internal/vendor forks track upstream security patches
 - [ ] Fork divergence and rationale are documented
 - [ ] Vendored patches are auditable and reproducible
+- [ ] Git dependencies and `[patch]` entries are pinned by `rev`; a `tag` or `branch` is mutable and can be moved by the fork owner (a tag that resolves to a commit hash today is still a tag)
+
+## Patch table effectiveness
+
+- [ ] Every `[patch.crates-io]` entry appears in the resolved graph for the target it is meant for (`cargo tree --target <guest-target> -i <crate>`); an unresolved patch means the accelerated or hardened fork is not running
+- [ ] Unused patch entries are flagged; they widen the trusted code base without effect
+- [ ] The guest lockfile, not only the host lockfile, is the one inspected for proven-binary dependencies

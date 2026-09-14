@@ -6,6 +6,8 @@ Use this checklist for implementation-level review of cryptographic Rust crates.
 - **Zeroize all secret material** — private keys, nonces, intermediate scalars, and session state implement `ZeroizeOnDrop` or an equivalent reviewed strategy
 - **`unwrap()` and `expect()` on cryptographic paths** — panics on verifier or parser paths can become availability bugs or safety holes depending on caller behavior
 - **Integer overflow in field arithmetic** — use chosen checked or explicit wrapping semantics rather than relying on debug-mode overflow behavior
+- **Guest build profile** — for a binary that runs inside a zkVM, read the guest workspace's release profile (`overflow-checks`, `debug-assertions`, `panic`); wrapping arithmetic in the proven binary is silent unless every value path uses checked ops
+- **Guest panics are proof failures** — classify every `unwrap`, `expect`, `assert`, and slice index on a guest path as intended fail-closed (documented, tested) or as an undiagnosable failure that should be an error
 - **All `unsafe` blocks audited individually** — review every `transmute`, `from_raw_parts`, and `_unchecked` call for its exact soundness invariant
 - **`as` numeric casts** — silent truncation or sign changes can corrupt field values and length calculations
 - **`Clone` on secret-containing types** — copied secrets may extend lifetime and bypass zeroization expectations

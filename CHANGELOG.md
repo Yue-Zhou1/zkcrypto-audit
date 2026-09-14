@@ -7,6 +7,48 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `proven-state-transition-auditor` (zk-and-vm-auditors): audits applications
+  proven inside a zkVM or circuit and settled on L1. Three workflows: a
+  prover-input authority matrix over every batch operation and input field
+  (source, binding, and the omitted/duplicated/reordered/empty/identity
+  outcomes, with a mandatory sibling sweep), a sparse-witness review
+  (single-key, aggregate, insert-only, and inner-node completeness with a
+  two-witness closing argument), and an L1 settlement review (public-value
+  consumers, time floor and ceiling, queue ordering and contiguity, skip
+  semantics, the force-includable set, deadman defaults, payout-loop gas and
+  token hazards). Routed by `proven_state_transition_settlement`.
+- `crypto-audit-context`: `references/roles-and-guarantees.md`, an actor
+  table (prover, submitter, oracle signer, owner, delegated key holder,
+  depositor) recording what each role is promised to others and the
+  mechanism that enforces it; unenforced promises become domain candidates.
+  Intake now recommends `fuzz-harness-gen` when hand-rolled fixed-point or
+  bignum arithmetic sits on a value path.
+
+### Changed
+
+- `crypto-fp-check`: soundness candidates (prover input, witness
+  completeness, missing authorization) can no longer be dismissed "by
+  construction"; a FALSE POSITIVE needs a recorded adversarial construction
+  attempt or a rejecting check per malformed-input class. A TRUE POSITIVE in
+  one dispatch arm requires a sibling sweep before it is complete.
+- `audit-common` severity framework: added a High (liveness) row for
+  defeated forced-exit and forced-inclusion guarantees.
+- `merkle-tree-auditor`: sparse-witness section (empty-leaf bypass,
+  insert-only paths, sentinel substitution, iteration is not completeness).
+- `rust-crypto-safety`: guest build profile (`overflow-checks`) and
+  guest-panic classification.
+- `dependency-auditor`: `rev` versus mutable `tag`/`branch` pins; patch-table
+  effectiveness via `cargo tree` on the guest target.
+- `zkvm-auditor`: proving-cost and liveness section; defers application
+  logic to `proven-state-transition-auditor`.
+- `spec-delta-checker`: Phase 5 internal drift (doc comments, constants,
+  test names) and accepted-risk registers treated as hypotheses.
+- `crypto-audit-context` threat-model checklist: nonce scope versus
+  authority scope.
+- Skill count 42 -> 43 across README, CLAUDE.md, AGENTS.md, and manifests.
+
 ## [0.6.0] - 2026-07-13
 
 ### Added

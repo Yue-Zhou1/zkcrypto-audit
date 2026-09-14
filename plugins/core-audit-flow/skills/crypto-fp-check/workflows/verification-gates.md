@@ -20,6 +20,27 @@ If the claim cannot be restated precisely, stop and downgrade confidence.
 
 If attacker control or reachability is missing, classify as **FALSE POSITIVE**.
 
+### Soundness candidates: no "by construction" dismissal
+
+A candidate about prover-supplied input, witness completeness, or a missing
+authorization check may be classified FALSE POSITIVE only with one of:
+
+- **(a)** a recorded adversarial construction attempt (the malformed input
+  you built, the code path it took, and the exact check that rejected it), or
+- **(b)** a `file:line` for the check that rejects each malformed-input
+  class separately: omitted, extra, reordered, empty, identity-valued.
+
+An argument that covers one class ("fixed depth, so the path cannot be
+shortened"; "any account holding it will read it") does not close the other
+four. Record which classes remain open and keep the candidate `unverified`.
+
+### Sibling sweep
+
+A TRUE POSITIVE in one arm of a dispatch (enum variant, action type, queue,
+token path, config field) is not complete until every sibling arm has its own
+disposition with a code pointer. Attach the sweep to the verdict; a report
+that names one variant while its siblings are blank is a partial finding.
+
 ## Phase 3: Prove impact
 
 - Show what security property fails after the trigger path is satisfied

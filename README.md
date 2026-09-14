@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F42_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F43_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -87,7 +87,7 @@ install all 7 plugins for full coverage:
 - A guided starting point through `crypto-audit-router`
 - A staged workflow for context, spec review, domain analysis, verification,
   and reporting
-- 7 plugin categories covering 42 skills across ZK systems, cryptographic
+- 7 plugin categories covering 43 skills across ZK systems, cryptographic
   primitives, protocols, implementation safety, and evidence tooling
 
 For OpenAI Codex, this repository ships category plugin manifests, a Codex
@@ -249,11 +249,12 @@ Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
 
 Use this category for circuits, proving systems (including generic STARK/AIR
 verifiers), Cairo/Starknet, Noir, gnark, zkVM and zkEVM-equivalence review,
-and on-chain proof-verifier contracts.
+on-chain proof-verifier contracts, and applications proven inside a zkVM and
+settled on L1 (rollups, validiums, proven exchanges, bridges).
 
 Skills: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`,
 `zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`,
-`onchain-verifier-auditor`
+`onchain-verifier-auditor`, `proven-state-transition-auditor`
 
 ### `crypto-primitive-auditors`
 

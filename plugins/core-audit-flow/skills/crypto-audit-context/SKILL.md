@@ -64,12 +64,20 @@ Review highest-risk code first:
 
 - Read `references/threat-model-checklist.md`
 - Record replay surfaces, authentication roots, downgrade surfaces, and corruption model assumptions
+- Read `references/roles-and-guarantees.md` and fill the actor table: every
+  role that supplies input, what the design promises the other roles if that
+  role is malicious, offline, or misconfigured, and the mechanism that
+  enforces each promise. A promise with no mechanism is a domain candidate,
+  not a footnote
 
 ### Phase 4: Produce the audit handoff
 
 - Summarize the highest-risk paths
 - Name unresolved assumptions
 - Hand off to a domain auditor or verification skill
+- If the critical path contains hand-rolled fixed-point, decimal rescaling,
+  or bignum arithmetic, recommend `fuzz-harness-gen` explicitly in the
+  handoff (it is user-triggered and will not run unless asked)
 - Initialize or update session state in `zk-findings/sessions/<engagement-id>.json`
   using `zk-findings/sessions/session-state-schema.json`
 - Persist trust boundaries, open findings, and next-step routes so follow-on
@@ -82,6 +90,7 @@ Produce a context handoff that includes:
 - Critical paths and trust boundaries that deserve deepest review
 - Dimension-map anomalies and unresolved assumptions
 - Threat-model notes that the next skill must preserve
+- The roles-and-guarantees table, with each unenforced promise listed
 - Recommended next skills, with a brief reason for each route
 - Session state path updated in `zk-findings/sessions/` for downstream handoffs
 
@@ -89,3 +98,4 @@ Produce a context handoff that includes:
 
 - [references/dimensional-analysis.md](references/dimensional-analysis.md)
 - [references/threat-model-checklist.md](references/threat-model-checklist.md)
+- [references/roles-and-guarantees.md](references/roles-and-guarantees.md)

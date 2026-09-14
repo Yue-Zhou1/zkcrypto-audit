@@ -23,6 +23,8 @@ claim.
 - You suspect the code omits a condition that the specification assumes
 - Security depends on caller obligations that may not be enforced locally
 - Protocol glue code appears to adapt a standard primitive or proof system
+- The project's own docs, comments, constants, or accepted-risk register make
+  claims the code may not enforce (internal drift; see Phase 5 of the workflow)
 
 ## When NOT to Use
 
