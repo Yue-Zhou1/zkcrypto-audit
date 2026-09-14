@@ -26,5 +26,20 @@ deviations are the **highest-probability bug locations**.
 - Escalate the deviation when security depends on behavior the code does not enforce
 - Discharge the deviation only when the implementation and its effective caller obligations still satisfy the same invariant
 
+## Phase 5: Internal drift
+
+The same review applies when the "spec" is the project's own documentation.
+
+- Compare doc comments, enum variant docs, test names, error messages, and
+  named constants against the value or behaviour the code enforces; a
+  timeout documented as one value and implemented as another is a finding
+  even with no external spec
+- Treat every entry in a `known-issues`, accepted-risk, or "safe by
+  construction" document as a hypothesis to attack, not a resolved item.
+  Write down the argument the entry relies on and try to break it; a false
+  accepted-risk argument is the highest-yield delta in the repository
+- Record each drift with the doc location, the code location, and which one
+  the client intends to be true
+
 Documentation or comments that restate the spec are not evidence. Only the
 enforced code path counts.

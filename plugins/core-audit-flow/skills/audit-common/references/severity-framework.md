@@ -6,7 +6,8 @@ Use this table to keep severity language consistent across crypto audit skills.
 |---|---|---|
 | Critical | Soundness or forgery break, private key recovery, proof fabrication, attacker can violate the core security property directly | Invalid proof accepted, forged signature accepted, nonce reuse leaks signing key |
 | High | Practical privacy leak, practical side-channel, strong validation failure on externally supplied data | Missing subgroup check on attacker-controlled point, transcript missing binding field, secret-dependent timing on production path |
-| Medium | DoS, completeness issue, interoperability risk, error leakage, misuse-prone API boundary | Valid proof rejected, non-canonical encoding accepted without direct break, misleading parse failure behavior |
+| High (liveness) | A forced-exit, forced-inclusion, or revocation guarantee is defeated while funds are custodied, and the block is not under administrative control or persists while the operator keeps behaving validly | Prover marks queued withdrawals skipped; one user's unexecutable action blocks every exit behind it; a submitter censors a non-force-includable action indefinitely while submitting valid batches |
+| Medium | DoS, completeness issue, interoperability risk, error leakage, misuse-prone API boundary | Valid proof rejected, non-canonical encoding accepted without direct break, misleading parse failure behavior, settlement stall an operator can clear |
 | Low | Configuration or feature-flag risk, dependency hygiene, theoretical concern without practical exploit path | Debug-only validation bypass, risky optional feature, weak documentation around unsafe path |
 
 ## PoC Rule

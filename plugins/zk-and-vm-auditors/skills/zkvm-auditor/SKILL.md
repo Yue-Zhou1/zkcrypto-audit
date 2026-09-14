@@ -31,6 +31,10 @@ Domain auditor for zkVM guest execution and proof integrity.
 - Generic circuit auditing not tied to zkVM runtime semantics
 - Low-level curve/pairing review without guest execution context
 - Declaring suspected issues confirmed without verification gates
+- The application logic running *on* the zkVM: prover-supplied operations,
+  sparse witnesses, public-value consumers, settlement queues. Route those
+  to `proven-state-transition-auditor` and run both skills when the target
+  is an application rather than a zkVM implementation
 
 ## Core Review Areas
 

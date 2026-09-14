@@ -92,6 +92,11 @@ skills:
     canonical_path: plugins/zk-and-vm-auditors/skills/onchain-verifier-auditor/SKILL.md
     phase: domain
     trigger_mode: router_auto
+  - skill_name: proven-state-transition-auditor
+    plugin_category: zk-and-vm-auditors
+    canonical_path: plugins/zk-and-vm-auditors/skills/proven-state-transition-auditor/SKILL.md
+    phase: domain
+    trigger_mode: router_auto
 
   - skill_name: ecc-pairing-auditor
     plugin_category: crypto-primitive-auditors

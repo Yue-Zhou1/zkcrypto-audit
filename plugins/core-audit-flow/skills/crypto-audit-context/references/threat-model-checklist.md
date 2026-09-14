@@ -5,6 +5,7 @@ to an explicit attacker model.
 
 - **Threat model documented** — participants, trust assumptions, and corruption model are stated explicitly
 - **Replay attack prevention** — messages and signatures bind nonce, session, chain, and contract context
+- **Nonce scope matches authority scope** — a counter shared between a delegator and its delegates lets the delegate race and block the delegator's restricting action; record who can advance each nonce and whether a party being restricted can advance it
 - **Key authentication chain** — public keys are authenticated from a real root of trust
 - **Downgrade resistance** — protocol version or parameter negotiation cannot be adversarially weakened
 - **CSPRNG usage** — keygen and nonce generation use a cryptographically specified RNG or DRBG

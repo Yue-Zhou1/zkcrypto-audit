@@ -34,6 +34,8 @@ Top-level orchestrator for the crypto audit framework.
 | "No ZK code, skip zk-circuit-auditor" | Fiat-Shamir transcripts appear outside ZK circuits too |
 | "It's just Rust safety, no crypto-specific review needed" | `rust-crypto-safety` covers timing, zeroize, and `unsafe`, which are crypto-specific |
 | "We already ran spec-delta-checker, skip domain audit" | `spec-delta-checker` finds drift; domain auditors find implementation bugs unrelated to the spec |
+| "It runs on SP1, so zkvm-auditor covers it" | `zkvm-auditor` covers the runtime; the application's prover inputs, witnesses, and settlement contract need `proven-state-transition-auditor` |
+| "The settlement contract is plain Solidity, out of scope" | The contract is the proof consumer and holds every liveness guarantee; it is in scope through `proven-state-transition-auditor` |
 
 ## Workflow
 

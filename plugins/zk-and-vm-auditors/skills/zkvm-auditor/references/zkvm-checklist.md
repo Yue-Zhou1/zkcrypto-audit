@@ -18,6 +18,13 @@
 - [ ] Precompile output is verified before downstream use
 - [ ] Accelerator assumptions match the zkVM proving constraints
 
+## Proving cost and liveness
+
+- [ ] Per operation-type cycle or gas cost is measured (execute-only run, cycle tracker) and the worst legal operation is bounded
+- [ ] Batch sizing accounts for cost, not only operation count; the prover's budget covers the worst batch a user can legally assemble
+- [ ] A batch that exceeds the proving budget fails in a way the operator can recover from without halting settlement indefinitely
+- [ ] Declared precompile patches are actually resolved for the guest target (see `dependency-auditor` patch-table checks); an unresolved patch is a cost regression that can turn into a liveness failure
+
 ## Guest-host boundary
 
 - [ ] Host-provided values are validated in guest constraints
