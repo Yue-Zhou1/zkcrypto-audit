@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-14
+
 ### Added
 
 - `proven-state-transition-auditor` (zk-and-vm-auditors): audits applications
