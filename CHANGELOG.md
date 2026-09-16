@@ -7,6 +7,14 @@ Versioning.
 
 ## [Unreleased]
 
+### Fixed
+
+- Per-plugin `version` fields in every `plugin.json` and in the marketplace
+  `plugins[]` entries were left at `0.1.0` across releases 0.2.0-0.7.0. Because
+  `claude plugin update` compares version strings, installs stayed pinned to the
+  first release and silently missed every skill added since. All seven plugins now
+  declare `0.7.0`, matching `metadata.version`.
+
 ## [0.7.0] - 2026-09-14
 
 ### Added
