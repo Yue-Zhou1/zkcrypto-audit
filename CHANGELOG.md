@@ -7,6 +7,23 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `proven-state-transition-auditor`: statement completeness review. A new
+  Phase 2 in `workflows/l1-settlement-review.md` asks whether an honest user
+  or integrator can prove inclusion, success, result, and order of their own
+  operations from committed values and published data alone, what data
+  availability publishes (state diff versus operation inputs), and which
+  guarantees the replaced platform gave for free (provable receipts and logs,
+  public mempool, forced inclusion). Adds pattern S15 (unprovable user
+  operations), a checklist section, two rationalizations, and a
+  `verifiability` field in the output contract. Later settlement phases are
+  renumbered 3-7.
+- `crypto-audit-context`: `references/roles-and-guarantees.md` now adds
+  non-adversarial consumers (users and integrators) to the actor table and
+  lists the implicit guarantees of a replaced platform as promises that need
+  an enforcing mechanism.
+
 ## [0.7.1] - 2026-09-16
 
 ### Fixed

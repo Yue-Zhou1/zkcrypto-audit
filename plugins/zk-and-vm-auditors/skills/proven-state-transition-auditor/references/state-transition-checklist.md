@@ -36,6 +36,17 @@
 - [ ] L1 enforces both a ceiling and a floor on committed timestamps
 - [ ] Every guest-side freshness window is anchored to real time by that floor
 
+## Statement completeness
+
+- [ ] For each user-facing operation class, inclusion, success, result, and
+      order are either provable from committed values or published data, or
+      recorded as sequencer-trusted
+- [ ] Data availability publishes enough to rebuild history, not only state,
+      wherever the design promises users an auditable record
+- [ ] Every guarantee the replaced platform gave for free (receipts, logs,
+      public mempool, forced inclusion) is provided again or its removal is
+      documented
+
 ## Queues and forced inclusion
 
 - [ ] Relative order across accumulator chains is committed
