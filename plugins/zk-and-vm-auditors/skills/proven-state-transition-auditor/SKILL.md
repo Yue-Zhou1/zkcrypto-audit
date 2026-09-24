@@ -5,7 +5,8 @@ description: >
   is settled by an L1 contract: rollups, validiums, proven exchanges, and
   bridges. Use when reviewing prover-supplied batch inputs, sparse state
   witnesses, committed public values, settlement-contract checks, L1 action
-  queues, forced inclusion, or escape-hatch liveness.
+  queues, forced inclusion, escape-hatch liveness, or whether users and
+  integrators can prove their own operations executed.
 allowed-tools:
   - Read
   - Grep
@@ -55,6 +56,8 @@ contract does not check, is attack surface.
 | "The queue is strictly ordered so nothing can be skipped" | Ordering within a queue says nothing about interleaving across queues, or about an item being consumed as a skip |
 | "Fixed-depth proofs cannot be shortened" | That defeats one malformed-input class out of five (omitted, extra, reordered, empty, identity) |
 | "Liveness is at most Medium" | Defeating a forced exit while funds are custodied is High under the shared severity framework |
+| "The state root is proven, so users can verify their activity" | A state root proves balances at batch boundaries, not which operations ran. Inclusion, success, and result of a user operation are provable only if the statement commits them |
+| "Events are only logs; compiling them out of the guest is an optimisation" | On the platform being replaced, logs were receipts anyone could prove against a block. Dropping them removes a guarantee integrators relied on |
 
 ## Core Review Areas
 
@@ -66,6 +69,9 @@ contract does not check, is attack surface.
    the force-includable set and the guarantee each member gives
 6. Liveness controls: deadman defaults, timeouts, permissionless fallback
 7. Payout loop: external calls, gas forwarding, token behaviour, recovery
+8. Statement completeness: what an honest user or integrator can prove about
+   their own operations from committed values and published data alone,
+   compared with what the replaced platform gave them
 
 ## Workflow
 
@@ -94,7 +100,11 @@ contract does not check, is attack surface.
 ### Phase 4: Settlement review
 
 - Execute `workflows/l1-settlement-review.md`
-- Cover public values, time, queues, liveness controls, and the payout loop
+- Cover public values, statement completeness, time, queues, liveness
+  controls, and the payout loop
+- Statement completeness is about what the proof lets outsiders verify, not
+  whether it is sound. It is usually an observation, rising to a finding when
+  the design or the replaced platform promised that verifiability
 
 ### Phase 5: Pattern hunt and handoff
 
@@ -113,6 +123,9 @@ Produce a state-transition handoff that includes:
   `binding`, the five malformed-input outcomes, and `disposition`
 - `witness_paths`: every read path with its completeness argument or PoC
 - `public_values`: each committed field and the L1 check that consumes it
+- `verifiability`: per user-facing operation class, whether inclusion,
+  success, result, and order are provable, and from which committed value or
+  published payload
 - `liveness_guarantees`: each force-includable action, the timeout that backs
   it, its default after deployment or upgrade, and who can arm it
 - `disposition` per candidate (`verified`, `false_positive`, `unverified`,

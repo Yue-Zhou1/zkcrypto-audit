@@ -1,6 +1,6 @@
 ---
 name: proven-state-transition-auditor
-description: "Audit applications whose state transition runs inside a zkVM or circuit and is settled by an L1 contract: rollups, validiums, proven exchanges, and bridges. Use when reviewing prover-supplied batch inputs, sparse state witnesses, committed public values, settlement-contract checks, L1 action queues, forced inclusion, or escape-hatch liveness."
+description: "Audit applications whose state transition runs inside a zkVM or circuit and is settled by an L1 contract: rollups, validiums, proven exchanges, and bridges. Use when reviewing prover-supplied batch inputs, sparse state witnesses, committed public values, settlement-contract checks, L1 action queues, forced inclusion, escape-hatch liveness, or whether users and integrators can prove their own operations executed."
 ---
 
 This file is a Codex skill discovery stub.

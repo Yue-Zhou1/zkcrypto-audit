@@ -16,7 +16,14 @@ assumption.
 3. For each promise, name the enforcing mechanism and where it lives
    (guest check, L1 check, signature, timeout, queue). If the mechanism is
    "the role is trusted", record it as an unresolved assumption.
-4. Hand the table to the domain phase. Each row with a promise and no
+4. Add the non-adversarial consumers: honest users and integrators
+   (indexers, bridges, custodians, accounting systems). Their row records
+   what they need to verify on their own, not what they can break.
+5. If the target replaces an earlier platform (an EVM chain, a prior
+   contract system), list the guarantees that platform gave implicitly
+   (provable receipts and logs, a public mempool, forced inclusion) and add
+   each as a promise that needs an enforcing mechanism in the new design.
+6. Hand the table to the domain phase. Each row with a promise and no
    enforcing mechanism is a domain candidate.
 
 ## Template
@@ -29,6 +36,7 @@ assumption.
 | owner / admin | can rotate keys and roots | cannot fix params | forgets to set param | changes are visible and delayed | events, timelock | |
 | delegated key holder | can act within scope | none | over-broad scope | can be revoked by the delegator at any time | nonce, revocation path | |
 | depositor | can send unsupported assets | none | wrong decimals | cannot block other users' exits | queue design, asset validation | |
+| user / integrator | n/a | n/a | n/a | can prove their own operation's inclusion, success, and result without trusting the sequencer | committed operation or event root, DA payload | |
 
 Add rows for every role the target actually has. Remove rows that do not
 apply rather than leaving them blank.

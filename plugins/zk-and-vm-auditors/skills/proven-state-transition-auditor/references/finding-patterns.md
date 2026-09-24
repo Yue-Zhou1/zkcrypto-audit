@@ -100,3 +100,16 @@ surfaces it.
 - **Pattern:** best-effort external calls forward 63/64 of remaining gas; one
   callee burns it all.
 - **Impact:** later payouts and the batch submission itself run out of gas.
+
+## S15: Unprovable user operations
+
+- **Pattern:** public values commit state roots, queue accumulators, and a
+  withdrawal digest, but no root or hash chain over executed operations or
+  emitted events. Data availability carries a state diff, not the operation
+  inputs, and events are compiled out of the guest.
+- **Impact:** users and integrators cannot prove that a signed trade or
+  transfer was included, succeeded, or at what price; they must trust the
+  sequencer's event stream. Usually informational, and a regression when the
+  replaced platform exposed provable receipts or logs.
+- **Where:** the guest entrypoint's committed struct, the DA payload builder,
+  the events crate's feature gating, and Phase 2 of the settlement review.

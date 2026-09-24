@@ -1,9 +1,10 @@
 display_name: proven-state-transition-auditor
 short_description: Audit applications proven inside a zkVM or circuit and settled
   on L1 for prover-input authority gaps, sparse-witness incompleteness, public-value
-  binding, forced-inclusion and escape-hatch liveness, and payout-loop hazards.
+  binding, statement completeness, forced-inclusion and escape-hatch liveness, and
+  payout-loop hazards.
 default_prompt: Use proven-state-transition-auditor for this task. Build the
   prover-input authority matrix for every batch operation and input field, review
   every sparse-witness read path for completeness, and walk the settlement contract
-  for public-value consumers, time bounds, queue ordering, forced inclusion, liveness
-  defaults, and payout-loop hazards.
+  for public-value consumers, what users can prove about their own operations, time
+  bounds, queue ordering, forced inclusion, liveness defaults, and payout-loop hazards.

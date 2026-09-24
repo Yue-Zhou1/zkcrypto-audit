@@ -132,7 +132,7 @@ routing_rules:
     route_to:
       - zkvm-auditor
   - rule_id: proven_state_transition_settlement
-    predicate: The issue touches an application state transition proven inside a zkVM or circuit — prover-supplied batch inputs or operations, sparse state witnesses, committed public values consumed by a settlement contract, L1 action queues, forced inclusion, escape hatches, deadman switches, or proven payout loops (rollups, validiums, proven exchanges, bridges) — as opposed to the zkVM runtime itself, which routes to zkvm-auditor.
+    predicate: The issue touches an application state transition proven inside a zkVM or circuit — prover-supplied batch inputs or operations, sparse state witnesses, committed public values consumed by a settlement contract, L1 action queues, forced inclusion, escape hatches, deadman switches, proven payout loops, or whether users and integrators can prove their own operations executed (rollups, validiums, proven exchanges, bridges) — as opposed to the zkVM runtime itself, which routes to zkvm-auditor.
     phase: domain
     route_to:
       - proven-state-transition-auditor

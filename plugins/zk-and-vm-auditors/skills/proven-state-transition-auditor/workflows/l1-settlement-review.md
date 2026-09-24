@@ -19,7 +19,41 @@ enforceable here without the prover's cooperation.
    state-root schema version are either in the public values or made
    redundant by a check that cannot pass on a different deployment.
 
-## Phase 2: Time
+## Phase 2: Statement completeness
+
+Phase 1 asks whether each committed value is correct. This phase asks whether
+the committed values are enough for an honest user or integrator (indexer,
+bridge, custodian, accounting system) to verify their own activity without
+trusting the sequencer's API.
+
+1. For each user-facing operation class (L1-queued actions, signed offchain
+   actions such as trades, transfers, and withdrawals, keeper actions such as
+   liquidations), record whether an outsider can prove four things:
+   inclusion (the operation is in a proven batch), success (it executed
+   rather than being skipped), result (amounts, prices, counterparties), and
+   order (its position relative to other operations). Name the committed
+   value or published payload each proof goes through.
+2. Name what the guest commits and what data availability publishes. A
+   state-diff blob lets anyone rebuild state and prove balances at batch
+   boundaries. It does not let anyone rebuild history: operations that are
+   private witness and appear in no commitment are unprovable to outsiders.
+3. Check whether events or logs exist inside the guest at all. Events
+   compiled out of the guest to save cycles exist only in the sequencer's
+   offchain stream.
+4. Account for execution semantics. If any failing operation aborts the
+   whole batch, inclusion implies success, and a commitment to executed
+   operation hashes is enough. If operations can be consumed as skips or
+   no-ops, the commitment must also carry the outcome.
+5. List what the replaced platform gave for free (receipts and logs provable
+   against a block, a public mempool, block explorers, forced inclusion) and
+   record which ones the new system provides again. Each one dropped without
+   a replacement is a candidate.
+6. Rate indirect evidence at its real strength. A monotonic nonce proves only
+   that some action at or above a value ran; a cumulative fill counter proves
+   an amount, not a price or counterparty; a record that is later pruned stops
+   being provable.
+
+## Phase 3: Time
 
 1. Name the guest's clock. If the guest has no wall clock, every freshness
    check inside it is relative to a prover-chosen timestamp.
@@ -32,7 +66,7 @@ enforceable here without the prover's cooperation.
    timestamps, confirm L1 pins those timestamps to real time tightly enough
    that the window still means something.
 
-## Phase 3: Action queues and forced inclusion
+## Phase 4: Action queues and forced inclusion
 
 1. Enumerate the queues: how many accumulator chains, what each contains,
    and whether the relative order of items across chains is committed
@@ -54,7 +88,7 @@ enforceable here without the prover's cooperation.
    goodwill, and a submitter who keeps submitting valid batches can censor
    it forever.
 
-## Phase 4: Liveness controls
+## Phase 5: Liveness controls
 
 1. Deadman switch and permissionless fallback: what arms it, what the
    timeout is, and what its value is immediately after deployment or proxy
@@ -66,7 +100,7 @@ enforceable here without the prover's cooperation.
 3. Every owner-settable parameter that gates liveness: event emitted, old
    value checked, timelock, and the effect of leaving it unset.
 
-## Phase 5: Payout loop
+## Phase 6: Payout loop
 
 1. For every external call made while settling proven outputs: is failure
    caught, is the gas forwarded bounded, and can a callee that burns its
@@ -79,7 +113,7 @@ enforceable here without the prover's cooperation.
 3. Replay and identity of each payout: a digest or id that binds recipient,
    asset, amount, and batch, and a spent set that survives retries.
 
-## Phase 6: Handoff
+## Phase 7: Handoff
 
 Record per item: the guarantee, the enforcing check or its absence, the
 default state after deployment, and the disposition. Route verifier-contract
