@@ -2376,6 +2376,27 @@
     "added_at": null
   },
   {
+    "id": "zkbugs/0xPolygonHermez/zisk/ghsa-qjgg-fcj3-p9x3",
+    "dsl": "pil",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Wrong Translation of Logic into Constraints",
+    "location": {
+      "repo": "https://github.com/0xPolygonHermez/zisk/security/advisories/GHSA-qjgg-fcj3-p9x3",
+      "commit": "6182c8be9f4ec6baf7ee9771dd0668324f7112ed",
+      "file": "state-machines/arith/pil/arith_table.pil",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "683e6d9c4edb4e500f3d27e79ccffa8783e618ec",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
     "id": "zkbugs/0xPolygonHermez/zkevm-proverjs/hexens_Missing_constraint_in_PIL_leading_to_execution_flow_hijack",
     "dsl": "pil",
     "vuln_type": "under_constrained",
