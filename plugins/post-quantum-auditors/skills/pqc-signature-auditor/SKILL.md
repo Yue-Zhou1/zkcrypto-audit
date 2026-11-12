@@ -7,11 +7,7 @@ description: >
   correctness, hedged/deterministic signing modes, verification bound
   enforcement, and one-time-signature state management. Use when reviewing
   PQ signing, verification, or OTS index/state persistence.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # pqc-signature-auditor
@@ -45,18 +41,29 @@ Do not fold ML-KEM/Kyber findings into this skill — KEM review belongs to
   `lattice-auditor`
 - Timing measurement methodology for samplers -> `side-channel-auditor`
 
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "Signing is deterministic or hedged, so randomness is not a concern" | Establish which mode runs. Hedged signing needs fresh randomness per signature, deterministic signing is more exposed to fault attacks, and the per-attempt mask derivation must advance on every rejection |
+| "Rejection sampling is a retry loop" | The rejection conditions are the security argument. A skipped or weakened bound check leaks the secret key through the distribution of released signatures |
+| "The verifier checks the equation, so the bound checks are redundant" | Verification must enforce the norm bound on the response and the limit on hint weight; FIPS 204 rejects a signature that fails either. Unforgeability rests on the response being short, not on the equation alone |
+| "XMSS/LMS state is saved to disk" | Saved when? The index must be durably advanced before the signature leaves the signer. A crash, a restored backup, a cloned VM, or a second signer reuses a one-time key, which breaks the scheme |
+| "The Falcon sampler is the reference code" | Floating-point Gaussian sampling is sensitive to platform and compiler. Two runs on the same input that round differently, or variable-time sampling, leak the key; confirm the behaviour of the exact build |
+| "Context string and pre-hash mode are API details" | The standards domain-separate pure and pre-hash modes and bind the context. Mixing them gives cross-mode confusion or interoperability failures |
+
 ## Core Review Areas
 
 1. Parameter-set and version provenance: FIPS 204/205 final vs round-3
    Dilithium/SPHINCS+ differences; Falcon flagged as pre-standard
 2. ML-DSA signing: rejection-sampling loop exactness (norm checks on z,
-   r0, hint count), iteration bounds, and no leakage of rejected
+   r0, ct0, and hint count), iteration bounds, and no leakage of rejected
    candidates
 3. Signing modes: deterministic vs hedged (rnd) handling per FIPS 204;
    SLH-DSA opt_rand per FIPS 205; fault posture of deterministic modes
 4. Verification bounds: every norm/weight/count bound checked (z bound,
-   hint weight, FORS/WOTS checksum rules) — skipping any bound admits
-   forgery
+   hint weight and encoding, WOTS+ checksum chains, FORS index
+   derivation) — skipping one admits forgery or signature malleability
 5. Stateful OTS index management (XMSS/LMS/HSS): monotonic persistent
    counter committed BEFORE signature release, crash recovery, backups,
    replication, and SP 800-208 hardware-binding requirements

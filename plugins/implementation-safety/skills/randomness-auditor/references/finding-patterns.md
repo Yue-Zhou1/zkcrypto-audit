@@ -13,7 +13,7 @@
 
 - **Pattern:** service embedded in a machine image or resumed from
   snapshots; RNG state frozen in the image.
-- **Root cause:** no VMGENID/virtio-rng reseed hook on resume.
+- **Root cause:** no VM Generation ID (VMGENID) reseed hook on resume.
 - **Impact:** fleet-wide duplicated randomness (duplicated TLS
   session keys, repeated ECDSA k across clones).
 
@@ -21,8 +21,8 @@
 
 - **Pattern:** `math/rand`, `random.random()`, Mersenne Twister, `rand()`
   seeded with time() feeding keys, salts, or nonces.
-- **Impact:** outputs predictable from a handful of observations; wallets
-  and tokens generated this way are enumerable.
+- **Impact:** outputs predictable from observed outputs or a guessable
+  seed; wallets and tokens generated this way are enumerable.
 
 ## P4: RFC 6979 deviation
 
@@ -30,7 +30,8 @@
   differently than the RFC, caches k across messages, or mixes in a
   non-monotonic counter.
 - **Impact:** same-k-different-message (immediate key recovery) or biased k
-  (lattice key recovery from a few hundred signatures).
+  (lattice key recovery once enough signatures are collected; the number
+  depends on the bias).
 
 ## P5: Crash-recovery counter replay
 

@@ -9,7 +9,9 @@ harness produces evidence; `crypto-fp-check` adjudicates.
   versa).
 - **Why it matters:** the target either forges (accepts an invalid
   signature/proof/ciphertext) or over-rejects (interop/DoS). Wycheproof's
-  "acceptable"/"invalid" labels flag which direction is the bug.
+  "valid"/"invalid" labels flag which direction is the bug; "acceptable"
+  cases (legacy, weak-parameter, or non-strict-encoding inputs) may go
+  either way and are decided by their flags.
 
 ## D2: Output-value divergence
 

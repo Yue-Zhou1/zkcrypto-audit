@@ -6,11 +6,7 @@ description: >
   correctness, ciphertext and key validation, compression/rounding, and
   decapsulation-failure oracle resistance. Use when reviewing ML-KEM/Kyber
   APIs, serialization, or decapsulation paths.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # pqc-kem-auditor
@@ -45,11 +41,23 @@ decapsulation conformance.
   for the symmetric side plus this skill for the KEM side
 - Timing leakage measurement methodology -> `side-channel-auditor`
 
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "It passes the known-answer tests, so it conforms" | Vectors that only exercise valid inputs say nothing about encapsulation-key and ciphertext input checks, implicit rejection, or failure paths. Confirm the suite also runs invalid-input cases; ACVP defines modified-ciphertext and key-check vectors for ML-KEM |
+| "Decapsulation failure is negligible, so the failure path does not matter" | The failure path is reached by malformed ciphertexts, which an attacker sends at will. A distinguishable error or timing difference there is a key-recovery oracle |
+| "Implicit rejection is implemented, so there is no oracle" | Only if the rejection value is derived from the secret seed and the ciphertext, selected in constant time, and nothing downstream (error, timing, protocol behaviour) tells the two branches apart |
+| "Kyber and ML-KEM are the same thing" | FIPS 203 differs from round-3 Kyber in details, including shared-secret derivation and required input checks. Mixing them breaks interoperability and can skip mandated checks |
+| "The source has no secret-dependent branch" | The KyberSlash class came from division by the modulus compiled to a variable-time instruction. Check the generated code for the shipped targets |
+| "It is a hybrid with a classical KEM, so the post-quantum half can be loose" | The combiner must bind both shared secrets and, unless the specific construction is proven secure without it (as X-Wing is for ML-KEM-768), both ciphertexts, and an oracle on the post-quantum half still leaks its long-term key |
+
 ## Core Review Areas
 
 1. Version/parameter provenance: FIPS 203 final vs CRYSTALS-Kyber round-3
-   differences (domain separation of K derivation, hash choices); the
-   parameter set (512/768/1024) matches the claimed category
+   differences (no ciphertext hash in the K derivation, no pre-hash of m,
+   explicit input checks; FIPS 203 Appendix C); the parameter set
+   (512/768/1024) matches the claimed category
 2. Input validation: public-key modulus check (encoded coefficients < q),
    ciphertext length/type checks, secret-key hash consistency (FIPS 203
    §7.2/§7.3 input checking)

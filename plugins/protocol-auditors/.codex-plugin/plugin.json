@@ -1,9 +1,26 @@
 {
   "name": "protocol-auditors",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), VRFs (RFC 9381 ECVRF/RSA-FDH-VRF), and VDFs (Wesolowski, Pietrzak).",
-  "category": "protocol-auditors",
   "author": {
     "name": "Yue Zhou"
+  },
+  "homepage": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "repository": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "license": "MIT",
+  "keywords": [
+    "zk",
+    "crypto",
+    "audit",
+    "security",
+    "zero-knowledge"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Protocol Auditors",
+    "shortDescription": "Domain auditors for cryptographic protocols",
+    "longDescription": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), VRFs (RFC 9381 ECVRF/RSA-FDH-VRF), and VDFs (Wesolowski, Pietrzak).",
+    "developerName": "Yue Zhou",
+    "category": "Coding"
   }
 }

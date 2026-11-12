@@ -6,11 +6,7 @@ description: >
   decoding errors, and verification-key provenance or upgrade risks. Use when
   reviewing on-chain SNARK/STARK verifier contracts or EIP-196/197/2537
   precompile call sites.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # onchain-verifier-auditor
@@ -38,6 +34,17 @@ checks public inputs, and delegates pairing math to precompiles.
 - Ordinary Solidity authorization/reentrancy review with no proof
   verification involved -> out of collection scope; return to
   `crypto-audit-context` for scoping
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "The verifier is generated code, so it is correct" | Generated from which key and which tool version? The embedded verifying-key constants must match the audited circuit, and generator versions differ in the input checks they emit |
+| "Public inputs are `uint256`, and the pairing check covers them" | An input at or above the scalar-field modulus aliases a smaller one: `x` and `x + r` verify identically unless the contract rejects out-of-range inputs |
+| "The precompile reverts on bad input" | A failed precompile call returns a zero status to the caller. Code that ignores the status, or reads return data it did not check the length of, treats failure as success |
+| "The proof verified, so the action is authorized" | A valid proof has to be bound to this action. Recipient, amount, nonce, and chain must be public inputs, or the proof replays and can be front-run |
+| "The verifying key is immutable" | Check every path that can change it: proxy admin, a settable verifier address, a key setter. Whoever controls it can make any statement verify |
+| "Each proof is unique, so it can serve as a replay key" | Groth16 proofs can be re-randomized into different valid proofs. Use a nullifier or a statement hash, never the proof bytes |
 
 ## Core Review Areas
 
@@ -80,6 +87,8 @@ checks public inputs, and delegates pairing math to precompiles.
 - Send surviving findings to `crypto-fp-check`
 - Route circuit-side suspicions to `zk-circuit-auditor` and curve/pairing
   math suspicions to `ecc-pairing-auditor`
+- Query `zkbugs-index` for prior art when a candidate matches a known pattern;
+  contributing an entry happens only after verification
 
 ## Output Contract
 

@@ -12,7 +12,7 @@ under_embargo → reported → fixed → disclosed
 
 | State | Meaning | Stored where | Queryable by others? |
 |-------|---------|-------------|---------------------|
-| `under_embargo` | Active engagement. Not yet delivered to client. | `local_findings/` only | No |
+| `under_embargo` | Active engagement. Not yet delivered to client. | Local findings directory only | No |
 | `reported` | Delivered to client in audit report. | Org repo if configured, otherwise local storage | Team only |
 | `fixed` | Client confirmed fix deployed. | Org repo if configured, otherwise local storage | Team only |
 | `disclosed` | 90-day embargo elapsed OR client approved early. | Org repo if configured, otherwise local storage | Yes — citable |
@@ -20,14 +20,13 @@ under_embargo → reported → fixed → disclosed
 
 ## Commands
 
-`<plugin-root>` is the directory one level above `skills/` — resolve it per
-the "Locating the Index" section of `SKILL.md`. These commands require
+Paths are relative to this skill's directory. These commands require
 Python 3.10+; querying the index does not.
 
 ### Create a new finding (under_embargo)
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --dsl circom \
   --vuln under_constrained \
   --impact Soundness \
@@ -40,17 +39,17 @@ python3 <plugin-root>/scripts/contribute_bug.py \
   --state under_embargo
 ```
 
-Default state is `under_embargo`. Written to `local_findings/` only.
+Default state is `under_embargo`. Written to the local findings directory only.
 
 ### Promote to reported (after report delivery)
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --id local/circom/client-project/signal-x-under-constrained \
   --promote reported
 ```
 
-Moves from `local_findings/` into the shard indexes. If org repo is configured,
+Adds the entry to the shard indexes. If org repo is configured,
 the script rewrites the ID to `org/...` and writes the finding to:
 
 ```text
@@ -63,7 +62,7 @@ ID.
 ### Promote to fixed
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --id org/circom/client-project/signal-x-under-constrained \
   --promote fixed \
   --fix-commit def456
@@ -74,7 +73,7 @@ Requires `--fix-commit`. Updates the entry in-place.
 ### Promote to disclosed
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --id org/circom/client-project/signal-x-under-constrained \
   --promote disclosed \
   --fix-commit def456 \
@@ -95,7 +94,7 @@ On disclosure, the following fields are **redacted**:
 ### Request extended embargo (coordinated)
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --id org/circom/client-project/signal-x-under-constrained \
   --promote coordinated \
   --justification "Client requested 180-day embargo due to regulatory review"

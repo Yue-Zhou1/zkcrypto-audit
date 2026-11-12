@@ -7,11 +7,11 @@ governing source in `references/spec-sources.md`.
 
 - [ ] Every precompile invocation checks the low-level call success flag
       (staticcall/call return value), not only the returned data. A failed
-      precompile call with an ignored success flag leaves stale or zeroed
-      memory that can be misread as "pairing holds".
+      precompile call with an ignored success flag leaves the output memory
+      unmodified, and its stale contents can be misread as "pairing holds".
 - [ ] The returned verifier word is decoded and compared explicitly
-      (EIP-197 returns a 32-byte word equal to 1 on success, 0 on failure);
-      "nonempty return" is NOT success.
+      (EIP-197 returns a 32-byte word equal to 1 when the pairing check
+      holds, 0 when it does not); "nonempty return" is NOT success.
 - [ ] Pairing input length is validated as a multiple of 192 bytes
       (EIP-197: k pairs of 64-byte G1 + 128-byte G2). Malformed lengths make
       the precompile fail — which is only safe if the success flag is checked.

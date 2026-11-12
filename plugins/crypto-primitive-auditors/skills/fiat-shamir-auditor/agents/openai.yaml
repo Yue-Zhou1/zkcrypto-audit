@@ -1,7 +1,13 @@
-display_name: fiat-shamir-auditor
-short_description: Audit Fiat-Shamir transcript implementations for completeness,
-  domain separation, challenge derivation order, and public input binding across interactive-to-non-interactive
-  proof transforms.
-default_prompt: Use fiat-shamir-auditor for this task. Audit Fiat-Shamir transcript
-  implementations for completeness, domain separation, challenge derivation order,
-  and public input binding across interactive-to-non-interactive proof transforms.
+interface:
+  display_name: fiat-shamir-auditor
+  short_description: 'Audit Fiat-Shamir transcripts: absorb/squeeze ordering, completeness
+    (weak vs strong Fiat-Shamir, Frozen Heart class), public input binding, domain separation,
+    challenge derivation and field reduction, fork and reset, prover/verifier symmetry, batching
+    challenges, and grinding. Use when reviewing transcript or challenge code in SNARK/STARK
+    verifiers, sigma protocols, Bulletproofs/IPA, sumcheck/GKR, or signatures.'
+  default_prompt: 'Use fiat-shamir-auditor for this task. Audit Fiat-Shamir transcripts: absorb/squeeze
+    ordering, completeness (weak vs strong Fiat-Shamir, Frozen Heart class), public input
+    binding, domain separation, challenge derivation and field reduction, fork and reset,
+    prover/verifier symmetry, batching challenges, and grinding. Use when reviewing transcript
+    or challenge code in SNARK/STARK verifiers, sigma protocols, Bulletproofs/IPA, sumcheck/GKR,
+    or signatures.'

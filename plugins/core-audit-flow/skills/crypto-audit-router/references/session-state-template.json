@@ -1,0 +1,20 @@
+{
+  "schema_version": 3,
+  "engagement_id": "<engagement-id>",
+  "phase": "intake_pending",
+  "targets": [],
+  "trust_boundaries": [],
+  "critical_paths": [],
+  "unresolved_assumptions": [],
+  "routes": [],
+  "candidates": [],
+  "artifacts": {
+    "reports": [],
+    "pocs": [],
+    "index_refs": []
+  },
+  "remediation_verifications": [],
+  "next_steps": [],
+  "updated_at": "<ISO-8601 timestamp>",
+  "extensions": {}
+}

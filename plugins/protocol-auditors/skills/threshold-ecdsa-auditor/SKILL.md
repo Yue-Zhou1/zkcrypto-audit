@@ -5,11 +5,7 @@ description: >
   for Paillier modulus validity, MtA/MtAwc range-proof gaps, share-conversion
   soundness, resharing and concurrent-session isolation, and identifiable-abort
   leakage. Use when reviewing multi-party ECDSA keygen, signing, or resharing.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # threshold-ecdsa-auditor
@@ -40,6 +36,17 @@ across parties and sign via Paillier-based or OT-based share conversion
 - Nonce/CSPRNG generation mechanics -> `randomness-auditor`
 - Timing/cache leakage of share arithmetic -> `side-channel-auditor`
 
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "The range proofs only matter against malicious parties, and our operators are trusted" | The protocol's security claim is against a malicious party. A missing or unverified MtA range proof lets one participant extract the others' key shares (the Alpha-Rays class) |
+| "The Paillier key comes from the library" | The other party's Paillier modulus is attacker-chosen. Without proofs that it is well formed, a crafted modulus leaks shares |
+| "An abort just restarts signing" | Aborts leak. Check what is revealed on abort, whether presignatures are discarded, and whether a party can abort selectively to learn bits |
+| "Presignatures are an optimization" | A presignature used twice leaks the key, and presignatures combined with additive key derivation admit a faster-than-generic (cube-root) attack on ECDSA. They need single-use tracking that survives restarts |
+| "Session identifiers are for logging" | Proofs and messages not bound to session and party identifiers replay across sessions and parties |
+| "We implement the protocol as published" | GG18 and GG20 as published were followed by attacks and fixes. Establish which paper version and which later fixes the code implements |
+
 ## Core Review Areas
 
 1. Paillier modulus N: generation, biprimality/square-free proof, and
@@ -54,7 +61,8 @@ across parties and sign via Paillier-based or OT-based share conversion
 5. Signing sessions: presignature single-use, concurrent-session state
    isolation, nonce contribution binding (k-share vs gamma-share)
 6. Resharing: old-committee/new-committee authorization and share zeroization
-7. Identifiable abort: blame paths must not leak share or nonce information
+7. Identifiable abort: blame paths must not leak key-share information, or
+   nonce material of a session that is still used to sign
    (GG20 identifiable abort vs CGGMP21 accountability)
 
 ## Workflow

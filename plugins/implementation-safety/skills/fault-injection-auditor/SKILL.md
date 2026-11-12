@@ -6,11 +6,7 @@ description: >
   glitches, redundant-computation bypass, and verify-after-sign gaps. Use when
   the threat model includes an attacker who can glitch computation, distinct
   from passive side-channel leakage.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # fault-injection-auditor
@@ -41,6 +37,16 @@ Dedicated skill by design: fault resistance is not folded into
   `signature-scheme-auditor`
 - Randomness/nonce lifecycle -> `randomness-auditor`
 - Pure protocol-correctness review with no physical/fault attacker
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "Fault injection needs physical access, so it is out of scope" | Decide from the threat model, not by default. Rowhammer and software-controlled voltage or frequency interfaces inject faults without physical access, and HSMs, wallets, TEEs, and embedded signers put the attacker next to the device |
+| "The signature scheme is deterministic, so it is the safer choice" | Determinism removes the RNG risk and adds a fault risk: one correct and one faulted signature over the same message recover the key in EdDSA and deterministic ECDSA |
+| "We verify the signature after signing" | Only if the same glitch cannot skip the check, the check covers the bytes actually released, and a failure suppresses the output |
+| "The computation runs twice and the results are compared" | A fault repeated in both runs, or a single skipped comparison branch, defeats naive redundancy |
+| "RSA-CRT is internal to the library" | One faulted half-exponentiation leaks a factor of the modulus through a gcd unless the result is verified before release |
 
 ## Core Review Areas
 

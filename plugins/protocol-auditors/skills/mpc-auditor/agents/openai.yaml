@@ -1,7 +1,13 @@
-display_name: mpc-auditor
-short_description: Audit MPC implementations for garbled-circuit integrity, oblivious
-  transfer misuse, share validation, Beaver triple authenticity, and transcript/session
-  binding issues.
-default_prompt: Use mpc-auditor for this task. Audit MPC implementations for garbled-circuit
-  integrity, oblivious transfer misuse, share validation, Beaver triple authenticity,
-  and transcript/session binding issues.
+interface:
+  display_name: mpc-auditor
+  short_description: 'Audit multi-party computation implementations: garbled circuits (free-XOR,
+    half-gates, selective failure), oblivious transfer and OT extension, SPDZ-style MAC checks,
+    Beaver triple authenticity, share validation, malicious vs semi-honest claims, abort and
+    fairness handling, and transcript/session binding. Use when reviewing 2PC/MPC protocol
+    code, preprocessing pipelines, or multi-round secure-computation handlers.'
+  default_prompt: 'Use mpc-auditor for this task. Audit multi-party computation implementations:
+    garbled circuits (free-XOR, half-gates, selective failure), oblivious transfer and OT
+    extension, SPDZ-style MAC checks, Beaver triple authenticity, share validation, malicious
+    vs semi-honest claims, abort and fairness handling, and transcript/session binding. Use
+    when reviewing 2PC/MPC protocol code, preprocessing pipelines, or multi-round secure-computation
+    handlers.'

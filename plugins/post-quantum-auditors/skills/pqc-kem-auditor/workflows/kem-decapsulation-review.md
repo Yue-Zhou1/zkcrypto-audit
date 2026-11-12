@@ -5,7 +5,9 @@ decapsulation/implicit-rejection path.
 
 1. **Pin the spec version.** Determine whether the code implements FIPS
    203 final, the initial public draft, or round-3 Kyber (inspect the
-   shared-secret derivation and G/H/J usage). Any mix is a P4 candidate;
+   shared-secret derivation and G/H/J usage; draft vs final differ in the
+   G(d || k) seed expansion in K-PKE.KeyGen and the matrix index order).
+   Any mix is a P4 candidate;
    a conformance claim queues `spec-delta-checker`.
 
 2. **Verify KATs.** Run the implementation's known-answer tests and
@@ -13,8 +15,8 @@ decapsulation/implicit-rejection path.
 
 3. **Audit input checks.**
    `grep -rn "decaps\|encaps\|from_bytes\|decode"` on the API boundary:
-   public-key modulus check in Encaps, ciphertext/dk length checks in
-   Decaps (P3).
+   public-key length and modulus check in Encaps, ciphertext/dk length
+   checks and the dk hash check in Decaps (P3).
 
 4. **Trace Decaps end to end.** Confirm: decrypt -> re-derive (K', r') ->
    re-encrypt -> whole-ciphertext constant-time compare -> branchless

@@ -1,11 +1,27 @@
 # Finding Contract
 
+## Candidate handoff
+
+Every domain auditor hands off candidates, not findings. Each candidate
+carries the auditor's domain-specific fields plus these three:
+
+- `evidence`: `file:line` references and any test or tool output
+- `disposition`: one of `unverified` (suspected, awaiting `crypto-fp-check`),
+  `false_positive` (ruled out, with the code pointer that rules it out),
+  `observation` (true but not a vulnerability), `residual_risk` (accepted or
+  out-of-scope exposure). `verified` is set only by `crypto-fp-check`
+- `next_route`: the skill that should act on it next
+
+A domain auditor does not assign final severity.
+
+## Confirmed finding
+
 Every confirmed finding should answer the same questions in the same order.
 
 ## Required Fields
 
 1. **Title** — short statement of the bug class and affected component
-2. **Severity** — Critical/High/Medium/Low using the shared severity framework
+2. **Severity** — Critical/High/Medium/Low using `severity-framework.md`
 3. **Impacted property** — Soundness, Privacy, Completeness, or DoS
 4. **Root cause** — the exact implementation failure, not the symptom
 5. **Invariant violated** — what the code should have enforced

@@ -3,10 +3,11 @@
 ## ECDSA (FIPS 186-5; SEC 1 v2.0)
 
 - [ ] r and s are both validated in [1, n-1] before any arithmetic; r = 0
-      or s = 0 must reject (a zero r with a permissive implementation can
-      verify against crafted keys).
+      or s = 0 must reject (a verifier that skips the check can accept
+      r = s = 0 for any message and any key — CVE-2022-21449).
 - [ ] The message hash is truncated to the leftmost bits when the hash is
-      longer than the curve order (FIPS 186-5 §6.4.1); mismatched
+      longer than the curve order (FIPS 186-5 §6.4.1 step 2 for signing,
+      §6.4.2 step 3 for verification); mismatched
       truncation between signer and verifier is a cross-implementation
       divergence.
 - [ ] Public keys are validated: on-curve, not the identity, and in the
@@ -30,10 +31,14 @@
       cross-implementation compatibility and domain separation.
 - [ ] Verification checks R = s·G - e·P, requires R not infinity and R.y
       even, and r == R.x — all three; skipping the even-Y check accepts
-      forged negated-R signatures.
-- [ ] s < n enforced on decode.
-- [ ] Batch verification (if present) uses proper random weighting;
-      deterministic or unit weights let crafted signature sets cancel.
+      odd-Y-R signatures that conforming verifiers, and batch verification
+      (which lifts r to the even-Y point), reject.
+- [ ] r < p and s < n enforced on decode.
+- [ ] Batch verification (if present) uses weights the signers cannot
+      predict: BIP-340 derives them from a CSPRNG seeded with a hash of
+      all public keys, messages, and signatures in the batch. Unit weights,
+      or weights fixed independently of the batch, let crafted signature
+      sets cancel.
 
 ## EdDSA / Ed25519 (RFC 8032)
 

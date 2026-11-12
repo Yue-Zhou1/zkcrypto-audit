@@ -5,10 +5,7 @@ description: >
   for ZK and cryptographic audit skills. Use when classifying findings,
   checking whether test evidence is sufficient, or writing findings in a
   consistent structure.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
+allowed-tools: Read Grep Glob
 ---
 
 # audit-common
@@ -24,9 +21,9 @@ Shared reference layer for the crypto audit framework.
 
 ## When NOT to Use
 
-- Building initial audit context for a target codebase
-- Verifying whether a suspected bug is real end-to-end
-- Querying prior-art or disclosure state in `zkbugs-index`
+- Building initial audit context for a target -> `crypto-audit-context`
+- Verifying whether a suspected bug is real -> `crypto-fp-check`
+- Looking up prior art -> `zkbugs-index`
 
 ## How to Use
 
@@ -34,7 +31,7 @@ Read the smallest reference that answers the current question:
 
 - Severity question: `references/severity-framework.md`
 - Test evidence question: `references/testing-evidence.md`
-- Finding structure question: `references/finding-contract.md`
+- Candidate handoff or finding structure question: `references/finding-contract.md`
 
 Do not duplicate these definitions in sibling skills unless the duplication is
 strictly necessary for execution.

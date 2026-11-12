@@ -11,7 +11,7 @@ enforceable here without the prover's cooperation.
    consumes it. A committed field with no consumer is a red flag either way:
    the guest is doing work nobody checks, or L1 is trusting a field it
    should compare.
-2. For each field, run the `empty` and `identity` rows from the authority
+2. For each field, run the `empty` and `identity` columns from the authority
    matrix: what does a zero-operation batch commit, and does L1 accept it?
    Check pairwise sanity (`min <= max`, `newIndex >= oldIndex`,
    `newHeight > oldHeight`) is enforced somewhere, and where.
@@ -103,9 +103,9 @@ trusting the sequencer's API.
 ## Phase 6: Payout loop
 
 1. For every external call made while settling proven outputs: is failure
-   caught, is the gas forwarded bounded, and can a callee that burns its
-   whole stipend push later iterations into out-of-gas? The 63/64 rule means
-   the caller keeps only 1/64 of what it had.
+   caught, is the gas forwarded bounded, and can a callee that burns all
+   the gas forwarded to it push later iterations into out-of-gas? The 63/64
+   rule means the caller keeps only 1/64 of what it had.
 2. Token behaviour in custody paths: fee-on-transfer and rebasing balances
    versus recorded amounts; ERC-721 and ERC-1155 sent to addresses that only
    sweep ERC-20; native fallback delivery; a recovery path for anything the

@@ -12,17 +12,22 @@
 ## P2: Non-constant-time reject path
 
 - **Pattern:** early-exit ciphertext comparison, branch on the mismatch
-  bit, or K/K-bar selection via if/else with different memory behavior.
-- **Impact:** timing/cache oracle equivalent to P1 (the "KyberSlash"-class
-  and clangover-style local-timing findings).
+  bit, or K/K-bar selection via if/else with different memory behavior;
+  also secret-dependent timing inside the decrypt/re-encrypt steps that
+  feed the comparison (division of a secret value by q in message
+  decoding or compression; a compiler-emitted branch in message encoding).
+- **Impact:** timing/cache oracle equivalent to P1. The decrypt/re-encrypt
+  variants are the KyberSlash (variable-time division) and clangover
+  (Clang-emitted secret-dependent branch in `poly_frommsg`) findings,
+  both exploited through decapsulation timing.
 
 ## P3: Missing public-key modulus check
 
 - **Pattern:** Encaps consumes ek without verifying encoded coefficients
   < q.
-- **Impact:** violates the FIPS 203 input-check precondition; malformed
-  keys reach arithmetic with unreduced values, producing exploitable
-  cross-implementation divergence.
+- **Impact:** violates the FIPS 203 input-check precondition; non-canonical
+  encodings of a key are accepted (ByteDecode12 reduces mod q), so
+  implementations diverge on which keys they accept.
 
 ## P4: Round-3 / FIPS 203 derivation mixing
 

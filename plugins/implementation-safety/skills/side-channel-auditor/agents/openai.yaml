@@ -1,7 +1,14 @@
-display_name: side-channel-auditor
-short_description: Audit timing, cache, memory-access, and power-analysis leakage
-  patterns, including compiler and feature-flag regressions that break constant-time
-  assumptions.
-default_prompt: Use side-channel-auditor for this task. Audit timing, cache, memory-access,
-  and power-analysis leakage patterns, including compiler and feature-flag regressions
-  that break constant-time assumptions.
+interface:
+  display_name: side-channel-auditor
+  short_description: 'Audit passive leakage in cryptographic code: secret-dependent branches,
+    table lookups and memory access, variable-time bignum and field arithmetic, early-exit
+    comparisons, division and modular reduction, compiler-introduced branches, feature-flag
+    backends, error-path timing, power-analysis exposure, and prover-side witness leakage.
+    Use when a secret''s influence on timing, cache state, or power is in question, or when
+    a constant-time claim has to hold for the binary that ships.'
+  default_prompt: 'Use side-channel-auditor for this task. Audit passive leakage in cryptographic
+    code: secret-dependent branches, table lookups and memory access, variable-time bignum
+    and field arithmetic, early-exit comparisons, division and modular reduction, compiler-introduced
+    branches, feature-flag backends, error-path timing, power-analysis exposure, and prover-side
+    witness leakage. Use when a secret''s influence on timing, cache state, or power is in
+    question, or when a constant-time claim has to hold for the binary that ships.'

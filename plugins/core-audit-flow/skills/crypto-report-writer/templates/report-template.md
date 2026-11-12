@@ -1,68 +1,112 @@
 # Report Template
 
-## Title
+One template for every audience. Write the report body and each finding with
+the base sections, then add the sections for the audience at the end of this
+file. Severity definitions and the PoC rule are in `audit-common`.
 
-`[Severity] Short finding name`
+## Report body
 
-## Severity
+### Summary
 
-- **Critical**: soundness break, forgery, private key recovery, or proof fabrication
-- **High**: privacy leakage, practical side-channel, or missing input validation with concrete impact
-- **Medium**: API misuse risk, DoS, serialization interoperability issue, or error oracle surface
-- **Low**: configuration, feature-flag, dependency, or documentation weakness
+Target and revision, dates, what was reviewed, and the result in two or three
+sentences: counts by severity and the single most important issue.
 
-Every **Critical** or **High** finding must include a **compilable PoC** or an
-equivalently strong executable proof.
+### Scope and method
 
-## Summary
+- In-scope components and the revision or commit reviewed
+- Out-of-scope components and why
+- Skills run, and skills skipped with the reason for each
+- Attacker model and trust assumptions taken from intake
 
-What breaks, under what conditions, and why the target is affected.
+### Findings overview
 
-## Affected Components
+| ID | Severity | Title | Status |
+|---|---|---|---|
 
-Files, functions, modules, protocol steps, and trust boundaries involved.
+### Findings
 
-## Root Cause
+One section per verified finding, using the finding sections below, ordered by
+severity.
 
-Describe the exact invariant the implementation fails to enforce. If relevant,
-name the specification delta explicitly.
+### Observations and residual risk
 
-## Impact
+Items that are true but not vulnerabilities, accepted risks, and anything left
+unverified with the reason and what would settle it.
 
-State the broken security property: soundness, privacy, authenticity, integrity,
-or availability.
+## Finding sections
 
-## Evidence
+### `[Severity] Short finding name`
 
-- Concrete code path
-- Attacker-controlled input or trigger condition
-- Verification artifacts, including PoC or executable proof where required
+**Severity:** Critical / High / Medium / Low
 
-## Test Evidence
+**Impacted property:** soundness, privacy, authenticity, integrity,
+completeness, or availability.
 
-- **Known-answer tests**: present or missing
-- **Boundary condition coverage**: present or missing
-- **Negative tests**: present or missing
-- **Algebraic property tests**: present or missing
-- **Differential testing**: present or missing
-- **Fuzz target coverage**: present or missing
-- **Code coverage measurement**: present or missing
-- **Wycheproof**: present or missing
+**Affected components:** files, functions, protocol steps, and trust
+boundaries involved.
 
-## Remediation
+**Summary:** what breaks, under what conditions, and why this target is
+affected.
 
-Describe the required enforcement change, not just the intended caller behavior.
+**Root cause:** the exact invariant the implementation fails to enforce. Name
+the specification delta if there is one.
 
-## Remediation Verification
+**Trigger path:** the attacker-controlled input and the code path that carries
+it to the missing or wrong check.
 
-Populate only when a fix has been supplied and checked by `fix-verification`.
+**Evidence:**
 
-- **Fix reference**: commit/PR/tag/diff
-- **Verdict**: `fixed`, `partially_fixed`, `not_fixed`, or `regressed`
-- **Root cause status**: invariant now enforced vs only the demonstrated input blocked
-- **Regression evidence**: original PoC re-run result on the vulnerable and fixed
-  revisions, plus regression-test output
+- Code references (`file:line`)
+- PoC: test name, location, the command run, and its output; or `pending_poc`
+  with the build blocker
+- Math or protocol argument where the PoC does not cover the full claim
 
-## Residual Risk
+**Test evidence gaps:** the evidence categories from `audit-common` that were
+missing, by name.
 
-State any remaining assumptions, rollout hazards, or verification gaps.
+**Remediation:** the enforcement change required in the code.
+
+**Remediation verification:** only when `fix-verification` has run.
+
+- Fix reference: commit, PR, tag, or diff
+- Verdict: `fixed`, `partially_fixed`, `not_fixed`, or `regressed`
+- Root cause status: invariant now enforced, or only the demonstrated input
+  blocked
+- Regression evidence: PoC result on the vulnerable and fixed revisions, plus
+  regression-test output
+
+**Residual risk:** remaining assumptions, rollout hazards, verification gaps.
+
+## Audience sections
+
+Add these to the base report. Remove nothing from the base unless stated.
+
+### Client delivery
+
+- **Executive summary** before the report summary: impact on the client's
+  deployment and remediation urgency, without implementation detail
+- Per finding, **Remediation plan:** priority order, rollout recommendation,
+  and how to validate the fix (regression tests, negative tests, monitoring)
+- Per finding, **Client action checklist:** patch implemented, backports
+  assessed, verification tests rerun, deployment communication prepared
+
+### Internal circulation
+
+- Per finding, **Investigation notes:** the initial hypothesis, code paths and
+  commits reviewed, alternative hypotheses ruled out
+- Per finding, **Exploitability qualifiers:** attacker capabilities required,
+  environmental constraints, reliability of the exploit path
+- Per finding, **Rollout risk:** compatibility, performance, and migration risk
+  of the remediation
+- **Next steps:** owner, fix plan, backport strategy, post-fix verification
+
+### Public disclosure
+
+Publish only what the affected party has agreed to disclose.
+
+- Replace scope and method with **Affected versions:** affected range, first
+  fixed version, mitigated-but-unfixed configurations
+- **Disclosure timeline:** reported, acknowledged, fix released, disclosed
+- Keep summary, impact, and remediation (upgrade guidance and workarounds);
+  remove client-private context, internal notes, and unreleased PoC detail
+- **Credits** and **References:** public commits, advisories, CVE identifiers

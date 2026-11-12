@@ -6,10 +6,10 @@ surface.
 ## Static analysis
 
 - `cargo audit` — checks dependencies against RustSec advisories
-- `cargo clippy -- -D warnings` — focus on `clippy::integer_arithmetic`, `clippy::as_conversions`, and `clippy::unwrap_used`
+- `cargo clippy -- -D warnings` — focus on `clippy::arithmetic_side_effects` (formerly `clippy::integer_arithmetic`), `clippy::as_conversions`, and `clippy::unwrap_used`; these are restriction lints, allowed by default, so enable each with `-W`
 - `cargo geiger` — counts `unsafe` usage per crate
-- `cargo deny` — audits licenses and hidden transitive dependencies
-- `rudra` — detects unsafe memory-safety issues and unsound `Send`/`Sync`
+- `cargo deny check` — checks advisories, licenses, banned or duplicate crates, and crate sources
+- `rudra` — detects unsafe memory-safety issues and unsound `Send`/`Sync`; archived and pinned to `nightly-2021-10-21`, so it only analyses crates that build on that toolchain
 - `mirai` — abstract interpretation for overflow and reachable panic surfaces
 
 ## Dynamic analysis and fuzzing

@@ -28,9 +28,10 @@ behavior.
 ## Informative
 
 - snarkjs verifier templates (iden3/snarkjs, `templates/verifier_groth16.sol.ejs`)
-  — generator behavior for the scalar-field check on public inputs; older
-  generated verifiers lacking `require(input[i] < r)` are the canonical P1
-  instance.
+  — generator behavior for the scalar-field check on public inputs. Templates
+  before v0.1.15 (July 2019) had no `input[i] < r` check and are the canonical
+  P1 instance; the assembly template in v0.7.0 through v0.7.3 compared public
+  signals against the base-field modulus q instead of r (fixed in v0.7.4).
 - Solidity documentation — low-level call/staticcall return semantics
   (success flag and returndata) for the P2/P3 patterns.
 - Vyper documentation — `raw_call` semantics (`max_outsize`, `revert_on_failure`)

@@ -1,7 +1,13 @@
-display_name: encryption-scheme-auditor
-short_description: Audit encryption implementations for AEAD nonce handling, decrypt
-  oracle behavior, associated-data binding, key-derivation misuse, and decrypt-error
-  side effects.
-default_prompt: Use encryption-scheme-auditor for this task. Audit encryption implementations
-  for AEAD nonce handling, decrypt oracle behavior, associated-data binding, key-derivation
-  misuse, and decrypt-error side effects.
+interface:
+  display_name: encryption-scheme-auditor
+  short_description: Audit symmetric and hybrid encryption for AEAD nonce handling and usage
+    limits, key commitment, associated-data binding, decrypt and padding oracle behavior,
+    key-derivation and key-separation misuse, HPKE/ECIES composition, streaming AEAD truncation
+    or reordering, and decrypt-error side effects. Use when reviewing encrypt/decrypt paths,
+    envelope or file encryption, key wrapping, or hybrid public-key encryption.
+  default_prompt: Use encryption-scheme-auditor for this task. Audit symmetric and hybrid
+    encryption for AEAD nonce handling and usage limits, key commitment, associated-data binding,
+    decrypt and padding oracle behavior, key-derivation and key-separation misuse, HPKE/ECIES
+    composition, streaming AEAD truncation or reordering, and decrypt-error side effects.
+    Use when reviewing encrypt/decrypt paths, envelope or file encryption, key wrapping, or
+    hybrid public-key encryption.

@@ -59,7 +59,9 @@ use core::slice;
 // BUG: layout and length assumptions are unchecked
 let scalar: Scalar = unsafe { core::mem::transmute(bytes) };
 let points = unsafe { slice::from_raw_parts(ptr as *const G1Affine, n) };
-let point = unsafe { G1Affine::from_uncompressed_unchecked(bytes) };
+// BUG: a safe fn in `bls12_381` (returns `CtOption`), but it skips the
+// on-curve and subgroup checks
+let point = G1Affine::from_uncompressed_unchecked(bytes);
 ```
 
 Each unsafe shortcut needs a concrete invariant and a caller that actually

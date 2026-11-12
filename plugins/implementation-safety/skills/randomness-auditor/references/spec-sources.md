@@ -13,7 +13,8 @@
   HMAC-based k derivation loop, message/key binding, the in-loop retry rule,
   and §3.6 additional-entropy hedging.
 - RFC 8032 — "Edwards-Curve Digital Signature Algorithm (EdDSA)". Normative
-  for r = H(prefix || M) deterministic nonce derivation in Ed25519/Ed448.
+  for r = H(dom || prefix || PH(M)) deterministic nonce derivation in
+  Ed25519/Ed448 (§5.1.6, §5.2.6; dom is empty for pure Ed25519).
 - getrandom(2) Linux man page / kernel documentation — normative for
   blocking semantics before pool initialization and GRND_NONBLOCK behavior.
 
@@ -27,6 +28,9 @@
   snapshot/resume randomness reuse (P2).
 - Breitner, Heninger — "Biased Nonce Sense: Lattice Attacks against Weak
   ECDSA Signatures in Cryptocurrencies" (FC 2019): how little nonce bias
-  suffices for key recovery (P4/P6 impact calibration).
-- CVE-2013-1445 / Debian OpenSSL CVE-2008-0166 postmortems: canonical
-  weak-seeding case studies (P3).
+  suffices for key recovery (P4 impact calibration).
+- CVE-2008-0166 (Debian OpenSSL, DSA-1571: a Debian-specific patch made the
+  RNG predictable): canonical weak-seeding case study (P3).
+- CVE-2013-1445 (PyCrypto before 2.6.1: `Crypto.Random.atfork` did not
+  properly reseed before a child process used the PRNG): fork-duplication
+  case study (P1).

@@ -4,11 +4,7 @@ description: >
   Generate cargo-fuzz targets for Rust cryptographic code. User-triggered only
   and never auto-invoked by the audit flow. Produces crash and edge-case
   evidence for crypto-fp-check.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # fuzz-harness-gen
@@ -16,8 +12,8 @@ allowed-tools:
 Generate `cargo-fuzz` targets for Rust cryptographic libraries and applications.
 
 **This skill is user-triggered only.** It must never be auto-invoked by the
-audit router or any other skill. Fuzz runs can be expensive (default timeout:
-10 minutes per target via `FUZZ_TIME_LIMIT` and `FUZZ_MAX_ITERS`).
+audit router or any other skill. Fuzz runs can be expensive (default budget:
+10 minutes per target, set by this skill's `FUZZ_TIME_LIMIT` and `FUZZ_MAX_ITERS`).
 
 ## When to Use
 
@@ -52,8 +48,8 @@ If not installed, inform the user and stop.
 
 ## Budget and Fallback Controls
 
-- Override fuzz run duration with `FUZZ_TIME_LIMIT` (default `600`)
-- Override fuzz iteration cap with `FUZZ_MAX_ITERS` when deterministic bounds are needed
+- Override fuzz run duration with `FUZZ_TIME_LIMIT` (default `600`); cargo-fuzz does not read it, so pass it to libFuzzer as `-max_total_time=<seconds>`
+- Override fuzz iteration cap with `FUZZ_MAX_ITERS` when deterministic bounds are needed; pass it to libFuzzer as `-runs=<N>`
 - Use optional `PROPTEST_CASES` for lightweight `proptest` checks when full fuzzing is unavailable
 
 ## Workflow
@@ -72,7 +68,7 @@ If not installed, inform the user and stop.
 
 ### Phase 3: Execute and triage
 
-- Run `cargo fuzz run <target>` with `FUZZ_TIME_LIMIT` / `FUZZ_MAX_ITERS` budget controls
+- Run `cargo fuzz run <target> -- -max_total_time="${FUZZ_TIME_LIMIT:-600}"` (add `-runs="$FUZZ_MAX_ITERS"` when set) for `FUZZ_TIME_LIMIT` / `FUZZ_MAX_ITERS` budget controls
 - Classify crashes as panic/DoS vs logic/soundness implications
 - Preserve crash artifacts for reproducible PoC evidence
 - If fuzzing is unavailable, run bounded `proptest` checks (`PROPTEST_CASES`) and label evidence accordingly

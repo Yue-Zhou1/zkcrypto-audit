@@ -4,11 +4,7 @@ description: >
   Generate Kani proof harnesses for Rust crypto code. User-triggered only —
   never auto-invoked by the audit flow. Produces formal verification evidence
   for crypto-fp-check.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # kani-harness-gen
@@ -17,7 +13,7 @@ Generate `#[kani::proof]` harnesses for formal verification of Rust cryptographi
 
 **This skill is user-triggered only.** It must never be auto-invoked by the
 audit router or any other skill. It consumes significant computation resources
-(default timeout: 5 minutes per harness via `KANI_TIMEOUT_SECONDS`).
+(default budget: 5 minutes per harness, set by this skill's `KANI_TIMEOUT_SECONDS`).
 
 ## When to Use
 
@@ -58,7 +54,7 @@ If not installed, inform the user and stop.
 
 ## Budget and Fallback Controls
 
-- Override harness timeout with `KANI_TIMEOUT_SECONDS` (default `300`)
+- Override harness timeout with `KANI_TIMEOUT_SECONDS` (default `300`). Kani does not read this variable and has no default timeout: enforce it by wrapping the run in `timeout`, or pass Kani's experimental `--harness-timeout` (requires `-Z unstable-options`)
 - Keep unwind bounds explicit in harness code so run cost remains predictable
 - Use optional `PROPTEST_CASES` for lightweight `proptest` fallback checks when Kani is unavailable or too expensive
 
@@ -79,9 +75,9 @@ If not installed, inform the user and stop.
 
 ### Phase 3: Execute and interpret
 
-- Run `cargo kani --harness {name}` with `KANI_TIMEOUT_SECONDS` (default 300 seconds)
+- Run `timeout "${KANI_TIMEOUT_SECONDS:-300}" cargo kani --harness {name}` (default 300 seconds)
 - If verification succeeds: property holds for all inputs within bounds
-- If counterexample found: extract the failing input as PoC evidence
+- If counterexample found: extract the failing input as PoC evidence (rerun with the experimental `-Z concrete-playback --concrete-playback=print` to get it as a unit test)
 - If Kani is unavailable, run targeted `proptest` checks (bounded by `PROPTEST_CASES`) and clearly label evidence type
 - Report results for use by `crypto-fp-check`
 

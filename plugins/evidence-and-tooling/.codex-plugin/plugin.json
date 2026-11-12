@@ -1,9 +1,26 @@
 {
   "name": "evidence-and-tooling",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, formal verification bridge, and differential test harness generation. Kani/fuzz/formal-verification/differential-test skills are user-triggered only.",
-  "category": "evidence-and-tooling",
   "author": {
     "name": "Yue Zhou"
+  },
+  "homepage": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "repository": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "license": "MIT",
+  "keywords": [
+    "zk",
+    "crypto",
+    "audit",
+    "security",
+    "zero-knowledge"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Evidence And Tooling",
+    "shortDescription": "Evidence collection and verification tooling",
+    "longDescription": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, formal verification bridge, and differential test harness generation. Kani/fuzz/formal-verification/differential-test skills are user-triggered only.",
+    "developerName": "Yue Zhou",
+    "category": "Coding"
   }
 }

@@ -42,3 +42,21 @@
 - [ ] Program counter stays within valid code range
 - [ ] Jumps and branches are constrained to legal targets
 - [ ] Halt/exit semantics are uniquely defined and bound in trace
+
+## Public values and program identity
+
+- [ ] Every value the proof's consumer relies on is committed to public values, in a fixed order and encoding that the consumer decodes identically
+- [ ] The verifier pins the program identifier (image ID or program verification key) as a constant or governed value, and that identifier is reproducible from the audited guest source with the project's deterministic build
+- [ ] The verification call in use checks program identifier, public values, and successful exit together; no integrity-only or lower-level call stands in for it
+- [ ] A guest panic or failed assertion yields no accepted proof, and no user-reachable input can force a panic on a path that must stay provable
+
+## Recursion, aggregation, and deferred proofs
+
+- [ ] The recursion layer constrains every segment or shard proof to the same program identifier and to an allowed set of recursion-circuit keys
+- [ ] First-segment and last-segment conditions (entry program counter, initial memory, halted final state) are enforced in the aggregate, and its completeness flag cannot be set by the prover
+- [ ] For a proof verified inside the guest, the program key is a constant or is committed, the public-values digest is the one the guest acts on, and the proof type that reaches the final verifier has checked those deferred claims
+
+## Proof modes and toolchain
+
+- [ ] No mock prover, dev-mode flag, or mock verifier contract is reachable in the production configuration
+- [ ] Guest toolchain, prover SDK, and verifier (including any on-chain verifier contract) are pinned to mutually compatible releases that include the vendor's published security fixes

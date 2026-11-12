@@ -1,16 +1,34 @@
 # Routing Matrix
 
-This table is a human-readable mirror of machine-readable route policy in
-`plugins/_meta/router-matrix.yaml`. If there is any mismatch, the YAML registry
-is authoritative.
+Routing policy for the audit flow. Used after `crypto-audit-context` to choose
+domain auditors.
 
-Before selecting a route from this table, enforce trigger policy from
-`plugins/_meta/codex-skill-registry.yaml`:
+## Flow skills
 
-- `router_auto` skills are eligible for automatic routing.
-- `user_triggered_only` skills are never auto-selected and require explicit user request.
+Run in every audit, in this order:
 
-Use this matrix to choose the right skill after `crypto-audit-context`.
+| Phase | Skill |
+|---|---|
+| Intake | `crypto-audit-context` |
+| Verification | `crypto-fp-check` |
+| Reporting | `crypto-report-writer` |
+
+## User-triggered skills
+
+Never selected by the router. They run only when the user asks.
+
+| Skill |
+|---|
+| `kani-harness-gen` |
+| `fuzz-harness-gen` |
+| `formal-verification-bridge` |
+| `differential-test-harness-gen` |
+| `audit-common` |
+| `crypto-audit-router` |
+
+## Situation routes
+
+Select every row that matches the target.
 
 | Situation | Route |
 |---|---|
@@ -43,14 +61,14 @@ Use this matrix to choose the right skill after `crypto-audit-context`.
 | The issue touches Verifiable Random Functions — RFC 9381 ECVRF or RSA-FDH-VRF, encode-to-curve or cofactor handling, VRF key validation, proof-to-hash ordering, uniqueness or pseudorandomness assumptions, or VRF output grinding in leader election and lotteries. | `vrf-auditor` |
 | The issue touches shielded pools, mixers, nullifier derivation or spent-set semantics, note or value commitments and ownership binding, deposit/withdraw front-running, or privacy-protocol state transitions and replay domains. | `privacy-protocol-auditor` |
 | The issue touches threshold ECDSA (GG18, GG20, CGGMP21, Lindell 2P-ECDSA), Paillier modulus validity proofs, MtA/MtAwc range or consistency proofs, presignatures, key resharing, concurrent signing session state, or identifiable abort. | `threshold-ecdsa-auditor` |
-| The issue touches constant-time behavior, zeroization, unsafe code, feature flags, or dependency hygiene. | `rust-crypto-safety` |
+| The target is Rust cryptographic code: `unsafe` blocks and FFI, panics and arithmetic overflow on untrusted input, secret zeroization, unchecked constructors, and security-significant `cfg`/feature gating. Deep timing analysis routes to side-channel-auditor and dependency review to dependency-auditor. | `rust-crypto-safety` |
 | The issue touches secp256k1/ECDSA, keccak/EIP-712, BN254/BLS12-381 precompile input/output, KZG/EIP-4844 usage, or alloy/ethers-rs API patterns in Rust. | `ethereum-crypto-auditor` |
 | The issue touches Solidity, Vyper, or Huff proof-verifier contracts, pairing precompile calls (EIP-196/197/2537, addresses 0x06/0x07/0x08), scalar-field reduction checks on public inputs, verification-key storage or upgrades, or proof calldata decoding. | `onchain-verifier-auditor` |
 | The issue touches Nova, HyperNova, ProtoStar folding equations, accumulator update, running instance threading, or cycle-of-curves encoding. | `folding-scheme-auditor` |
 | The issue has survived domain review and needs truth/impact validation. | `crypto-fp-check` |
 | A previously verified finding has a supplied patch/fix reference (commit, PR, or diff) and the fix must be checked — reproduce the original PoC on the vulnerable revision, confirm it fails for the intended reason on the fixed revision, verify the root cause (not just the demonstrated input) is removed, search sibling paths for incomplete remediation, run regression tests, and record a remediation verdict. | `fix-verification` |
 | The issue is verified and needs report prose. | `crypto-report-writer` |
-| The issue is verified and may need prior-art lookup or index storage. | `zkbugs-index` |
+| A ZK-circuit candidate needs prior-art lookup, or a verified ZK-circuit finding with a novel root cause may be worth contributing. | `zkbugs-index` |
 
-Multiple routes can apply. Prefer running `spec-delta-checker` alongside the
-relevant domain auditor when the code is adapting a standard construction.
+Run `spec-delta-checker` alongside the relevant domain auditor when the code
+adapts a standard construction.

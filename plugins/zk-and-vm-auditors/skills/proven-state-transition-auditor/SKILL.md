@@ -7,11 +7,7 @@ description: >
   witnesses, committed public values, settlement-contract checks, L1 action
   queues, forced inclusion, escape-hatch liveness, or whether users and
   integrators can prove their own operations executed.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # proven-state-transition-auditor
@@ -54,7 +50,7 @@ contract does not check, is attack surface.
 | "This operation is only injected by our own backend" | A comment is not a signature. If the guest does not check it, the proof does not either |
 | "Omitting that entry just defers the update" | Deferred accruals are repriced at catch-up time; the transition differs and the root differs |
 | "The queue is strictly ordered so nothing can be skipped" | Ordering within a queue says nothing about interleaving across queues, or about an item being consumed as a skip |
-| "Fixed-depth proofs cannot be shortened" | That defeats one malformed-input class out of five (omitted, extra, reordered, empty, identity) |
+| "Fixed-depth proofs cannot be shortened" | That defeats one malformed-input class out of five (omitted, duplicated, reordered, empty, identity) |
 | "Liveness is at most Medium" | Defeating a forced exit while funds are custodied is High under the shared severity framework |
 | "The state root is proven, so users can verify their activity" | A state root proves balances at batch boundaries, not which operations ran. Inclusion, success, and result of a user operation are provable only if the statement commits them |
 | "Events are only logs; compiling them out of the guest is an optimisation" | On the platform being replaced, logs were receipts anyone could prove against a block. Dropping them removes a guarantee integrators relied on |
@@ -77,11 +73,10 @@ contract does not check, is attack surface.
 
 ### Phase 1: Roles and guarantees
 
-- Take the actor table from `crypto-audit-context`
-  (`references/roles-and-guarantees.md` there). If it is missing, build it
-  now before reading code: every role that supplies input to the guest or
-  the settlement contract, and what the design promises the other roles if
-  that role is malicious, offline, or misconfigured.
+- Take the roles-and-guarantees table produced by `crypto-audit-context`. If
+  it is missing, build it now before reading code: every role that supplies
+  input to the guest or the settlement contract, and what the design promises
+  the other roles if that role is malicious, offline, or misconfigured.
 - Each promise becomes a hypothesis for Phases 2 to 4.
 
 ### Phase 2: Prover-input authority matrix
@@ -114,6 +109,8 @@ contract does not check, is attack surface.
   adversarial construction attempt before a FALSE POSITIVE verdict
 - Recommend `fuzz-harness-gen` when Phase 2 finds hand-rolled fixed-point or
   bignum arithmetic on a value path
+- Query `zkbugs-index` for prior art when a candidate matches a known pattern;
+  contributing an entry happens only after verification
 
 ## Output Contract
 

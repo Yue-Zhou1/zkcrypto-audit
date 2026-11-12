@@ -15,350 +15,67 @@ the work into clear steps: understand the system, compare code to its governing
 spec, run the right auditors, verify suspected issues, and turn the result into
 report-ready evidence.
 
-## Usage Guardrails
-
-> **Important**
->
-> This repository is designed to support human-in-the-loop crypto and security review.
-> It should not be treated as an autonomous decision-maker.
-> Raw model output should not be delivered directly to clients or reused as
-> final findings without independent verification.
-> Final judgments, severity ratings, and reports remain the responsibility of
-> the human reviewer.
-
-## Why This Exists
-
-Crypto and ZK reviews usually mix several different jobs at once: scoping, spec
-comparison, domain review, false-positive filtering, and reporting. When those
-jobs are blended together, the output becomes harder to trust and harder to
-reuse. This repository separates those jobs into focused plugins and skills with clear
-handoffs. The goal is simple: make reviews easier to start, easier to follow,
-and easier to verify.
-
-## Installation
-
-### Quick Start in Codex
-
-1. Keep this repository checked out locally.
-2. Ensure your Codex environment can read:
-   - `.agents/plugins/marketplace.json` (plugin catalog)
-   - `plugins/*/.codex-plugin/plugin.json` (category plugin manifests)
-   - `.codex/skills/*/SKILL.md` (compatibility invocation paths)
-
-3. Start the audit from the router using the prompt below.
-
-## Best-Practice Codex Prompt
-
-```text
-Use crypto-audit-router to run a complete staged crypto/ZK security audit on <target directories>; read the full audit workflow, build/update session state, run context, spec-delta, all applicable router-matrix domain auditors, FP checks, PoC gates, report writer, and zkbugs-index only when applicable.
-Do not stop after the first issue; finish with session JSON, candidate dispositions, PoC/proof artifacts, a readable report, and explicit reasons for any skipped stage or route.
-```
-
-### Quick Start in Claude Code
-
-1. Add the marketplace:
-
-```bash
-/plugin marketplace add Yue-Zhou1/zkcrypto-audit
-```
-
-2. Open the plugin menu:
-
-```bash
-/plugin menu
-```
-
-Install `core-audit-flow` first. Then install the categories you need, or
-install all 7 plugins for full coverage:
-
-- `core-audit-flow`
-- `zk-and-vm-auditors`
-- `crypto-primitive-auditors`
-- `protocol-auditors`
-- `post-quantum-auditors`
-- `implementation-safety`
-- `evidence-and-tooling`
-
-3. Start your first audit chat using the best-practice prompt above, after
-   installing `core-audit-flow`.
-
-### What You Get After Install
-
-- A guided starting point through `crypto-audit-router`
-- A staged workflow for context, spec review, domain analysis, verification,
-  and reporting
-- 7 plugin categories covering 43 skills across ZK systems, cryptographic
-  primitives, protocols, implementation safety, and evidence tooling
-
-For OpenAI Codex, this repository ships category plugin manifests, a Codex
-marketplace catalog, and compatibility stubs under `.codex/skills/`.
-Claude Code remains fully supported through `.claude-plugin` packaging.
+> **Human in the loop.** This toolkit supports a human reviewer; it does not
+> replace one. Do not deliver raw model output to clients or reuse it as final
+> findings without independent verification. Judgments, severity ratings, and
+> reports remain the reviewer's responsibility.
 
 ## How It Works
 
-A typical review follows this path:
+1. `crypto-audit-router` plans the audit and keeps its state on disk.
+2. `crypto-audit-context` maps trust boundaries, critical paths, and roles.
+3. `spec-delta-checker` compares the code with its governing spec or paper.
+4. Domain auditors review the parts of the system they specialise in.
+5. `crypto-fp-check` verifies every candidate; Critical and High need a
+   running PoC.
+6. `crypto-report-writer` turns verified findings into the report.
 
-1. Start with `crypto-audit-router` to choose the right staged workflow.
-2. Build audit context with `crypto-audit-context`.
-3. If the code follows a paper, RFC, or spec, run `spec-delta-checker`.
-4. Choose one or more domain auditors based on the system you are reviewing.
-5. Use `crypto-fp-check` to filter weak or unsupported findings.
-6. Use `crypto-report-writer` to turn verified issues into report-ready output.
-7. Use `zkbugs-index`, harness generation, or formal verification support when
-   you need prior art or stronger evidence.
-8. When a fix is supplied for a verified finding, use `fix-verification` to
-   confirm the patch removes the root cause and record a remediation verdict.
+`fix-verification` checks supplied patches afterwards. Working state goes to
+`.zkcrypto-audit/<engagement-id>/` in the directory you run the audit from.
 
-The canonical workflow is documented in
-`plugins/core-audit-flow/skills/crypto-audit-router/workflows/full-audit-flow.md`.
+## What Is Included
 
-## Example: Auditing a Rust Groth16 Verifier
+| Plugin | Covers |
+|---|---|
+| `core-audit-flow` | Router, context, spec comparison, verification, reporting, fix verification |
+| `zk-and-vm-auditors` | Circuits and proof systems, Cairo, Noir, gnark, folding schemes, zkVMs, on-chain verifiers, proven state transitions |
+| `crypto-primitive-auditors` | Curves and pairings, hashes, commitments, Merkle trees, Fiat-Shamir, encryption, signatures, Ethereum cryptography |
+| `protocol-auditors` | DKG and threshold signatures, threshold ECDSA, MPC, privacy protocols, VRFs, VDFs |
+| `post-quantum-auditors` | Lattice schemes, FHE, ML-KEM, post-quantum signatures |
+| `implementation-safety` | Rust safety, side channels, fault injection, randomness, dependencies |
+| `evidence-and-tooling` | zkbugs prior-art index, fuzz and Kani harnesses, differential tests, formal-verification bridge |
 
-This walks through a full audit of a Rust codebase implementing a Groth16
-verifier. Each step shows the exact prompt and a condensed sample of what
-skills produces.
+## Quick Start
 
----
+The skills use the open [Agent Skills](https://agentskills.io) format. Install
+`core-audit-flow` first, then the categories you need.
 
-### Step 1 — Start the router
+```bash
+# Claude Code
+/plugin marketplace add Yue-Zhou1/zkcrypto-audit
 
-```text
-Use crypto-audit-router to run a complete staged crypto/ZK security audit on src/. Follow the Best-Practice Codex Prompt above, including session state, all applicable domain routes, false-positive checking, PoC gates, and report writing.
+# Codex
+codex plugin marketplace add Yue-Zhou1/zkcrypto-audit
+
+# Other agents that read Agent Skills
+npx skills add Yue-Zhou1/zkcrypto-audit
 ```
 
-> **Router output:**
-> Routing plan for this target:
-> 1. `crypto-audit-context` — map trust boundaries and critical paths
-> 2. `spec-delta-checker` — code claims to follow the Groth16 paper
-> 3. `zk-circuit-auditor` — verifier equations and pairing checks
-> 4. `ecc-pairing-auditor` — point deserialisation and subgroup membership
-> 5. `rust-crypto-safety` — unsafe blocks, zeroization, constant-time
-> 6. `crypto-fp-check` — verify surviving suspected findings
-> 7. `crypto-report-writer` — produce report-ready output
-
-The router does not audit anything. It produces a skill sequence and reasons
-for each choice, then hands off.
-
----
-
-### Step 2 — Build audit context
+Then start an audit:
 
 ```text
-Use crypto-audit-context on the src/ directory.
+Use crypto-audit-router to run a complete staged crypto/ZK security audit on <target directories>. Do not stop after the first issue; finish with session state, candidate dispositions, PoCs, a report, and reasons for any skipped stage or route.
 ```
 
-> **Context output (condensed):**
-> Critical paths: `Verifier::verify()`, `G1Affine::from_bytes()`, `prepare_inputs()`
-> Trust boundary: all proof elements are attacker-controlled; no subgroup checks visible at entry
-> Threat model: missing membership check → forged proof acceptance
-> Unresolved: does `from_bytes` enforce prime-order subgroup?
-> Session state written to `zk-findings/sessions/groth16-example.json`
-> Next: run `spec-delta-checker` + `ecc-pairing-auditor` in parallel
+## More
 
-The context skill maps what the code *enforces*, not what the docs claim.
-The session file persists the handoff so the audit can resume across
-conversations.
-
----
-
-### Step 3 — Spec delta and domain review
-
-```text
-Use spec-delta-checker. The code targets the Groth16 paper (BCTV14).
-```
-
-> **Spec-delta output (condensed):**
-> Deviation: paper requires subgroup membership check on proof elements A, B, C.
-> Implementation: `from_bytes` returns `Option`, no explicit membership enforcement.
-> Classification: security-relevant omission — suspected finding.
-
-```text
-Use ecc-pairing-auditor on the verifier and deserialisation modules.
-```
-
-> **ECC-pairing output (condensed):**
-> `G1Affine::from_bytes` decodes the point but does not call `is_torsion_free()`.
-> Pairing inputs are used immediately after decode with no membership gate.
-> Suspected finding: missing subgroup check on verifier inputs.
-
-Each domain skill preserves its output contract rather than merging findings
-into prose — this keeps verification clean in the next step.
-
----
-
-### Step 4 — Verify findings
-
-```text
-Use crypto-fp-check on the suspected subgroup check finding.
-```
-
-> **FP-check output (condensed):**
-> Verdict: TRUE POSITIVE
-> Trigger path: attacker supplies malformed A ∈ G1 not in prime-order subgroup → `from_bytes` succeeds → pairing computed on tainted point
-> Impact: forged proof may satisfy the verifier equation
-> Severity: High — PoC: construct a point of small order, show `verify()` returns `Ok(())` on an invalid proof
-> Next: `crypto-report-writer`
-
-`crypto-fp-check` enforces the PoC gate — Critical/High findings require
-executable proof before they advance to the report.
-
----
-
-### Step 5 — Write the report
-
-```text
-Use crypto-report-writer for the verified subgroup check finding.
-```
-
-> **Report output (condensed):**
->
-> **[H-01] Missing subgroup membership check on Groth16 proof elements**
-> Severity: High
-> Location: `src/verifier.rs` — `G1Affine::from_bytes`, `Verifier::verify`
-> Impact: A point outside the prime-order subgroup passes deserialisation and
-> reaches the pairing computation, allowing an adversary to forge a proof that
-> satisfies the verifier equation without a valid witness.
-> Recommendation: call `is_torsion_free()` immediately after `from_bytes` and
-> return an error before any pairing operation if the check fails.
-
----
-
-### Resuming the audit later
-
-The session state at `zk-findings/sessions/groth16-example.json` records
-every handoff. To continue in a new conversation:
-
-```text
-Use crypto-audit-router. Resume session at zk-findings/sessions/groth16-example.json.
-```
-
----
-
-## Plugin Categories and When to Use Them
-
-### `core-audit-flow`
-
-Start here if you are new to the repository, unsure which auditor to use, or
-want a guided review path from start to finish.
-
-Skills: `crypto-audit-router`, `audit-common`, `crypto-audit-context`,
-`spec-delta-checker`, `crypto-fp-check`, `crypto-report-writer`,
-`fix-verification`
-
-### `zk-and-vm-auditors`
-
-Use this category for circuits, proving systems (including generic STARK/AIR
-verifiers), Cairo/Starknet, Noir, gnark, zkVM and zkEVM-equivalence review,
-on-chain proof-verifier contracts, and applications proven inside a zkVM and
-settled on L1 (rollups, validiums, proven exchanges, bridges).
-
-Skills: `zk-circuit-auditor`, `cairo-auditor`, `noir-auditor`,
-`zkvm-auditor`, `gnark-auditor`, `folding-scheme-auditor`,
-`onchain-verifier-auditor`, `proven-state-transition-auditor`
-
-### `crypto-primitive-auditors`
-
-Use this category for elliptic curves, pairings, BLS, hash functions,
-commitment schemes, Merkle trees, Fiat-Shamir transcripts, encryption
-schemes, and classical signature schemes.
-
-Skills: `ecc-pairing-auditor`, `hash-function-auditor`,
-`commitment-scheme-auditor`, `merkle-tree-auditor`,
-`fiat-shamir-auditor`, `encryption-scheme-auditor`,
-`ethereum-crypto-auditor`, `signature-scheme-auditor`
-
-### `protocol-auditors`
-
-Use this category for threshold systems, DKG flows, MPC protocols, threshold
-ECDSA, shielded-pool privacy protocols, VRFs, and VDFs.
-
-Skills: `dkg-threshold-auditor`, `mpc-auditor`, `vdf-auditor`,
-`threshold-ecdsa-auditor`, `privacy-protocol-auditor`, `vrf-auditor`
-
-### `post-quantum-auditors`
-
-Use this category for lattice-based cryptography, fully homomorphic
-encryption, and standardized post-quantum KEM and signature review.
-
-Skills: `lattice-auditor`, `fhe-auditor`, `pqc-kem-auditor`,
-`pqc-signature-auditor`
-
-### `implementation-safety`
-
-Use this category for cross-cutting implementation risks such as unsafe Rust,
-side-channel exposure, fault-injection resistance, dependency hygiene,
-randomness and nonce lifecycles, and operational safety checks.
-
-Skills: `rust-crypto-safety`, `side-channel-auditor`, `dependency-auditor`,
-`randomness-auditor`, `fault-injection-auditor`
-
-### `evidence-and-tooling`
-
-Use this category when you need prior-art lookup, stronger reproduction,
-harness generation, fuzzing support, differential test harnesses, or bridges
-to external verification tools.
-
-Skills: `zkbugs-index`, `kani-harness-gen`, `fuzz-harness-gen`,
-`formal-verification-bridge`, `differential-test-harness-gen`
-
-## Repository Notes
-
-- Category plugins live under `plugins/`
-- The root Claude Code marketplace catalog lives at `.claude-plugin/marketplace.json`
-- Codex plugin manifests live at `plugins/*/.codex-plugin/plugin.json`
-- Codex marketplace catalog lives at `.agents/plugins/marketplace.json`
-- Codex marketplace schema lives at `.agents/plugins/marketplace.schema.json`
-- Codex routing metadata lives at `plugins/_meta/codex-skill-registry.yaml` and `plugins/_meta/router-matrix.yaml`
-- OpenAI Codex compatibility stubs live under `.codex/skills/` and are generated (not hand-edited)
-- Codex per-skill discoverability metadata lives at `plugins/*/skills/*/agents/openai.yaml`
-- `zk-findings/` is the local workspace for engagement-specific notes and findings
-
-## Codex Orchestration Contract
-
-- `plugins/*/skills/*/SKILL.md` is the source of truth for skill behavior.
-- `crypto-audit-router` remains the router-first orchestrator for staged flow.
-- `trigger_mode` policy is enforced from `plugins/_meta/codex-skill-registry.yaml`.
-  Skills marked `user_triggered_only` are excluded from router auto-selection.
-- `plugins/*/skills/*/agents/openai.yaml` controls Codex UI/discovery only.
-- `.agents/plugins/marketplace.json` is validated by `.agents/plugins/marketplace.schema.json`.
-- See `docs/codex/architecture.md` for packaging ownership and migration policy.
-
-## Migration Notes
-
-- The repository moved from a flat Codex stub model to package+registry orchestration.
-- Canonical skill sources remain `plugins/*/skills/*/SKILL.md`; routing policy now lives in `plugins/_meta/*.yaml`.
-- `.codex/skills/*` stubs remain valid Codex invocation paths for backward compatibility.
-- `.codex/skills/*` stubs are maintained by hand; keep them in sync with `plugins/_meta/*.yaml` when adding or renaming skills.
-
-## Advanced Note
-
-Some evidence tooling is optional and more technical:
-
-- `zkbugs-index` **queries need no tooling at all** — the vulnerability index
-  ships pre-built and committed under
-  `plugins/evidence-and-tooling/index/`, and is read directly as JSON.
-- Python 3.10+ is required only to *rebuild* the index
-  (`scripts/build_index.py`) or *contribute* a finding
-  (`scripts/contribute_bug.py`). Both live at the **plugin root**, not inside
-  `skills/zkbugs-index/`.
-- Rebuilds are usually unnecessary: `.github/workflows/zkbugs-rebuild.yml` syncs
-  against upstream weekly and opens a PR when it drifts.
-- `kani-harness-gen` and `fuzz-harness-gen` can be computationally intensive
-  and may take noticeable time and system resources to run
-- Optional script dependencies live in
-  `plugins/evidence-and-tooling/scripts/requirements.txt`
-
-## Contributing
-
-Contributions should preserve the staged workflow of the framework: focused
-plugins with explicit references and workflows.
-
-The repository no longer carries a root-level `tests/` suite, so structural
-guarantees are documentation-enforced. If you change plugin structure or
-installation guidance, update the README, `CLAUDE.md`, `AGENTS.md`, and
-`plugins/_meta/*.yaml` together — and verify that any path a SKILL.md tells an
-agent to read actually resolves from the installed plugin layout, not just from
-a repo checkout.
+- [examples/](examples/): sample engagement directories and a
+  [walkthrough](examples/walkthrough.md)
+- [docs/codex/usage.md](docs/codex/usage.md): Codex usage
+- [docs/codex/architecture.md](docs/codex/architecture.md): how the packaging
+  layers relate
+- [AGENTS.md](AGENTS.md): repository layout and how to change or add skills
+- [CHANGELOG.md](CHANGELOG.md)
 
 ## Acknowledgments
 

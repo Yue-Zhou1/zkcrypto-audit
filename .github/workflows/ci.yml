@@ -26,3 +26,22 @@ jobs:
             echo "ERROR: .claude/settings.local.json must not be tracked."
             exit 1
           fi
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install check dependencies
+        run: pip install -r scripts/requirements.txt
+
+      - name: Check generated packaging and repository consistency
+        run: python3 scripts/sync.py --check
+
+      - name: Verify Python sources compile
+        run: |
+          python3 -m py_compile \
+            scripts/sync.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/_shared.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/build_index.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/contribute_bug.py

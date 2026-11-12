@@ -11,12 +11,14 @@ protocol-level sources.
   public-input handling.
 - PLONK — Gabizon, Williamson, Ciobotaru, "PLONK: Permutations over
   Lagrange-bases for Oecumenical Noninteractive arguments of Knowledge"
-  (ePrint 2019/953): PLONKish gate/permutation/lookup argument structure
-  and transcript ordering.
+  (ePrint 2019/953): PLONKish gate and permutation argument structure
+  and transcript ordering. Lookup arguments are later additions: Gabizon,
+  Williamson, "plookup: A simplified polynomial protocol for lookup tables"
+  (ePrint 2020/315).
 - KZG — Kate, Zaverucha, Goldberg, "Constant-Size Commitments to
   Polynomials and Their Applications", ASIACRYPT 2010: commitment and
   opening-proof semantics behind PCS-based verifiers.
-- ethSTARK — StarkWare, "ethSTARK Documentation" (ePrint 2021/582):
+- ethSTARK — StarkWare Team, "ethSTARK Documentation" (ePrint 2021/582):
   concrete STARK protocol composition — AIR, composition polynomial,
   FRI parameterization, grinding, and the soundness-budget accounting used
   in the STARK/AIR review workflow.
@@ -35,7 +37,8 @@ protocol-level sources.
 - STARK — Ben-Sasson, Bentov, Horesh, Riabzev, "Scalable, transparent,
   and post-quantum secure computational integrity" (ePrint 2018/046):
   original STARK construction context.
-- Winterfell (facebook/winterfell) and Plonky3 documentation: reference
+- Winterfell (meta/winterfell, formerly facebook/winterfell) and Plonky3
+  documentation: reference
   implementations for generic AIR/STARK verifier structure outside
   Cairo/Starknet.
 - zksecurity/zkbugs corpus: real-world instances of unconstrained-signal

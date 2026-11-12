@@ -1,8 +1,14 @@
-display_name: zk-circuit-auditor
-short_description: Audit ZK circuits, proof systems, and verifier code for soundness
-  and transcript failures. Use when reviewing witness constraints, Fiat-Shamir flows,
-  KZG/PCS setup assumptions, public input encoding, or recursive proof threading.
-default_prompt: Use zk-circuit-auditor for this task. Audit ZK circuits, proof systems,
-  and verifier code for soundness and transcript failures. Use when reviewing witness
-  constraints, Fiat-Shamir flows, KZG/PCS setup assumptions, public input encoding,
-  or recursive proof threading.
+interface:
+  display_name: zk-circuit-auditor
+  short_description: 'Audit ZK circuits, proof systems, and verifier code for soundness and
+    statement-binding failures: under-constrained witnesses, range and non-native arithmetic
+    gaps, lookup and selector misuse, public input encoding, verifier equations, setup provenance,
+    and recursive proof threading. Use when reviewing Circom, Halo2, arkworks, plonky2/3,
+    Groth16, PLONKish, or generic STARK/AIR code, witness constraints, circuit-side Fiat-Shamir
+    flows, or KZG/PCS setup assumptions.'
+  default_prompt: 'Use zk-circuit-auditor for this task. Audit ZK circuits, proof systems,
+    and verifier code for soundness and statement-binding failures: under-constrained witnesses,
+    range and non-native arithmetic gaps, lookup and selector misuse, public input encoding,
+    verifier equations, setup provenance, and recursive proof threading. Use when reviewing
+    Circom, Halo2, arkworks, plonky2/3, Groth16, PLONKish, or generic STARK/AIR code, witness
+    constraints, circuit-side Fiat-Shamir flows, or KZG/PCS setup assumptions.'

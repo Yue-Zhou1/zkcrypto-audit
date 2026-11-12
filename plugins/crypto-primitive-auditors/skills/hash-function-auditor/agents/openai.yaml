@@ -1,7 +1,14 @@
-display_name: hash-function-auditor
-short_description: Audit ZK-friendly hash functions (Poseidon, Rescue, MiMC, Pedersen)
-  for parameter selection, sponge construction, domain separation, and algebraic attack
-  resistance.
-default_prompt: Use hash-function-auditor for this task. Audit ZK-friendly hash functions
-  (Poseidon, Rescue, MiMC, Pedersen) for parameter selection, sponge construction,
-  domain separation, and algebraic attack resistance.
+interface:
+  display_name: hash-function-auditor
+  short_description: Audit ZK-friendly hash functions (Poseidon/Poseidon2, Rescue, MiMC, Pedersen
+    hash, Anemoi, Griffin) for parameter selection (rounds, S-box vs field, MDS and round-constant
+    generation), sponge construction (capacity, rate, padding, length and domain encoding),
+    multi-arity use, truncation, algebraic attack resistance, and in-circuit vs native equivalence.
+    Use when reviewing a hash permutation, its constants, a sponge or compression wrapper,
+    or its call sites.
+  default_prompt: Use hash-function-auditor for this task. Audit ZK-friendly hash functions
+    (Poseidon/Poseidon2, Rescue, MiMC, Pedersen hash, Anemoi, Griffin) for parameter selection
+    (rounds, S-box vs field, MDS and round-constant generation), sponge construction (capacity,
+    rate, padding, length and domain encoding), multi-arity use, truncation, algebraic attack
+    resistance, and in-circuit vs native equivalence. Use when reviewing a hash permutation,
+    its constants, a sponge or compression wrapper, or its call sites.

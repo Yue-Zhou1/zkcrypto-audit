@@ -28,8 +28,10 @@ STARK protocol layer that composes them.
 - **Pattern:** the declared composition degree bound does not match the
   actual max constraint degree times selector/periodic factors; blowup
   factor chosen for the wrong degree.
-- **Impact:** composition polynomial exceeds the tested degree — low-degree
-  testing no longer binds the constraints; soundness collapses silently.
+- **Impact:** if the tested bound is looser than the constraints need, or
+  the rate is higher than the soundness analysis assumes, low-degree
+  testing no longer binds the constraints and soundness degrades silently;
+  if it is tighter, honest proofs fail.
 
 ## A4: Composition/quotient construction errors
 
@@ -43,11 +45,13 @@ STARK protocol layer that composes them.
 ## A5: FRI query schedule and soundness budget
 
 - **Pattern:** number of FRI queries, blowup factor, and grinding bits
-  jointly deliver fewer soundness bits than the protocol claims; queries
-  sampled before the last commitment, or reused across layers without
-  fresh transcript state.
-- **Impact:** provable-forgery probability far above the advertised
-  2^-lambda; grinding lets an attacker brute-force favorable challenges.
+  jointly deliver fewer soundness bits than the protocol claims; query
+  indices sampled before the last FRI commitment and the proof-of-work
+  nonce, or folding challenges reused across layers instead of being drawn
+  after each layer's commitment.
+- **Impact:** forgery probability far above the advertised 2^-lambda; with
+  too few queries or grinding bits a prover can cheaply retry commitments
+  until the sampled queries are favorable.
 
 ## A6: DEEP / out-of-domain sampling gaps
 

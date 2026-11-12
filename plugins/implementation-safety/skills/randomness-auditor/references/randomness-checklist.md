@@ -29,20 +29,22 @@
 - [ ] fork() safety: child processes reseed or the RNG detects PID change /
       fork-generation counters. Inherited userspace RNG state produces
       identical streams in parent and child.
-- [ ] VM snapshot/resume safety: resumed clones must reseed (virtio-rng,
-      VMGENID awareness) — snapshot-cloned services otherwise emit identical
+- [ ] VM snapshot/resume safety: resumed clones must reseed (VMGENID
+      awareness) — snapshot-cloned services otherwise emit identical
       nonces (the classic duplicated-nonce-in-cloned-VM failure).
 - [ ] Thread-local or object-cloned RNGs cannot be copied with live state.
 
 ## Deterministic nonce derivation
 
-- [ ] RFC 6979 (deterministic ECDSA): k derives from HMAC(key, H(m)) per
-      the RFC's exact loop; message binding uses the full hash; retries
-      inside the RFC loop (k out of range) follow the specified re-derivation,
-      not an ad-hoc counter.
-- [ ] RFC 8032 (EdDSA): r = H(prefix || M) with the prefix from the key
-      expansion; implementations must not substitute an external RNG or
-      truncate the hash.
+- [ ] RFC 6979 (deterministic ECDSA): k derives from the §3.2 HMAC chain
+      over int2octets(x) || bits2octets(H(m)) per the RFC's exact loop;
+      message binding uses bits2octets (leftmost qlen bits of the hash,
+      reduced mod q), not another truncation; retries inside the RFC loop
+      (k out of range) follow the specified re-derivation, not an ad-hoc
+      counter or a modular reduction.
+- [ ] RFC 8032 (EdDSA): r = H(dom || prefix || PH(M)) with the prefix from
+      the key expansion (dom is empty for pure Ed25519); implementations
+      must not substitute an external RNG or truncate the hash.
 - [ ] No hybrid improvisations ("deterministic + timestamp", "RFC 6979 but
       cached across messages") without a written derivation argument;
       additive hedging (RFC 6979 §3.6 extra entropy) must still bind the
@@ -71,5 +73,6 @@
 - [ ] AEAD IV/nonce collision -> `encryption-scheme-auditor`.
 - [ ] DKG/threshold nonce shares -> `dkg-threshold-auditor` /
       `threshold-ecdsa-auditor`.
-- [ ] VRF nonce generation (RFC 9381 §5.4.2 references RFC 6979-style
-      derivation) -> the VRF review when that skill is present.
+- [ ] VRF nonce generation (RFC 9381 §5.4.2 specifies RFC 6979-style and
+      RFC 8032-style derivations) -> the VRF review when that skill is
+      present.

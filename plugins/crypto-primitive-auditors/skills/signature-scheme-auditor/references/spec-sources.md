@@ -3,8 +3,9 @@
 ## Normative
 
 - FIPS 186-5 — "Digital Signature Standard (DSS)" (February 2023).
-  Normative for ECDSA: per-message secret requirements, hash truncation
-  (§6.4.1), and approved curves; also incorporates EdDSA by reference.
+  Normative for ECDSA: per-message secret requirements (§6.3) and hash
+  truncation (§6.4.1 step 2, §6.4.2 step 3); the recommended curves are in
+  SP 800-186. §7 specifies EdDSA, building on RFC 8032.
 - SEC 1 v2.0 — "Elliptic Curve Cryptography" (Certicom, 2009). Normative
   for ECDSA verification steps and §3.2.2 full public-key validation.
 - BIP-340 — "Schnorr Signatures for secp256k1" (Wuille, Nick, Ruffing).
@@ -18,7 +19,8 @@
   Normative for RSASSA-PSS (EMSA-PSS encoding/verification, salt, 0xBC
   trailer, MGF1) and RSASSA-PKCS1-v1_5 (EMSA-PKCS1-v1_5 exact-encoding
   comparison).
-- RFC 6979 — "Deterministic Usage of DSA and ECDSA". Normative for
+- RFC 6979 — "Deterministic Usage of the Digital Signature Algorithm (DSA)
+  and Elliptic Curve Digital Signature Algorithm (ECDSA)". Normative for
   deterministic nonce derivation referenced from signing paths (lifecycle
   review handed to randomness-auditor).
 

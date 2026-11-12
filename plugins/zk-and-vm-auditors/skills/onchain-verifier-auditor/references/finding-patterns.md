@@ -11,7 +11,9 @@ causes and where to look.
   reduce inputs mod r.
 - **Impact:** input aliasing — `x` and `x + r` verify the same proof but mean
   different application-level values (double-spend of nullifier-like inputs).
-- **Where:** older snarkjs-generated verifiers, hand-rolled verifiers, and
+- **Where:** snarkjs-generated verifiers from before v0.1.15 (no check) or
+  from v0.7.0 through v0.7.3 (check against the base-field modulus, which
+  still admits `x + r` for small `x`), hand-rolled verifiers, and
   application contracts that pre-process inputs before calling the verifier.
 
 ## P2: Ignored precompile call success flag
@@ -50,8 +52,9 @@ causes and where to look.
 
 - **Pattern:** hand-edited assembly verifier reads proof B at the wrong
   calldata offset, or swaps G2 real/imaginary coefficient order.
-- **Root cause:** EIP-197's G2 encoding (imaginary first) diverges from most
-  library serializations.
+- **Root cause:** EIP-197's G2 encoding (imaginary first) is the reverse of
+  the real-first order in snarkjs proof JSON, while gnark-crypto already
+  serializes imaginary first; whether a swap is needed depends on the prover.
 - **Impact:** honest proofs fail (DoS) or, combined with a permissive
   decoder, a crafted proof verifies a different statement.
 

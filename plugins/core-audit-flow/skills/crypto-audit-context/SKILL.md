@@ -5,10 +5,7 @@ description: >
   vulnerability hunting. Use when starting a crypto audit, mapping trust
   boundaries, prioritizing code paths, or applying dimensional analysis to
   protocol values.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
+allowed-tools: Read Grep Glob Write Edit
 ---
 
 # crypto-audit-context
@@ -27,9 +24,11 @@ claim.
 
 ## When NOT to Use
 
-- Verifying whether a specific suspected finding is a true positive
-- Writing final severity decisions or report-ready findings
-- Querying prior-art or disclosure state
+- Verifying whether a specific suspected finding is real -> `crypto-fp-check`
+- Assigning severity or writing report prose -> `crypto-fp-check`,
+  `crypto-report-writer`
+- Comparing code against a named specification -> `spec-delta-checker`
+- Looking up prior art -> `zkbugs-index`
 
 ## Audit Priority
 
@@ -78,10 +77,13 @@ Review highest-risk code first:
 - If the critical path contains hand-rolled fixed-point, decimal rescaling,
   or bignum arithmetic, recommend `fuzz-harness-gen` explicitly in the
   handoff (it is user-triggered and will not run unless asked)
-- Initialize or update session state in `zk-findings/sessions/<engagement-id>.json`
-  using `zk-findings/sessions/session-state-schema.json`
-- Persist trust boundaries, open findings, and next-step routes so follow-on
-  conversations continue from the same state
+- When run inside the staged flow, write the result into `session.json` in
+  the audit workspace (`.zkcrypto-audit/<engagement-id>/`), following the
+  workspace and schema rules of `crypto-audit-router`: `targets`,
+  `trust_boundaries`, `critical_paths`, `unresolved_assumptions`, and
+  `next_steps`
+- Anything that already looks like a defect goes in `candidates` as
+  `unverified`; intake does not decide it
 
 ## Output Contract
 
@@ -92,7 +94,7 @@ Produce a context handoff that includes:
 - Threat-model notes that the next skill must preserve
 - The roles-and-guarantees table, with each unenforced promise listed
 - Recommended next skills, with a brief reason for each route
-- Session state path updated in `zk-findings/sessions/` for downstream handoffs
+- The `session.json` path, when run inside the staged flow
 
 ## Reference Index
 

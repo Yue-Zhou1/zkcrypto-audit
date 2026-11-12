@@ -30,8 +30,8 @@ verifiers (outside Cairo/Starknet — Cairo hints and Sierra/CASM go to
 6. **Audit the FRI parameterization at the protocol layer.** Queries,
    blowup, grinding bits: recompute the soundness budget against the
    protocol's claim (ethSTARK-style accounting); confirm query positions
-   are drawn after the final FRI commitment and are distinct per layer
-   rule (A5).
+   are drawn after the final FRI commitment and the proof-of-work nonce
+   (A5).
 
 7. **Check public-input binding.** Public inputs absorbed into the
    transcript before any challenge, and bound into boundary constraints

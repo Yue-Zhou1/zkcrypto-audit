@@ -28,7 +28,8 @@ authorization check may be classified FALSE POSITIVE only with one of:
 - **(a)** a recorded adversarial construction attempt (the malformed input
   you built, the code path it took, and the exact check that rejected it), or
 - **(b)** a `file:line` for the check that rejects each malformed-input
-  class separately: omitted, extra, reordered, empty, identity-valued.
+  class separately: omitted, duplicated or extra, reordered, empty,
+  identity-valued.
 
 An argument that covers one class ("fixed depth, so the path cannot be
 shortened"; "any account holding it will read it") does not close the other
@@ -67,7 +68,7 @@ Name the function `poc_<finding-id>_<short-description>` so it is filterable.
 
 Document the exact build blocker. Then choose one:
 - **Option A:** Provide a reduced reproducer in a sibling crate that can compile and run
-- **Option B:** Provide exhaustive structural evidence (every referenced symbol verified via `Grep`/`Read`) and mark severity as `pending_poc` until the client runs the test
+- **Option B:** Provide exhaustive structural evidence (every referenced symbol located and read in the target source) and record `poc_status: pending_poc` with the build blocker until the client runs the test
 
 Do not claim High/Critical with only "PoC written but not executed." That is still a hypothesis.
 

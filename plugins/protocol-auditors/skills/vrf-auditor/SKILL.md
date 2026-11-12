@@ -7,11 +7,7 @@ description: >
   and uniqueness/pseudorandomness assumptions, plus application-level output
   grinding. Use when reviewing VRF provers, verifiers, or consumers of VRF
   outputs (leader election, lotteries, randomness beacons).
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # vrf-auditor
@@ -40,25 +36,38 @@ rules consumers must follow before treating a VRF output as random.
 - Nonce/CSPRNG generation mechanics -> `randomness-auditor`
 - Line-by-line RFC conformance diffing -> `spec-delta-checker`
 
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "It is a secure signature scheme, so it works as a VRF" | A VRF needs uniqueness: one output per key and input. A randomized or malleable signature lets the prover choose among outputs |
+| "The proof verified, so the output is unpredictable" | Pseudorandomness is stated for honestly generated keys. Against the key holder the output is known in advance, and with adversarial keys ECVRF keeps collision resistance and unpredictability only if the key is validated, while RSA-FDH-VRF does not keep uniqueness either |
+| "We verify the proof later" | An output consumed before verification is an attacker-chosen value |
+| "The input is public, so there is nothing to grind" | If the prover influences the input, registers keys after it is known, or can decline to reveal, the result is biased. Fix the input before keys can change and account for withholding |
+| "Cofactor handling is a detail" | RFC 9381 multiplies by the cofactor in encode-to-curve, key validation, and proof-to-hash. Dropping a step leaves small-order components in play, and the RFC's uniqueness and collision-resistance claims no longer apply |
+| "Key registration is open, but every proof is checked" | Without key validation a crafted ECVRF key breaks full collision resistance and unpredictability even though each proof verifies, and RSA-FDH-VRF has only trusted uniqueness and collision resistance |
+
 ## Core Review Areas
 
 1. Key validation: ECVRF public keys decoded and validated per the
-   ciphersuite's validate_key rules (small-order/identity rejection for
-   full uniqueness/collision resistance claims); RSA key sanity
+   ciphersuite's validate_key rules (small-order/identity rejection, which
+   is what gives full collision resistance and unpredictability under
+   malicious key generation); RSA key sanity
 2. Domain separation: suite string, DST, and challenge-generation
    separation octets exactly per RFC 9381; no cross-suite or cross-protocol
    hash reuse
-3. encode_to_curve: correct method for the ciphersuite (TAI vs
-   hash_to_curve per RFC 9380), including the salt and loop rules
+3. encode_to_curve: correct method for the ciphersuite (TAI vs the
+   RFC 9380 h2c suite), including the salt and loop rules
 4. Cofactor handling: Gamma multiplied by the cofactor in proof_to_hash;
    verification equation component checks
 5. Nonce generation in proving: RFC 9381 §5.4.2 deterministic derivation
    (RFC 6979-style / RFC 8032-style) — reuse leaks the secret key
 6. proof_to_hash ordering: beta computed only from a proof that verified;
    consumers must never use outputs before verify returns VALID
-7. Uniqueness and pseudorandomness caveats: which property holds for
-   adversarial keys under the chosen ciphersuite, and whether the
-   application needs full uniqueness
+7. Uniqueness, collision resistance, and pseudorandomness caveats: which
+   property holds for adversarial keys under the chosen construction
+   (ECVRF has full uniqueness; RSA-FDH-VRF only trusted uniqueness), and
+   which the application needs
 8. Application grinding: can a participant re-key, re-input, or withhold
    outputs to bias the consuming protocol (leader election, lotteries)
 

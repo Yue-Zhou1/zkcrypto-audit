@@ -4,11 +4,7 @@ description: >
   Verifies suspected ZK and cryptographic findings before reporting. Use when
   deciding whether a suspected vulnerability is a TRUE POSITIVE or FALSE
   POSITIVE, assigning severity, or enforcing the Critical/High PoC gate.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash Write Edit
 ---
 
 # crypto-fp-check
@@ -24,9 +20,11 @@ Do not report a finding because it looks dangerous. Verify it.
 
 ## When NOT to Use
 
-- Building initial audit context for a new target
-- Hunting for new bug patterns across the codebase
-- Writing final report prose without re-checking the underlying claim
+- Building initial audit context for a new target -> `crypto-audit-context`
+- Hunting for new bug patterns across the codebase -> the domain auditor for
+  that code
+- Writing report prose -> `crypto-report-writer`
+- Checking whether a patch fixes a verified finding -> `fix-verification`
 
 ## Rationalizations to Reject
 
@@ -48,7 +46,8 @@ PoC gate for Critical/High claims.
 
 - Use `audit-common` severity definitions when assigning severity
 - Use `audit-common` testing evidence definitions when arguing that tests are insufficient
-- Use `zkbugs-index` only after the claim survives verification
+- `zkbugs-index` prior art supports plausibility only; it never substitutes
+  for a target-specific trigger path
 
 ## Output Contract
 
@@ -58,7 +57,7 @@ The final deliverable for each TRUE POSITIVE finding is **two artifacts**, not o
 - `TRUE POSITIVE` or `FALSE POSITIVE`
 - The exact gate that failed or the evidence that satisfied each gate
 - The justified severity ceiling
-- The correct next route: report, index, more domain review, or discard
+- The correct next route: report, more domain review, or discard
 
 **2. PoC test** — mandatory for High/Critical, recommended for Medium/Low:
 - File path where the test was written into the target project's test suite
@@ -67,6 +66,12 @@ The final deliverable for each TRUE POSITIVE finding is **two artifacts**, not o
 - A test that asserts the bug is present (passes while vulnerable, fails after fix)
 
 **The report is incomplete until both artifacts exist for every High/Critical finding.**
+
+When run inside the staged flow, record each verdict on the candidate in
+`session.json`: `status`, `severity`, `verdict_rationale`, `poc_status`
+(`executed`, `pending_poc`, or `not_required`), and `poc_ref`. Copy each PoC
+and its runner output into `pocs/` in the audit workspace. A rejected candidate
+stays in the list as `false_positive`; it is never deleted.
 
 ## Reference Index
 

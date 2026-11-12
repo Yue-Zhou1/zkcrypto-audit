@@ -1,7 +1,14 @@
-display_name: noir-auditor
-short_description: Audit Noir circuits for unconstrained function boundary failures,
-  oracle validation gaps, Brillig/ACIR consistency issues, and witness-generation
-  soundness bugs.
-default_prompt: Use noir-auditor for this task. Audit Noir circuits for unconstrained
-  function boundary failures, oracle validation gaps, Brillig/ACIR consistency issues,
-  and witness-generation soundness bugs.
+interface:
+  display_name: noir-auditor
+  short_description: 'Audit Noir circuits for unconstrained function boundary failures, oracle
+    validation gaps, Brillig/ACIR consistency issues, and witness-generation soundness bugs:
+    hinted values never re-constrained in ACIR, `Field` wraparound and truncating casts, missing
+    `pub` bindings, unasserted black-box results, and slice or generic length assumptions.
+    Use when reviewing Noir programs or libraries with `unconstrained` functions, oracle calls,
+    integer/field conversions, or recursive proof verification.'
+  default_prompt: 'Use noir-auditor for this task. Audit Noir circuits for unconstrained function
+    boundary failures, oracle validation gaps, Brillig/ACIR consistency issues, and witness-generation
+    soundness bugs: hinted values never re-constrained in ACIR, `Field` wraparound and truncating
+    casts, missing `pub` bindings, unasserted black-box results, and slice or generic length
+    assumptions. Use when reviewing Noir programs or libraries with `unconstrained` functions,
+    oracle calls, integer/field conversions, or recursive proof verification.'

@@ -18,7 +18,8 @@ Executable review workflow for active fault-injection resistance.
 
 4. **Audit deterministic signatures.** Flag deterministic ECDSA/EdDSA/
    ML-DSA/SLH-DSA signing without redundancy/re-verification as DFA-exposed
-   (F2); recommend hedging or verify-after-sign. Route scheme specifics to
+   (F2); recommend hedging or verify-after-sign (for SLH-DSA neither is
+   sufficient: recommend redundant recomputation). Route scheme specifics to
    `pqc-signature-auditor` / `signature-scheme-auditor`.
 
 5. **Audit verification gates.** For every signature/MAC/proof/secure-boot

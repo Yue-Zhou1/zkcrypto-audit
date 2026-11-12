@@ -1,9 +1,26 @@
 {
   "name": "implementation-safety",
-  "version": "0.7.1",
+  "version": "0.8.0",
   "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
-  "category": "implementation-safety",
   "author": {
     "name": "Yue Zhou"
+  },
+  "homepage": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "repository": "https://github.com/Yue-Zhou1/zkcrypto-audit",
+  "license": "MIT",
+  "keywords": [
+    "zk",
+    "crypto",
+    "audit",
+    "security",
+    "zero-knowledge"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Implementation Safety",
+    "shortDescription": "Cross-cutting implementation safety auditors",
+    "longDescription": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
+    "developerName": "Yue Zhou",
+    "category": "Coding"
   }
 }

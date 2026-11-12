@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-12
+
 ### Added
 
 - `proven-state-transition-auditor`: statement completeness review. A new
@@ -23,6 +25,101 @@ Versioning.
   non-adversarial consumers (users and integrators) to the actor table and
   lists the implicit guarantees of a replaced platform as promises that need
   an enforcing mechanism.
+- `scripts/sync.py`: generates the plugin manifests, the Codex marketplace,
+  and `agents/openai.yaml` from `SKILL.md` frontmatter and
+  `.claude-plugin/marketplace.json`. `--check` validates frontmatter, in-skill
+  paths, routing-matrix coverage, and example sessions. CI, the release
+  workflow, and the pre-push hook run it.
+- Session-state schema v3 and a session template in `crypto-audit-router`.
+- `examples/engagements/` and `examples/walkthrough.md`.
+- `references/spec-sources.md` in 17 more skills.
+- Workflows: `fri-review.md` (`commitment-scheme-auditor`),
+  `garbling-and-ot-review.md` (`mpc-auditor`), `guest-boundary-review.md`
+  (`zkvm-auditor`).
+- A "Rationalizations to Reject" table and a structured output contract in
+  every domain auditor.
+- Install instructions for the Codex marketplace and the `skills` CLI.
+
+### Changed
+
+- Session state: `candidates` and `routes` replace `open_findings`,
+  `verified_findings`, `fp_check_verdicts`, and `route_dispositions`. Status
+  and severity are enums. The `indexing_in_progress` phase is removed.
+- Audit output is written to `.zkcrypto-audit/<engagement-id>/`
+  (`session.json`, `reports/`, `pocs/`) in the directory the audit runs from.
+- The routing matrix, state machine, and session schema live in the
+  `crypto-audit-router` skill. `plugins/_meta/` is removed.
+- The completion contract moved from `AGENTS.md` to
+  `workflows/full-audit-flow.md`. `CLAUDE.md` imports `AGENTS.md`.
+- `zkbugs-index`: `index/`, `scripts/`, and `config/` are inside the skill
+  directory. Embargoed findings are stored in
+  `~/.zkcrypto-audit/zkbugs/local_findings/` (`--local-findings-dir`,
+  `ZKBUGS_LOCAL_FINDINGS_DIR`, or `local_findings_dir`) and excluded from
+  rebuilt shards. Prior-art lookup is allowed during domain review;
+  contributing an entry is an optional closeout step.
+- `crypto-report-writer`: one template with audience sections replaces four.
+- Rewritten to the structure of the newer skills: `fiat-shamir`,
+  `commitment-scheme`, `hash-function`, `merkle-tree`, `encryption-scheme`,
+  `ecc-pairing`, `mpc`, `vdf`, `dkg-threshold`, `fhe`, `lattice`, `dependency`,
+  `side-channel`, `gnark`, `noir`, `cairo`, `folding-scheme`, `zk-circuit`,
+  `zkvm`.
+- Scope: `rust-crypto-safety` covers Rust-specific hazards and routes timing
+  analysis to `side-channel-auditor` and dependency review to
+  `dependency-auditor`. `zk-circuit-auditor` routes transcript review to
+  `fiat-shamir-auditor` and polynomial-commitment soundness to
+  `commitment-scheme-auditor`.
+- Codex packaging uses the documented formats for
+  `.agents/plugins/marketplace.json`, `.codex-plugin/plugin.json`, and
+  `agents/openai.yaml`.
+- `allowed-tools` is a space-separated string in every skill.
+- `README.md` reduced to an introduction, the flow, the plugin list, and a
+  quick start.
+- Technical content checked against primary sources (RFCs, NIST FIPS and SPs,
+  EIPs, ePrint, RustSec and GitHub advisories, official documentation and
+  project source) and corrected in every skill. Larger corrections:
+  - `ethereum-crypto-auditor`: BN254 base-field modulus, ECMUL scalar range,
+    precompile failure semantics, recovery-ID meaning, low-s enforcement,
+    EIP-2537 operations and subgroup rules, EIP-4844 versioned hash and
+    evaluation point.
+  - `onchain-verifier-auditor`: G2 coefficient order in EIP-197 and EIP-2537;
+    snarkjs versions with missing or wrong public-input range checks.
+  - `pqc-kem-auditor`, `pqc-signature-auditor`: FIPS 203 differences from
+    round-3 Kyber and from the draft, delegable input checks, randomness
+    strength per parameter set, `ct0` bound, WOTS+ checksum, SP 800-208
+    private-key export rule, Falcon attack attributions.
+  - `fault-injection-auditor`, `pqc-signature-auditor`: SLH-DSA fault outcome
+    and countermeasure.
+  - `vrf-auditor`: properties provided by ECVRF key validation, separator
+    octets, RFC 9381 scope.
+  - `commitment-scheme-auditor`: status of the up-to-capacity proximity-gap
+    conjectures.
+  - `vdf-auditor`: low-order-element test procedure.
+  - `zk-circuit-auditor`: plonky2, halo2, arkworks, and STARK pattern files.
+  - `formal-verification-bridge`: tool matrix for Ecne, Picus, Circomspect.
+  - `threshold-ecdsa-auditor`: Alpha-Rays and BitForge attribution; Paillier
+    modulus proofs in GG18, GG20, and CGGMP21.
+  - `rust-crypto-safety`, `kani-harness-gen`, `fuzz-harness-gen`: clippy lint
+    names and flags, timeout and iteration-limit commands, a fuzz target
+    example.
+
+### Removed
+
+- `.codex/skills/` stubs.
+- `.agents/plugins/marketplace.schema.json`.
+- `zk-findings/`. Its contents moved to `examples/engagements/` without local
+  paths.
+- Twelve `zkbugs-index` entries from `data/external_findings/`. The
+  repositories they cite do not exist. The index holds 140 entries, all from
+  zksecurity/zkbugs.
+
+### Fixed
+
+- `crypto-audit-router` referenced `plugins/_meta/*.yaml` and
+  `zk-findings/sessions/session-state-schema.json`, which are absent from an
+  installed plugin.
+- `zkbugs-index` rebuilds merged embargoed local findings into the shards.
+- `.agents/plugins/marketplace.json` carried version `0.1.0`.
+- `.gitignore` listed the tracked `upstream_raw/zkbugs_snapshot.json`.
 
 ## [0.7.1] - 2026-09-16
 
