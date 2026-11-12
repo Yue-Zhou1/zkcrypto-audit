@@ -1,19 +1,18 @@
 ---
 name: formal-verification-bridge
 description: >
-  Bridge validated audit findings into optional external formal-verification
-  tooling (Ecne, Picus, Circomspect) with explicit environment checks,
-  reproducible exports, and tool-scoped caveat capture.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+  Bridge validated audit findings into optional external circuit-analysis
+  tooling: the uniqueness checkers Ecne and Picus and the static analyzer
+  Circomspect. Covers environment checks, reproducible exports, and
+  tool-scoped caveat capture.
+allowed-tools: Read Grep Glob Bash
 ---
 
 # formal-verification-bridge
 
-Auxiliary user-triggered bridge for external formal-verification workflows.
+Auxiliary user-triggered bridge to external circuit-analysis tools. Ecne and
+Picus check that constraints uniquely determine outputs. Circomspect is a
+static analyzer; its results are not proofs.
 
 ## When to Use
 

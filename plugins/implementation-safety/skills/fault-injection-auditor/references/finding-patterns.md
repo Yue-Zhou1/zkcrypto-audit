@@ -6,14 +6,19 @@
   recombination.
 - **Impact:** one fault in Sp or Sq during signing produces s' where
   gcd(s'^e - m mod N, N) reveals a prime factor of N — full key recovery
-  from a single faulty signature.
+  from a single faulty signature (Lenstra's form; m is the encoded message
+  and must be known to the attacker. With a correct signature s of the same
+  message, gcd(s - s', N) works without knowing m).
 
 ## F2: Differential fault analysis on deterministic signatures
 
 - **Pattern:** deterministic ECDSA/EdDSA (or deterministic ML-DSA/SLH-DSA)
   with no redundancy or re-verification, in a fault-exposed deployment.
 - **Impact:** a correct and a faulted signature over the same message
-  yield equations that recover the private key.
+  yield equations that recover the private key. SLH-DSA differs: a faulted
+  subtree makes a one-time key sign two values, which yields forgeries
+  rather than the key, the faulty signature can still verify, and
+  randomized signing does not prevent it.
 
 ## F3: Single-branch verification skip
 

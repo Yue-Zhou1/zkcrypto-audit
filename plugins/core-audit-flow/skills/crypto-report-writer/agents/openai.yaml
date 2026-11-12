@@ -1,8 +1,9 @@
-display_name: crypto-report-writer
-short_description: Write final audit findings for ZK and cryptographic reviews. Use
-  when a finding has survived verification and needs to be turned into clear report
-  prose with severity, impact, root cause, and test evidence.
-default_prompt: Use crypto-report-writer for this task. Write final audit findings
-  for ZK and cryptographic reviews. Use when a finding has survived verification and
-  needs to be turned into clear report prose with severity, impact, root cause, and
-  test evidence.
+interface:
+  display_name: crypto-report-writer
+  short_description: Write the audit report for ZK and cryptographic reviews. Use when findings
+    have passed verification and need report prose with severity, root cause, impact, evidence,
+    and remediation, for client, internal, or public audiences.
+  default_prompt: Use crypto-report-writer for this task. Write the audit report for ZK and
+    cryptographic reviews. Use when findings have passed verification and need report prose
+    with severity, root cause, impact, evidence, and remediation, for client, internal, or
+    public audiences.

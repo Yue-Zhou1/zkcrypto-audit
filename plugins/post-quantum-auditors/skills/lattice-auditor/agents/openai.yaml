@@ -1,6 +1,14 @@
-display_name: lattice-auditor
-short_description: Audit lattice-based cryptography for LWE/RLWE parameter soundness,
-  noise sampling correctness, rejection-sampling safety, and decryption-failure assumptions.
-default_prompt: Use lattice-auditor for this task. Audit lattice-based cryptography
-  for LWE/RLWE parameter soundness, noise sampling correctness, rejection-sampling
-  safety, and decryption-failure assumptions.
+interface:
+  display_name: lattice-auditor
+  short_description: Audit generic and non-standardized lattice cryptography (LWE, RLWE, MLWE,
+    LWR, SIS, NTRU) for parameter security estimates, secret and error distributions, sampler
+    correctness (CBD, discrete Gaussian, rejection), seed separation, modulus and NTT arithmetic,
+    decryption-failure probability, key and public-value validation, and key-reuse or reaction
+    attacks. Use when reviewing a custom lattice scheme, a lattice commitment or proof, or
+    lattice parameters chosen outside a standard.
+  default_prompt: Use lattice-auditor for this task. Audit generic and non-standardized lattice
+    cryptography (LWE, RLWE, MLWE, LWR, SIS, NTRU) for parameter security estimates, secret
+    and error distributions, sampler correctness (CBD, discrete Gaussian, rejection), seed
+    separation, modulus and NTT arithmetic, decryption-failure probability, key and public-value
+    validation, and key-reuse or reaction attacks. Use when reviewing a custom lattice scheme,
+    a lattice commitment or proof, or lattice parameters chosen outside a standard.

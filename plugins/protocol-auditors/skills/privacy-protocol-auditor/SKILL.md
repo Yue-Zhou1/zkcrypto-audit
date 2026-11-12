@@ -6,11 +6,7 @@ description: >
   binding; deposit/withdraw front-running; and state-transition replay
   domains. Use when reviewing privacy-protocol design above the circuit and
   Merkle layers.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # privacy-protocol-auditor
@@ -38,6 +34,17 @@ unlinkable system.
 - Verifier-contract precompile/calldata mechanics -> `onchain-verifier-auditor`
 - Commitment-scheme mathematics (Pedersen binding/hiding) ->
   `commitment-scheme-auditor`
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "The circuit is sound, so double-spends are impossible" | Double-spend prevention is the on-chain nullifier set plus nullifier determinism. A nullifier that is not a unique function of the note, or that includes prover-chosen randomness, lets one note be spent twice with valid proofs |
+| "Nullifiers are hashes, so they reveal nothing" | If the nullifier's inputs are guessable, or visibly related to the commitment, observers link deposits to spends. State what is hidden from whom, including from the sender |
+| "Any recent root is acceptable" | The root-history window, and which tree and chain a root belongs to, define what membership means. An unbound or attacker-supplied root is forged membership |
+| "The relayer only submits the transaction" | Unless recipient, fee, and relayer are public inputs bound by the proof, the relayer or a front-runner redirects the withdrawal |
+| "Values are hidden, and the balance equation is checked" | Without range checks, a value that wraps the field satisfies the balance equation while creating funds |
+| "Amounts are hidden, so privacy holds" | Metadata leaks: fixed versus variable amounts, timing, fee payment, note encryption and trial-decryption cost, and the scope of viewing keys |
 
 ## Core Review Areas
 
@@ -80,6 +87,8 @@ unlinkable system.
 - Cross-route constraint suspicions to `zk-circuit-auditor`, tree mechanics
   to `merkle-tree-auditor`, and verifier-call mechanics to
   `onchain-verifier-auditor`
+- Query `zkbugs-index` for prior art when a candidate matches a known pattern;
+  contributing an entry happens only after verification
 
 ## Output Contract
 

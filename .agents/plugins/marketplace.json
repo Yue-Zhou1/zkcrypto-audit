@@ -1,111 +1,92 @@
 {
-  "$schema": "./marketplace.schema.json",
-  "version": "0.1.0",
+  "name": "zkcrypto-audit",
+  "interface": {
+    "displayName": "zkcrypto-audit"
+  },
   "plugins": [
     {
       "name": "core-audit-flow",
-      "version": "0.1.0",
-      "description": "Core audit orchestration: router, context builder, spec-delta checker, false-positive verification, report writer, remediation fix verification, and shared severity/evidence framework.",
-      "category": "core-audit-flow",
+      "source": {
+        "source": "local",
+        "path": "./plugins/core-audit-flow"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/core-audit-flow",
-      "manifest": "./plugins/core-audit-flow/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "zk-and-vm-auditors",
-      "version": "0.1.0",
-      "description": "Domain auditors for ZK circuit languages and virtual machines: generic ZK circuits, Cairo/Starknet, Noir, zkVM (SP1/RISC Zero/Valida), gnark, on-chain proof-verifier contracts (Solidity/Vyper/Huff, EIP-196/197/2537 precompiles), and proven state-transition applications.",
-      "category": "zk-and-vm-auditors",
+      "source": {
+        "source": "local",
+        "path": "./plugins/zk-and-vm-auditors"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/zk-and-vm-auditors",
-      "manifest": "./plugins/zk-and-vm-auditors/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "crypto-primitive-auditors",
-      "version": "0.1.0",
-      "description": "Domain auditors for cryptographic primitives: elliptic curves, pairings, BLS, hash functions, polynomial commitments, Merkle trees, Fiat-Shamir transcripts, encryption schemes, and classical signature schemes (ECDSA, Schnorr/BIP-340, Ed25519, RSA-PSS/PKCS#1 v1.5).",
-      "category": "crypto-primitive-auditors",
+      "source": {
+        "source": "local",
+        "path": "./plugins/crypto-primitive-auditors"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/crypto-primitive-auditors",
-      "manifest": "./plugins/crypto-primitive-auditors/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "protocol-auditors",
-      "version": "0.1.0",
-      "description": "Domain auditors for cryptographic protocols: DKG/threshold signatures (FROST, MuSig2), MPC (garbled circuits, OT), threshold ECDSA (GG18/GG20/CGGMP21, Paillier/MtA), shielded-pool privacy protocols (nullifiers, note commitments, replay domains), VRFs (RFC 9381 ECVRF/RSA-FDH-VRF), and VDFs (Wesolowski, Pietrzak).",
-      "category": "protocol-auditors",
+      "source": {
+        "source": "local",
+        "path": "./plugins/protocol-auditors"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/protocol-auditors",
-      "manifest": "./plugins/protocol-auditors/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "post-quantum-auditors",
-      "version": "0.1.0",
-      "description": "Domain auditors for post-quantum and advanced encryption: lattice-based schemes (LWE/RLWE), fully homomorphic encryption (FHE), standardized post-quantum KEMs (ML-KEM/FIPS 203), and post-quantum signatures (ML-DSA/FIPS 204, SLH-DSA/FIPS 205, FN-DSA/Falcon, XMSS/LMS per SP 800-208).",
-      "category": "post-quantum-auditors",
+      "source": {
+        "source": "local",
+        "path": "./plugins/post-quantum-auditors"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/post-quantum-auditors",
-      "manifest": "./plugins/post-quantum-auditors/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "implementation-safety",
-      "version": "0.1.0",
-      "description": "Cross-cutting implementation safety auditors: Rust crypto safety, side-channel analysis, dependency hygiene, randomness/nonce lifecycle review (CSPRNG seeding, fork/snapshot safety, RFC 6979 nonces), and fault-injection resistance (RSA-CRT Bellcore, deterministic-signature DFA, verification-skip glitches).",
-      "category": "implementation-safety",
+      "source": {
+        "source": "local",
+        "path": "./plugins/implementation-safety"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/implementation-safety",
-      "manifest": "./plugins/implementation-safety/.codex-plugin/plugin.json"
+      "category": "Coding"
     },
     {
       "name": "evidence-and-tooling",
-      "version": "0.1.0",
-      "description": "Evidence collection and verification tooling: zkbugs vulnerability index, Kani harness generation, cargo-fuzz target generation, formal verification bridge, and differential test harness generation. Kani/fuzz/formal-verification/differential-test skills are user-triggered only.",
-      "category": "evidence-and-tooling",
+      "source": {
+        "source": "local",
+        "path": "./plugins/evidence-and-tooling"
+      },
       "policy": {
-        "routing": "router-first",
-        "user_triggered_only_enforced": true
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
       },
-      "author": {
-        "name": "Yue Zhou"
-      },
-      "source": "./plugins/evidence-and-tooling",
-      "manifest": "./plugins/evidence-and-tooling/.codex-plugin/plugin.json"
+      "category": "Coding"
     }
   ]
 }

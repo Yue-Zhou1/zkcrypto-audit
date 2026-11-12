@@ -16,7 +16,8 @@
 - [ ] The CRT signature is either verified against the public key before
       release (verify-after-sign, s^e ?= m) OR computed redundantly with a
       consistency check. A single fault in one half (Sp or Sq) otherwise
-      yields a faulty signature s' with gcd(s'^e - m, N) = a factor of N.
+      yields a faulty signature s' with gcd(s'^e - m, N) = a factor of N
+      (m is the encoded message, known to the attacker).
 - [ ] The Shamir/Giraud-style countermeasure, if used, is itself not
       bypassable by a second fault on the check.
 - [ ] The check cannot be skipped by an instruction-skip glitch (the
@@ -31,7 +32,10 @@
       re-introducing hedged randomness (RFC 6979 §3.6 / hedged EdDSA) where
       the environment is fault-exposed.
 - [ ] SLH-DSA/ML-DSA deterministic modes carry the same flag (cross-route
-      to `pqc-signature-auditor` for the scheme specifics).
+      to `pqc-signature-auditor` for the scheme specifics). For SLH-DSA the
+      hedged mode stays exposed and a faulty signature can still verify, so
+      the countermeasure there is redundant recomputation, not hedging or
+      re-verification.
 
 ## Verification-skip glitches
 

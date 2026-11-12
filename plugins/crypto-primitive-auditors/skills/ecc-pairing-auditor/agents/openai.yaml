@@ -1,8 +1,10 @@
-display_name: ecc-pairing-auditor
-short_description: Audit elliptic-curve, pairing, and BLS signature code for point-validation,
-  subgroup, serialization, DST, and pairing-equation failures. Use when reviewing
-  deserialization, `hash_to_curve`, aggregate verification, or batch pairing logic.
-default_prompt: Use ecc-pairing-auditor for this task. Audit elliptic-curve, pairing,
-  and BLS signature code for point-validation, subgroup, serialization, DST, and pairing-equation
-  failures. Use when reviewing deserialization, `hash_to_curve`, aggregate verification,
-  or batch pairing logic.
+interface:
+  display_name: ecc-pairing-auditor
+  short_description: Audit elliptic-curve, pairing, and BLS signature code for point-validation,
+    subgroup and cofactor, serialization, DST, rogue-key, and pairing-equation failures. Use
+    when reviewing point or scalar deserialization, `hash_to_curve`, proof-of-possession handling,
+    aggregate verification, or batch pairing logic.
+  default_prompt: Use ecc-pairing-auditor for this task. Audit elliptic-curve, pairing, and
+    BLS signature code for point-validation, subgroup and cofactor, serialization, DST, rogue-key,
+    and pairing-equation failures. Use when reviewing point or scalar deserialization, `hash_to_curve`,
+    proof-of-possession handling, aggregate verification, or batch pairing logic.

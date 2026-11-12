@@ -14,7 +14,8 @@ Executable review workflow for VRF provers, verifiers, and consumers.
    returns VALID (P1).
 
 3. **Check key validation** against the deployment's key model:
-   adversarial keys demand validate_key (full uniqueness); trusted keys
+   adversarial keys demand validate_key (full collision resistance and
+   unpredictability); trusted keys
    demand registration/attestation evidence (P2).
 
 4. **Diff the hash invocations.** For each hash call, compare suite

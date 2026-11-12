@@ -3,7 +3,9 @@
 ## Nullifier derivation and uniqueness
 
 - [ ] Exactly one nullifier per note: derivation includes the note's
-      position or a per-note uniqueness element (rho in Zcash Sapling), not
+      position or a per-note uniqueness element (ρ in Zcash: derived from
+      the note commitment and position in Sapling, taken from the spent
+      note's nullifier in Orchard), not
       just the owner secret — otherwise two identical notes share a
       nullifier and only one can ever be spent (griefing), or a note yields
       two nullifiers (double spend).

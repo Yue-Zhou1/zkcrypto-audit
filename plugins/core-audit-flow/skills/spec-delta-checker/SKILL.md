@@ -4,10 +4,7 @@ description: >
   Compare cryptographic code against a reference specification or paper. Use
   when implementation details look close to a standard but may have drifted in
   validation, transcript binding, parameter negotiation, or caller obligations.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
+allowed-tools: Read Grep Glob
 ---
 
 # spec-delta-checker
@@ -28,9 +25,11 @@ claim.
 
 ## When NOT to Use
 
-- Building initial context before you know which spec or paper governs the code
-- Reporting a finding without first identifying the exact delta
-- Writing final report prose without finishing the deviation review
+- Building initial context before you know which spec or paper governs the
+  code -> `crypto-audit-context`
+- Hunting implementation bugs that are unrelated to any specification -> the
+  domain auditor for that code
+- Deciding whether a delta is exploitable -> `crypto-fp-check`
 
 ## Rationalizations to Reject
 
@@ -54,9 +53,17 @@ it is benign.
 
 ## Output Contract
 
-Produce a delta handoff that includes:
+Produce a delta handoff listing each delta with:
 
-- The governing reference specification or paper
-- The exact place where the implementation diverges
-- Whether the delta changes enforcement, assumptions, or caller obligations
-- The recommended next skill for validation or reporting
+- `reference`: the governing specification, paper, or project document, with
+  the section or location
+- `implementation_location`: where the code diverges (`file:line`)
+- `delta_kind`: omission, adaptation, or shifted caller obligation
+- `evidence`
+- `disposition` (one of `verified`, `false_positive`, `unverified`,
+  `observation`, `residual_risk`)
+- `next_route`
+
+## Reference Index
+
+- [workflows/delta-review.md](workflows/delta-review.md)

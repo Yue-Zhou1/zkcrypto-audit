@@ -10,35 +10,40 @@ All section references are to RFC 9381 unless noted.
       Checks below differ per suite; a "generic" VRF claim is itself a
       finding.
 
-## Key validation (§5.4.5, §3 security levels)
+## Key validation (§5.4.5, §3, §7.1)
 
-- [ ] ECVRF verifiers that need full uniqueness / full collision
-      resistance against ADVERSARIAL keys run validate_key: decode Y,
-      reject identity and small-order components (cofactor > 1 curves).
-      Trusted-uniqueness deployments must document that keys are
-      registered/attested.
+- [ ] ECVRF verifiers that need full collision resistance or
+      unpredictability against ADVERSARIAL keys run validate_key: decode Y,
+      reject Y when cofactor * Y is the identity (small-order keys; for
+      P-256 just the point at infinity).
+      ECVRF has full uniqueness with or without it. Deployments relying on
+      the trusted variants must document that keys are registered/attested.
 - [ ] RSA-FDH-VRF keys: modulus size per policy; e sanity; the verifier
       uses the registered key, not one supplied in-band.
 
 ## Domain separation (§4.1, §5.4.1.x, §5.4.3)
 
-- [ ] The suite_string is the ciphersuite's registered octet and prefixes
-      every hash invocation the RFC prescribes (encode_to_curve,
-      challenge_generation, proof_to_hash, nonce_generation as
-      applicable).
-- [ ] Separation front/back octets (e.g., 0x01/0x00 in proof_to_hash,
-      0x02 in challenge generation, encode_to_curve domain separators)
+- [ ] The suite_string is the ciphersuite's specified octet and prefixes
+      every hash invocation the RFC prescribes (try_and_increment
+      encode_to_curve, challenge_generation, proof_to_hash; the h2c suites
+      carry it in the DST; nonce generation does not take it).
+- [ ] Separation front/back octets (ECVRF: 0x01/0x00 in try_and_increment,
+      0x02/0x00 in challenge generation, 0x03/0x00 in proof_to_hash;
+      RSA-FDH-VRF: 0x01 for MGF1, 0x02 in proof_to_hash)
       match the RFC exactly — off-by-one constants silently produce a
       different, non-interoperable VRF whose outputs still "look" fine.
 - [ ] No reuse of the VRF hash context for non-VRF protocol hashing.
 
 ## encode_to_curve (§5.4.1)
 
-- [ ] TAI suites: try_and_increment loops with ctr, uses the specified
-      salt (public key string), and rejects low-order/invalid candidates
-      per the suite; the loop bound and interpretation match the RFC.
-- [ ] ELL2 / RFC 9380 suites: hash_to_curve called with the exact DST from
-      the ciphersuite definition; no truncation or homemade DST.
+- [ ] TAI suites: try_and_increment loops with a one-octet ctr, uses the
+      specified salt (public key string), multiplies each valid candidate
+      by the cofactor, and retries on an invalid candidate or the identity;
+      the point interpretation matches the suite.
+- [ ] SSWU / ELL2 (RFC 9380) suites: the suite's nonuniform encode function
+      (`_NU_`, not the `_RO_` hash_to_curve) is called with DST =
+      "ECVRF_" || h2c_suite_ID_string || suite_string; no truncation or
+      homemade DST.
 
 ## Prover nonce (§5.4.2)
 
@@ -50,7 +55,7 @@ All section references are to RFC 9381 unless noted.
       single k reuse across two inputs reveals the secret key exactly as
       in Schnorr/ECDSA.
 
-## Verification and proof_to_hash (§5.3, §5.4.4, §5.2)
+## Verification and proof_to_hash (§4.3, §5.3, §5.4.4, §5.2)
 
 - [ ] RSA-FDH-VRF: reject a proof representative outside the modulus, apply
       RSAVP1, and compare its result exactly to the suite-string/MGF1
@@ -61,26 +66,29 @@ All section references are to RFC 9381 unless noted.
       V = s*H - c*Gamma and re-derive c from the challenge hash — all
       components, no shortcuts.
 - [ ] proof_to_hash multiplies Gamma by the cofactor before hashing
-      (§5.2 cofactor * Gamma); skipping cofactor clearing lets related
-      Gamma values in the same coset produce different betas for small-
-      order-tainted keys.
+      (§5.2 cofactor * Gamma); without it beta depends on small-order
+      components of Gamma that the RFC removes before hashing, and the
+      RFC's uniqueness claim no longer covers the implementation.
 - [ ] Beta is computed only from proofs that verified. Any API that
       exposes proof_to_hash independently of verify must be documented
       as UNSAFE for untrusted proofs (§5.2 note).
 
 ## Uniqueness, pseudorandomness, and application use (§3, §7)
 
-- [ ] The application's required property is identified: full uniqueness
-      (adversarial keys) vs trusted uniqueness; the ciphersuite and key
-      validation actually deliver it.
+- [ ] The application's required property is identified: uniqueness,
+      collision resistance, or unpredictability, each in its full
+      (adversarial keys) or trusted form; the construction and key
+      validation actually deliver it (ECVRF: full uniqueness always, full
+      collision resistance only with validate_key; RSA-FDH-VRF: trusted
+      uniqueness and trusted collision resistance only).
 - [ ] Pseudorandomness caveat: outputs are pseudorandom only for
       honestly-generated, secret keys — a participant who knows their key
-      can predict their own outputs; protocols must account for it (§3.3).
+      can predict their own outputs; protocols must account for it (§3.4).
 - [ ] Grinding resistance: participants cannot re-key cheaply to bias
       selection (key registration deadlines before the input/epoch seed is
       known); cannot choose alpha after seeing others' outputs; and
       withholding (not revealing an unfavorable output) is either
-      detectable or economically punished (§7.3 selective-abort style
-      bias).
+      detectable or economically punished (not covered by the RFC; see the
+      Algorand and Ouroboros Praos analyses).
 - [ ] Output truncation by the consumer keeps enough bits for the claimed
       selection fairness.

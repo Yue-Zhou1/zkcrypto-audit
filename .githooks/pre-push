@@ -16,4 +16,10 @@ if git diff --cached --name-only -- .claude/settings.local.json | grep -q .; the
   exit 1
 fi
 
+if python3 -c "import yaml, jsonschema" >/dev/null 2>&1; then
+  python3 scripts/sync.py --check
+else
+  echo "[pre-push] Skipping scripts/sync.py --check: run 'pip install -r scripts/requirements.txt' to enable it." >&2
+fi
+
 echo "[pre-push] Checks passed."

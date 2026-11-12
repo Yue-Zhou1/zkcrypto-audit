@@ -14,20 +14,23 @@ SLH-DSA (FIPS 205), and FN-DSA/Falcon (pre-standard). For XMSS/LMS/HSS use
 3. **Audit the signing loop (ML-DSA).**
    `grep -rn "reject\|gamma\|hint\|norm\|infinity"`: verify every bound
    (z, r0, ct0, hint count omega) is present with the spec's constants,
-   loop limits are handled per spec, and rejection reasons don't leak
+   loop limits are handled per spec (FIPS 204 Appendix C), and rejected
+   candidates and the sign of a failing coefficient don't leak
    (P2/P3; route timing to `side-channel-auditor`).
 
 4. **Audit hashing structure (SLH-DSA).** ADRS types per call site, WOTS+
-   checksum generation AND verification, FORS index mapping, opt_rand
-   sourcing (P5/P6).
+   checksum digits in signing AND in public-key recovery during
+   verification, FORS index mapping, opt_rand sourcing (P5/P6).
 
 5. **Audit the sampler (Falcon).** Compare SamplerZ against the reference
-   constant-time design; flag floating-point paths (P7).
+   isochronous design; flag input-dependent sampler timing and any path
+   that can run the floating-point sampler twice on the same input (P7).
 
 6. **Check signing modes.** Hedged vs deterministic explicitly chosen and
    documented; deterministic mode plus fault exposure -> P4, recommend
-   hedging or verify-after-sign; route rnd/opt_rand lifecycle to
-   `randomness-auditor`.
+   hedging for ML-DSA and redundant recomputation for SLH-DSA (faulted
+   signatures can still verify, so verify-after-sign is not enough);
+   route rnd/opt_rand lifecycle to `randomness-auditor`.
 
 7. **Audit verification.** Every norm/weight/checksum bound, canonical
    encoding enforcement, ctx binding, and prehash domain separation.

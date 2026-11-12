@@ -6,11 +6,7 @@ description: >
   correctness, malleability, canonical encoding, public-key validation, and
   hash/prehash semantics. Use for standalone signature library review outside
   Ethereum application encoding, BLS, or threshold protocols.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # signature-scheme-auditor
@@ -40,6 +36,17 @@ Schnorr/BIP-340, EdDSA, and RSA signatures.
 - Nonce generation/derivation mechanics -> `randomness-auditor`
 - Fault-attack resistance of signing hardware paths ->
   implementation-safety skills (verify-after-sign handoff)
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "The library verifies signatures, so malleability is handled" | Many ECDSA verifiers accept both `(r, s)` and `(r, n - s)`. If the application uses signature bytes as an identifier or replay key, low-s has to be enforced explicitly |
+| "Ed25519 is standardized, so every implementation accepts the same signatures" | Implementations differ on non-canonical encodings, small-order points, and cofactored versus cofactorless verification. In a consensus setting that disagreement is the bug |
+| "Batch verification is a faster single verification" | Batch and single verification can accept different sets of signatures; a signature valid in one and not the other splits verifiers |
+| "The caller hashes the message first" | Check which side hashes and with what. A verify-prehashed API handed an attacker-chosen digest lets the attacker choose the hash, which for ECDSA yields forgeries on digests with no known message |
+| "The public key came from our own registry" | It still needs validation. In some schemes an identity or small-order key lets one signature verify for every message (the BLS identity key; small-order Ed25519 keys under verifiers that accept them), and an off-curve point is outside the group the scheme is defined over |
+| "PKCS#1 v1.5 verification is parse and compare" | Lenient parsing of the padding or DigestInfo is the Bleichenbacher signature-forgery class. Re-encode the expected message and compare the whole block |
 
 ## Core Review Areas
 

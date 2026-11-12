@@ -1,0 +1,29 @@
+{
+  "upstream": {
+    "repo_url": "https://github.com/zksecurity/zkbugs",
+    "local_path": null,
+    "branch": "main",
+    "entry_glob": "**/*.json",
+    "exclude_paths": [
+      ".github",
+      ".vscode",
+      "node_modules",
+      "package.json",
+      "package-lock.json",
+      "reports"
+    ]
+  },
+  "org": {
+    "repo_url": null,
+    "local_path": null,
+    "branch": "main"
+  },
+  "supplemental_files": [],
+  "local_findings_dir": null,
+  "index_dir": "./index",
+  "cache_dir": "./.cache",
+  "semantic_search": {
+    "enabled": false,
+    "model": "all-MiniLM-L6-v2"
+  }
+}

@@ -8,10 +8,13 @@ optional in one is the key-extraction bug in another.
 
 - [ ] Each party's Paillier modulus N carries a proof that N is square-free
       and has no small factors, and every counterparty VERIFIES it.
-      (GG18 as originally published omitted the no-small-factor proof; the
-      2019/2020 revisions and CGGMP21 Π^fac / Π^mod make it explicit.)
-- [ ] N is large enough for the MtA range bounds: N > q^7 (or the paper's
-      stated bound for the chosen range-proof slack); q = secp256k1 order.
+      (GG18 and GG20 as specified do not require a no-small-factor proof —
+      GG18 asks only for a proof of knowledge of the factorization — and
+      that gap is the BitForge key extraction, CVE-2023-33241. CGGMP21
+      specifies Π^mod and Π^fac.)
+- [ ] N is large enough for the MtA range bounds: N > q^7 in GG18 (or the
+      paper's stated bound for the chosen range-proof slack); q = the curve
+      group order. A missing key-size check is the second Alpha-Rays attack.
 - [ ] Ring-Pedersen parameters (s, t, N̂) used in CGGMP21 range proofs carry
       their own Π^prm proof, verified per counterparty.
 - [ ] Paillier keys are generated fresh per party (no shared or reused
@@ -47,7 +50,7 @@ optional in one is the key-extraction bug in another.
       atomically consumed, and never persisted across process restarts in a
       replayable way.
 - [ ] Concurrent signing sessions keep independent state; no shared nonce
-      material across session IDs (four-round GG20 concurrency attacks).
+      material across session IDs.
 - [ ] Session identifiers (sid, ssid) bind all round messages; messages from
       one session are rejected in another.
 - [ ] The final signature is verified against the group public key before
@@ -60,10 +63,13 @@ optional in one is the key-extraction bug in another.
 - [ ] Old shares are zeroized after successful reshare.
 - [ ] Reshare cannot be replayed to roll the committee back.
 
-## Identifiable abort (GG20 §5, CGGMP21 accountability)
+## Identifiable abort (GG20, CGGMP21 accountability)
 
-- [ ] Blame computation reveals only the already-public transcript values,
-      never a share or nonce contribution.
+- [ ] Blame computation never reveals a long-term key share. Where the
+      protocol's blame path opens ephemeral values (GG20 has parties publish
+      k_i, gamma_i, and the MtA plaintexts of the failed session), that
+      session's nonce and everything derived from it are discarded and never
+      used to sign.
 - [ ] An adversary cannot trigger repeated aborts to use the blame path as a
       decryption/leak oracle (each abort must not reveal fresh information
       about honest shares).

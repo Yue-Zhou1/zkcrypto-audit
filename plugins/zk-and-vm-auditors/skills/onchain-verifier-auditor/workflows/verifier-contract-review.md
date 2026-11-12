@@ -8,7 +8,7 @@ Executable review workflow for an on-chain proof-verifier contract.
    - List every external/public function that accepts proof bytes or points,
      and every storage slot / constant holding VK material.
 
-2. **Classify the verifier.** Generated (snarkjs/gnark/halo2-solidity) or
+2. **Classify the verifier.** Generated (snarkjs/gnark/halo2-solidity-verifier) or
    hand-written/assembly-optimized? For generated code, obtain the generator
    version and diff the deployed source against a freshly generated verifier
    from the audited circuit artifact. Any manual edit is in scope.
@@ -28,9 +28,9 @@ Executable review workflow for an on-chain proof-verifier contract.
    amount) to assess impact.
 
 6. **Check point encodings.** For each G1/G2 operand, confirm the byte
-   layout against EIP-196/197 (or EIP-2537) including G2 imaginary-first
-   ordering, and confirm any point used outside a precompile is validated
-   in-contract.
+   layout against EIP-196/197 (or EIP-2537) including G2 coefficient
+   ordering (imaginary first in EIP-197, c0 first in EIP-2537), and confirm
+   any point used outside a precompile is validated in-contract.
 
 7. **Check VK provenance and mutability.** Identify how the VK got its
    values (ceremony output, circuit compilation), whether it can change

@@ -1,56 +1,64 @@
 # Accumulator Review Workflow
 
-## Step 1: Identify the folding scheme variant
+Executable review of a folding-based IVC: the fold, the challenge, the step
+circuit, the curve cycle, and the decider.
 
-```bash
-grep -rni "Nova\|HyperNova\|ProtoStar\|Sonobe\|RelaxedR1CS\|LCCCS\|CCCS\|RunningInstance\|Accumulator\|IVC\|folding" \
-  --include="*.rs" .
-```
+1. **Identify the variant.**
+   `grep -rniE "nova|protostar|sonobe|relaxed|cccs|running|accumul|ivc|fold" --include="*.rs" .`
+   Record the folding scheme (Nova, HyperNova, ProtoStar, Sonobe, custom),
+   the cycle of curves (Pasta, BN254/Grumpkin, other), the step circuit
+   type (R1CS, Plonkish, custom), and the paper the code follows.
 
-Identify:
-- The folding scheme (Nova, HyperNova, ProtoStar, Sonobe, or custom)
-- The cycle of curves in use (Pasta: Pallas/Vesta; BN254/Grumpkin; or other)
-- The step circuit type (R1CS, Plonkish, or custom)
+2. **Verify the folding equation.** For each `fold` or equivalent, write the
+   update of every instance and witness field in the code's notation next
+   to the paper's. Nova: `E = E1 + r·T + r²·E2`, `u = u1 + r·u2`,
+   `x = x1 + r·x2`, and the same combination on W and on the commitments.
+   Verify T is computed from the witnesses of both instances before
+   folding. Flag any fold where T is zero, hardcoded, or where a field is
+   copied instead of combined.
 
-## Step 2: Verify the relaxed R1CS folding equation
+3. **Diff the absorb lists.** Write the ordered list of values absorbed
+   before the challenge `r`, once for the native verifier and once for the
+   in-circuit verifier. Both must contain both instance commitments and the
+   cross-term commitment, with `r` derived after all of them. Any value in
+   the fold that is on neither list, or after `r`, is a candidate. For
+   HyperNova, check the sum-check transcript round by round.
 
-For each `fold` or equivalent operation:
-- Locate the code that produces the new running instance from two input instances
-- Nova: new `E = E1 + r·T + r²·E2`; new `u = u1 + r·u2`; new `x = x1 + r·x2`
-- Verify T (cross-term) is computed from witnesses of both instances before folding
-- Verify T is committed and the commitment is sent to the transcript before
-  the challenge `r` is derived
+4. **Verify step public input threading.** In the step circuit, find where
+   the public input `x` is recomputed as a hash of the running accumulator
+   from step i−1 and compared; accepting it as an input is not a check.
+   List the hash preimage and compare it with the fold's inputs. Base case:
+   at step 0 the running instance is the scheme's default (trivially
+   satisfying) instance, checked explicitly, not left to the prover; fresh
+   incoming instances are always strict (u = 1, E = 0). Find what selects
+   the base branch and whether i != 0 can reach it.
 
-Flag any fold where T is zero, hardcoded, or added to the transcript after `r`.
+5. **Check cycle-of-curves encoding.** For each value crossing curves,
+   locate the encode and decode code and confirm an explicit range check
+   bounds it to the receiving scalar field. Look for truncation or modular
+   reduction that silently loses bits, and for non-native limbs that are
+   never reduced.
 
-## Step 3: Check Fiat-Shamir challenge construction
+6. **Verify the final SNARK.** Confirm the verifier key matches the step
+   circuit's constraint system, the public inputs include the final
+   accumulator hash, and the proof is verified end-to-end, not just
+   deserialized. List what the decider's statement checks and compare it
+   with every instance still open after the last step, on both curves.
 
-For the challenge `r`:
-- Transcript must absorb: both instance commitments, the cross-term commitment
-- Challenge must be derived AFTER all commitments are absorbed
-- For HyperNova: verify the sumcheck transcript is correctly constructed per round
+7. **Attempt the forgeries.** In a scratch copy, run the prover with one
+   change at a time: a different T after the challenge, an altered
+   running-instance field between steps, a non-default initial instance, a
+   different z0 or step count at final verification, a swapped decider key.
+   Each must make verification fail.
 
-## Step 4: Verify IVC step public input threading
+8. **Hand off.** Compare candidates with `references/finding-patterns.md`,
+   fill the output contract in `SKILL.md`, and route to `crypto-fp-check`.
 
-For the step circuit:
-- The circuit's public input `x` must include a commitment to or hash of the
-  running accumulator from step i−1
-- The circuit must verify this value internally (not just accept it as an input)
-- Base case check: at step 0 the running instance must be the trivial instance
-  (u = 1, E = 0, witnesses trivially satisfying); the verifier must check this
-  explicitly rather than relying on the prover to initialize it correctly
+## Failure rules
 
-## Step 5: Check cycle-of-curves encoding
-
-For each public input that crosses curve boundaries:
-- The encoding must fit in the scalar field of the receiving curve
-- Rust code must explicitly range-check the value before use
-- Locate the field-element encoding/decoding code and confirm field size bounds
-  are respected; look for truncation or modular reduction that silently loses bits
-
-## Step 6: Verify the final SNARK
-
-For the SNARK produced over the last accumulator:
-- Confirm the verifier key matches the step circuit's constraint system
-- Confirm the public inputs to the SNARK include the correct final accumulator hash
-- Confirm the SNARK proof is verified end-to-end, not just deserialized
+- A field is closed only when it appears in the absorb list before the
+  challenge and in the state hash. "It is derived from bound values" needs
+  the derivation shown in-circuit.
+- A step-3 or step-4 gap with no forgery yet is `unverified`, not dropped.
+- The paper is not evidence for the code: match every equation to a line.
+- Stop at hash, commitment, and curve-arithmetic internals and route them.

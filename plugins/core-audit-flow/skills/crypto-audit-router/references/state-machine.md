@@ -1,73 +1,56 @@
-# Router Session State Machine
+# Session State Machine
 
-This state machine governs router handoffs and session-state mutations.
-
-Schema authority:
-`zk-findings/sessions/session-state-schema.json`
+Governs the `phase` field of `session.json` and what may change in each phase.
+The schema is `references/session-state-schema.json` (version 3).
 
 ## States
 
 | State | Meaning |
 |---|---|
-| `intake_pending` | Engagement context is being built or repaired. |
-| `domain_in_progress` | Domain auditor routing is active; suspected findings are still open. |
-| `verification_in_progress` | Surviving findings are being validated for truth/impact. |
-| `reporting_in_progress` | Verified findings are being converted to report artifacts. |
-| `indexing_in_progress` | Verified findings are being linked to prior art or index records. |
-| `remediation_in_progress` | A supplied fix is being verified against previously verified findings. |
-| `closed` | All artifacts are consistent and handoff is complete. |
-
-These are the `phase` enum values in session schema v2
-(`schema_version: 2`). Session files must set `schema_version` to `2` and keep
-engagement-specific fields under `extensions` rather than at the root.
+| `intake_pending` | Engagement context is being built or repaired |
+| `domain_in_progress` | Domain auditors are running; candidates are being raised |
+| `verification_in_progress` | Candidates are being verified or rejected |
+| `reporting_in_progress` | Verified candidates are being written up |
+| `remediation_in_progress` | A supplied fix is being checked against verified findings |
+| `closed` | Artifacts are consistent and the handoff is complete |
 
 ## Allowed Transitions
 
 | From | To | Guard |
 |---|---|---|
-| `intake_pending` | `domain_in_progress` | Required schema fields are present and non-empty where required. |
-| `domain_in_progress` | `verification_in_progress` | Domain output contracts captured; `open_findings` contains review candidates or is explicitly empty with rationale. |
-| `verification_in_progress` | `domain_in_progress` | Verification evidence is insufficient; finding requires additional domain analysis. |
-| `verification_in_progress` | `reporting_in_progress` | At least one finding promoted to `verified_findings` with evidence. |
-| `reporting_in_progress` | `verification_in_progress` | Report content diverges from verified evidence or severity assignment is unsupported. |
-| `reporting_in_progress` | `indexing_in_progress` | Report artifacts align with verified findings. |
-| `indexing_in_progress` | `reporting_in_progress` | Indexed metadata disagrees with report content or verified claim set. |
-| `indexing_in_progress` | `closed` | Report, index artifacts, and `next_steps` all align with verified findings. |
-| `closed` | `remediation_in_progress` | A fix reference is supplied for a previously verified finding. |
-| `remediation_in_progress` | `verification_in_progress` | The patch changes the original claim or introduces a candidate regression that needs re-verification. |
-| `remediation_in_progress` | `closed` | Every targeted finding has a `remediation_verifications` verdict and evidence. |
+| `intake_pending` | `domain_in_progress` | `targets`, `trust_boundaries`, and `critical_paths` are non-empty |
+| `domain_in_progress` | `verification_in_progress` | Every matched route is `completed` or `skipped` with a reason |
+| `verification_in_progress` | `domain_in_progress` | A candidate needs more domain analysis before it can be decided |
+| `verification_in_progress` | `reporting_in_progress` | Every candidate has a decided status, or is `unverified` with a reason and a next step |
+| `reporting_in_progress` | `verification_in_progress` | Report content goes beyond the verified evidence, or a severity is unsupported |
+| `reporting_in_progress` | `closed` | Report, PoC artifacts, and `session.json` describe the same claim set |
+| `closed` | `remediation_in_progress` | A fix reference is supplied for a `verified` candidate |
+| `remediation_in_progress` | `verification_in_progress` | The patch changes the original claim or introduces a candidate regression |
+| `remediation_in_progress` | `closed` | Every targeted finding has a `remediation_verifications` verdict with evidence |
 
-Any transition not listed above is invalid and must be rejected.
+Any transition not listed is invalid.
 
-## Mutation Rules by Phase
+## What Each Phase May Change
 
-- Intake (`intake_pending`):
-  - Populate/repair `engagement_id`, `targets`, `trust_boundaries`, `next_steps`.
-  - Initialize `open_findings` and `verified_findings` arrays if absent.
-- Domain (`domain_in_progress`):
-  - Add or update entries in `open_findings` with `id`, `status`, `summary`, and optional `owner_skill`.
-  - Do not write report references.
-- Verification (`verification_in_progress`):
-  - Remove rejected findings from `open_findings` or mark status accordingly.
-  - Promote accepted findings into `verified_findings` with severity and summary.
-- Reporting (`reporting_in_progress`):
-  - Add `report_ref` for verified findings.
-  - Update `next_steps` to reflect publish/escalation actions.
-- Indexing (`indexing_in_progress`):
-  - Record prior-art/index actions in `next_steps`.
-  - Do not alter the semantic claim of verified findings.
-- Remediation (`remediation_in_progress`):
-  - Append `remediation_verifications` records with `finding_id`, `fix_ref`,
-    `verdict`, `regression_evidence_refs`, and `verified_at`.
-  - Do not rewrite the original `verified_findings` claim; capture the fix
-    outcome as a separate remediation verdict.
+- **Intake:** `engagement_id`, `targets`, `trust_boundaries`, `critical_paths`,
+  `unresolved_assumptions`, `next_steps`.
+- **Domain:** add `routes` entries and move them to `completed` or `skipped`;
+  add `candidates` with `owner_skill`, `location`, `summary`, `evidence_refs`.
+  A domain auditor may set `false_positive`, `observation`, or `residual_risk`
+  with a code pointer. It never sets `verified` or a final severity.
+- **Verification:** set candidate `status`, `severity`, `verdict_rationale`,
+  `poc_status`, `poc_ref`. Candidates are never deleted; a rejected one stays
+  as `false_positive` with the gate that failed.
+- **Reporting:** set `report_ref`; fill `artifacts`; refresh `next_steps`. The
+  claim, status, and severity of a candidate do not change here.
+- **Remediation:** append `remediation_verifications`. The original candidate
+  is not rewritten.
 
-## Enforcement Checklist
+Engagement-specific material with no core field goes under `extensions`.
 
-Before each phase transition:
+## Before Each Transition
 
-1. Validate the current session JSON against
-   `../../../../../zk-findings/sessions/session-state-schema.json`.
-2. Confirm the transition is listed in the allowed transition table.
-3. Confirm phase-specific mutation rules were respected.
-4. If any check fails, route back to the earliest phase that can repair state.
+1. Validate `session.json` against the schema.
+2. Confirm the transition is in the table and its guard holds.
+3. Confirm only the fields allowed for the current phase changed.
+4. If a check fails, go back to the earliest phase that can repair the state.

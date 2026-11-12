@@ -7,9 +7,11 @@ FIPS 203.
 
 - [ ] The implementation states which spec it implements: FIPS 203 final
       differs from round-3 CRYSTALS-Kyber (e.g., no hash of the message m
-      before use in K derivation in final ML-KEM.Encaps; the shared-secret
-      derivation changed between draft/round-3 and final). Mixed derivations
-      produce interoperable-looking but wrong shared secrets.
+      before use in ML-KEM.Encaps; no hash of the ciphertext in the
+      shared-secret derivation; fixed 256-bit K) and from the initial
+      public draft (domain separation in K-PKE.KeyGen, matrix index order)
+      — see Appendix C. Mixed derivations produce interoperable-looking
+      but wrong shared secrets.
 - [ ] Parameter set (ML-KEM-512/768/1024) matches the claimed security
       category (1/3/5) and is not runtime-negotiable below policy.
 - [ ] Known-answer tests come from the FIPS 203 final vectors (or
@@ -17,29 +19,36 @@ FIPS 203.
 
 ## Input checking (§7.2, §7.3)
 
-- [ ] Encapsulation input check: the encoded public key's coefficients are
-      verified < q (ek type check / modulus check); reject otherwise.
-- [ ] Decapsulation input checks: ciphertext byte length matches the
-      parameter set; dk length and (where the API keeps the hash) the
-      internal consistency of the decapsulation key.
-- [ ] APIs that skip input checks "because the caller validated" are
-      findings — the checks are normative Encaps/Decaps preconditions.
+- [ ] Encapsulation input check: ek has length 384k + 32 (type check) and
+      its encoded coefficients are verified < q (modulus check:
+      ByteEncode12(ByteDecode12(ek[0:384k])) equals the input); reject
+      otherwise.
+- [ ] Decapsulation input checks: ciphertext byte length 32(d_u*k + d_v)
+      matches the parameter set; dk length is 768k + 96; hash check
+      H(dk[384k : 768k+32]) equals dk[768k+32 : 768k+64].
+- [ ] The checks are normative Encaps/Decaps preconditions. FIPS 203
+      lets the ek and dk checks be done once or by another party when
+      assurance is obtained by other means (SP 800-227), but the
+      ciphertext check is required on every Decaps. A skipped check
+      "because the caller validated" with no such assurance is a finding.
 
 ## Encapsulation (§7.2 ML-KEM.Encaps)
 
-- [ ] m comes from an approved RBG with >= 256 bits of strength; no
-      caller-supplied or deterministic m outside test hooks, and the
+- [ ] m is 32 fresh bytes from an approved RBG with security strength of
+      at least 128/192/256 bits for ML-KEM-512/768/1024 (§3.3, Table 2);
+      no caller-supplied or deterministic m outside test hooks, and the
       derandomized test API cannot be reached in production.
-- [ ] (K, r) = G(m || H(ek)) exactly — the hash of the encapsulation key
-      binds K to the recipient key (contributory behavior).
+- [ ] (K, r) = G(m || H(ek)) exactly (ML-KEM.Encaps_internal, §6.2) — the
+      hash of the encapsulation key binds K to the recipient key
+      (contributory behavior).
 - [ ] K is not observable (logs, errors, partial writes) before c is
       successfully produced.
 
 ## Decapsulation and implicit rejection (§7.3 ML-KEM.Decaps)
 
-- [ ] Full re-encryption check: m' decrypted, (K', r') re-derived, c'
-      recomputed and compared to c — comparison over the WHOLE ciphertext,
-      constant-time.
+- [ ] Full re-encryption check (ML-KEM.Decaps_internal, §6.3): m'
+      decrypted, (K', r') re-derived, c' recomputed and compared to c —
+      comparison over the WHOLE ciphertext, constant-time.
 - [ ] On mismatch, output K-bar = J(z || c) (the implicit-rejection key):
       no error return, no exception, no distinguishable timing/branching,
       no metrics or log line. Any explicit failure signal converts the

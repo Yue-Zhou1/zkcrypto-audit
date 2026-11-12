@@ -6,12 +6,7 @@ description: >
   error/result semantics, deterministic corpus capture, and evidence handoff
   to crypto-fp-check. User-triggered only — never auto-invoked by the audit
   flow.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
-  - Write
+allowed-tools: Read Grep Glob Bash Write
 ---
 
 # differential-test-harness-gen

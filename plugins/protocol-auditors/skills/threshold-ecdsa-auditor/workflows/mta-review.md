@@ -15,9 +15,9 @@ implementation.
 
 3. **Check Paillier modulus validity.** For each counterparty key
    acceptance path, confirm square-free + no-small-factor proofs are
-   checked (CGGMP21 Π^mod/Π^fac or the GG revision's equivalent), and that
-   N meets the size bound the range proofs assume (N > q^7 for standard
-   parameters).
+   checked (CGGMP21 Π^mod/Π^fac; GG18 and GG20 as specified have no
+   no-small-factor proof, so check what the implementation added), and that
+   N meets the size bound the range proofs assume (N > q^7 in GG18).
 
 4. **Trace one full MtA exchange.** For a = k_i, b = gamma_j (and the MtAwc
    variant with w_j): confirm the initiator range proof, responder range

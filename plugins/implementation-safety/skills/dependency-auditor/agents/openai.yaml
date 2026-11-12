@@ -1,6 +1,14 @@
-display_name: dependency-auditor
-short_description: Audit cryptographic dependency sets for vulnerable versions, security-significant
-  feature flags, advisory coverage, transitive risk, and stale fork provenance.
-default_prompt: Use dependency-auditor for this task. Audit cryptographic dependency
-  sets for vulnerable versions, security-significant feature flags, advisory coverage,
-  transitive risk, and stale fork provenance.
+interface:
+  display_name: dependency-auditor
+  short_description: 'Audit the dependency and supply-chain surface of cryptographic code:
+    advisory coverage, vulnerable or yanked versions, security-significant feature flags and
+    their unification across the build graph, backend selection, patch/replace/git/path dependencies,
+    fork provenance and drift, vendored code, lockfile enforcement, build scripts, and duplicate
+    crypto crates. Rust first, with Go modules and npm. Use when reviewing manifests, lockfiles,
+    forks, or which crypto backend a build ships.'
+  default_prompt: 'Use dependency-auditor for this task. Audit the dependency and supply-chain
+    surface of cryptographic code: advisory coverage, vulnerable or yanked versions, security-significant
+    feature flags and their unification across the build graph, backend selection, patch/replace/git/path
+    dependencies, fork provenance and drift, vendored code, lockfile enforcement, build scripts,
+    and duplicate crypto crates. Rust first, with Go modules and npm. Use when reviewing manifests,
+    lockfiles, forks, or which crypto backend a build ships.'

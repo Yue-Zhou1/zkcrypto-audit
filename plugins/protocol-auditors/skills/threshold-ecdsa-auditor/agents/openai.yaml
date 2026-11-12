@@ -1,8 +1,10 @@
-display_name: threshold-ecdsa-auditor
-short_description: Audit threshold ECDSA implementations (GG18/GG20/CGGMP21/Lindell)
-  for Paillier modulus validity, MtA/MtAwc range-proof gaps, presignature reuse,
-  concurrent-session isolation, and identifiable-abort leakage.
-default_prompt: Use threshold-ecdsa-auditor for this task. Audit the threshold ECDSA
-  keygen, signing, and resharing paths for Paillier validity proofs, MtA/MtAwc range
-  and consistency proofs, presignature lifecycle, session binding, and abort-path
-  information leakage.
+interface:
+  display_name: threshold-ecdsa-auditor
+  short_description: Audit threshold ECDSA implementations (GG18, GG20, CGGMP21, Lindell-style)
+    for Paillier modulus validity, MtA/MtAwc range-proof gaps, share-conversion soundness,
+    resharing and concurrent-session isolation, and identifiable-abort leakage. Use when reviewing
+    multi-party ECDSA keygen, signing, or resharing.
+  default_prompt: Use threshold-ecdsa-auditor for this task. Audit threshold ECDSA implementations
+    (GG18, GG20, CGGMP21, Lindell-style) for Paillier modulus validity, MtA/MtAwc range-proof
+    gaps, share-conversion soundness, resharing and concurrent-session isolation, and identifiable-abort
+    leakage. Use when reviewing multi-party ECDSA keygen, signing, or resharing.

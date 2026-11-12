@@ -11,16 +11,18 @@
 
 - **Pattern:** ECVRF verifier skips validate_key while the protocol lets
   participants register arbitrary public keys.
-- **Impact:** loss of full uniqueness/collision resistance — a malicious
-  participant crafts keys where one input maps to multiple valid outputs
-  and picks the favorable one.
+- **Impact:** loss of full collision resistance and of unpredictability
+  under malicious key generation — a malicious participant crafts a key for
+  which different inputs give the same output, or whose outputs it can
+  steer. Uniqueness (one output per key and input) still holds for ECVRF.
 
 ## P3: Cofactor mishandling in proof_to_hash
 
-- **Pattern:** beta = Hash(suite || 0x03 || Gamma) without cofactor
-  multiplication on cofactor-8 curves.
-- **Impact:** small-order components make verified Gamma variants hash to
-  different betas — output ambiguity that breaks uniqueness.
+- **Pattern:** beta = Hash(suite_string || 0x03 || Gamma || 0x00) without
+  cofactor multiplication on cofactor-8 curves.
+- **Impact:** the output then depends on small-order components of Gamma
+  that RFC 9381 removes before hashing, so the RFC's uniqueness claim no
+  longer covers the implementation.
 
 ## P4: Domain-separation drift
 

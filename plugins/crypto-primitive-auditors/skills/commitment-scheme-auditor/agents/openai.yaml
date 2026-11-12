@@ -1,7 +1,14 @@
-display_name: commitment-scheme-auditor
-short_description: Audit polynomial commitment schemes (KZG, FRI, IPA, Pedersen) for
-  degree bound enforcement, evaluation proof verification, trusted setup provenance,
-  and batch opening soundness.
-default_prompt: Use commitment-scheme-auditor for this task. Audit polynomial commitment
-  schemes (KZG, FRI, IPA, Pedersen) for degree bound enforcement, evaluation proof
-  verification, trusted setup provenance, and batch opening soundness.
+interface:
+  display_name: commitment-scheme-auditor
+  short_description: 'Audit polynomial and vector commitment schemes: KZG (SRS provenance
+    and validation, degree bounds, opening and batch-opening equations, evaluation-point ownership),
+    FRI as a PCS (rate, query count, folding consistency, grinding, soundness-bits accounting),
+    IPA/Bulletproofs openings, and Pedersen commitments (generator independence, binding vs
+    hiding). Use when reviewing commitment, opening, or setup-loading code, or when a PCS
+    question is routed from a circuit or verifier review.'
+  default_prompt: 'Use commitment-scheme-auditor for this task. Audit polynomial and vector
+    commitment schemes: KZG (SRS provenance and validation, degree bounds, opening and batch-opening
+    equations, evaluation-point ownership), FRI as a PCS (rate, query count, folding consistency,
+    grinding, soundness-bits accounting), IPA/Bulletproofs openings, and Pedersen commitments
+    (generator independence, binding vs hiding). Use when reviewing commitment, opening, or
+    setup-loading code, or when a PCS question is routed from a circuit or verifier review.'

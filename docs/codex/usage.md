@@ -1,39 +1,38 @@
 # Codex Usage Guide
 
-This guide describes the Codex-native orchestration flow for `zkcrypto-audit`.
+## Install
 
-## Prerequisites
+Add the marketplace and install the plugins:
 
-- Repository checked out locally.
-
-## Codex Startup Flow
-
-1. Ensure Codex is reading:
-   - `.agents/plugins/marketplace.json`
-   - `plugins/*/.codex-plugin/plugin.json`
-   - `plugins/*/skills/*/agents/openai.yaml`
-   - `.codex/skills/*/SKILL.md`
-
-3. Start audits router-first:
-
-```text
-Use crypto-audit-router to run a staged crypto security review.
+```bash
+codex plugin marketplace add Yue-Zhou1/zkcrypto-audit
 ```
 
-## Orchestration Rules
+Then open `/plugins`, install `core-audit-flow` and the categories you need,
+and start a new session.
 
-- Source-of-truth skill behavior: `plugins/*/skills/*/SKILL.md`
-- Routing policy and trigger modes: `plugins/_meta/codex-skill-registry.yaml`
-- Route predicates and phase controls: `plugins/_meta/router-matrix.yaml`
-- Session handoff storage: `zk-findings/sessions/*.json`
-- Session schema enforcement: `zk-findings/sessions/session-state-schema.json`
+## Start an audit
 
-`user_triggered_only` skills are never auto-selected by the router.
+```text
+Use crypto-audit-router to run a complete staged crypto/ZK security audit on <target directories>; read the full audit workflow, build/update session state, run context, spec-delta, all applicable routing-matrix domain auditors, FP checks, PoC gates, and the report writer.
+Do not stop after the first issue; finish with session JSON, candidate dispositions, PoC/proof artifacts, a readable report, and explicit reasons for any skipped stage or route.
+```
 
-## Migration Summary
+Invoke a single skill explicitly with `$<skill-name>`.
 
-The previous flat Codex stub model is preserved as a compatibility layer:
+## Rules the flow enforces
 
-- `.codex/skills/*` remains valid for skill invocation.
-- Stubs are generated from the registry; they are not hand-maintained.
-- Existing skill identifiers are unchanged for backward compatibility.
+- The contract is the `crypto-audit-router` skill's
+  `workflows/full-audit-flow.md`. Finding one issue is not a stop condition.
+- Routing policy is that skill's `references/routing-matrix.md`.
+  User-triggered skills (`kani-harness-gen`, `fuzz-harness-gen`,
+  `formal-verification-bridge`, `differential-test-harness-gen`) run only on
+  request.
+- Working state goes to `.zkcrypto-audit/<engagement-id>/` in the directory the
+  audit is run from: `session.json`, `reports/`, `pocs/`.
+
+## Resume
+
+```text
+Use crypto-audit-router. Resume the session at .zkcrypto-audit/<engagement-id>/session.json.
+```

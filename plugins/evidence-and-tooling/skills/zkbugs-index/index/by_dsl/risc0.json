@@ -1,0 +1,65 @@
+[
+  {
+    "id": "zkbugs/risc0/risc0/ghsa-5c79-r6x7-3jx9",
+    "dsl": "risc0",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Constraint",
+    "location": {
+      "repo": "https://github.com/risc0/risc0/security/advisories/GHSA-5c79-r6x7-3jx9",
+      "commit": "a165a6e3443fbc2e4f7093d7552399cd56337928",
+      "file": "risc0/circuit/rv32im-sys/cxx/step_exec.cpp",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "1e6ca468f3fb94ef6939b4f7875848312a708528",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/risc0/risc0/ghsa-f6rc-24x4-ppxp",
+    "dsl": "risc0",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Constraint",
+    "location": {
+      "repo": "https://github.com/risc0/risc0/security/advisories/GHSA-f6rc-24x4-ppxp",
+      "commit": "c8fd3bd2e2e18ad7a5abce213a376432116db039",
+      "file": "risc0/circuit/rv32im-sys/kernels/cxx/steps.cpp",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "bef7bf580eb13d5467074b5f6075a986734d3fe5",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  },
+  {
+    "id": "zkbugs/risc0/risc0/ghsa-g3qg-6746-3mg9",
+    "dsl": "risc0",
+    "vuln_type": "under_constrained",
+    "impact": "Soundness",
+    "severity": "Critical",
+    "root_cause": "Missing Constraint",
+    "location": {
+      "repo": "https://github.com/risc0/risc0/security/advisories/GHSA-g3qg-6746-3mg9",
+      "commit": "98387806fe8348d87e32974468c6f35853356ad5",
+      "file": "risc0/circuit/rv32im/src/execute/rv32im.rs",
+      "line": null
+    },
+    "reproduced": false,
+    "poc_available": false,
+    "fix_commit": "67f2d81c638bff5f4fcfe11a084ebb34799b7a89",
+    "disclosure_state": "disclosed",
+    "source": "upstream",
+    "upstream": true,
+    "added_at": null
+  }
+]

@@ -20,18 +20,22 @@ sign twice?
    index. Verify the reservation-window size is persisted before use.
 
 4. **Check backup/restore.** Restoring signer state restores an old
-   index. SP 800-208 compliance requires: key becomes unusable on
-   restore, OR index space is reserved externally, OR backups are
-   forbidden by the module. Identify which applies; "operators are
-   careful" is not a control.
+   index. SP 800-208 §8.1 forbids exporting private keying material, so
+   a conforming module has no private-key backup; redundancy comes from
+   distributed multi-tree keys (§7). For deployments outside that
+   profile, require that the key becomes unusable on restore OR that
+   index space is reserved externally. Identify which applies;
+   "operators are careful" is not a control.
 
 5. **Check cloning/replication.** HA/failover designs must partition
    index space (HSS subtree per node; XMSS^MT branch assignment) rather
    than sharing a counter; VM snapshots of signer nodes are P1 vectors.
 
-6. **Check hardware binding.** SP 800-208 requires keygen and signing
-   inside a validated cryptographic module with no raw private-key
-   export. Assess the deployment claim and record deviations.
+6. **Check hardware binding.** SP 800-208 §8.1 requires keygen and
+   signing inside a hardware cryptographic module validated to FIPS
+   140-2 or 140-3 Level 3 or higher physical security, with no export of
+   private keying material. Assess the deployment claim and record
+   deviations.
 
 7. **Check capacity accounting.** Remaining-signature counters, halt
    thresholds, and exhaustion behavior (must hard-stop, never wrap) (P9).

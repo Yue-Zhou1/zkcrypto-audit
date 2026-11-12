@@ -1,6 +1,13 @@
-display_name: vdf-auditor
-short_description: Audit VDF implementations for sequentiality assumptions, Wesolowski/Pietrzak
-  verifier soundness, challenge derivation integrity, and modulus/group setup risks.
-default_prompt: Use vdf-auditor for this task. Audit VDF implementations for sequentiality
-  assumptions, Wesolowski/Pietrzak verifier soundness, challenge derivation integrity,
-  and modulus/group setup risks.
+interface:
+  display_name: vdf-auditor
+  short_description: 'Audit verifiable delay function implementations: Wesolowski and Pietrzak
+    verification, hash-to-prime and challenge derivation, group choice (RSA modulus provenance,
+    class groups, low-order elements), delay-parameter handling, proof batching, and consumer-side
+    use of VDF outputs (beacon bias, withholding). Use when reviewing VDF setup, evaluators,
+    provers, verifiers, or beacons and consensus code that consume VDF outputs.'
+  default_prompt: 'Use vdf-auditor for this task. Audit verifiable delay function implementations:
+    Wesolowski and Pietrzak verification, hash-to-prime and challenge derivation, group choice
+    (RSA modulus provenance, class groups, low-order elements), delay-parameter handling,
+    proof batching, and consumer-side use of VDF outputs (beacon bias, withholding). Use when
+    reviewing VDF setup, evaluators, provers, verifiers, or beacons and consensus code that
+    consume VDF outputs.'

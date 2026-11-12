@@ -1,6 +1,13 @@
-display_name: merkle-tree-auditor
-short_description: Audit Merkle tree implementations for second-preimage attacks,
-  leaf-node domain separation, sparse tree edge cases, and proof verification soundness.
-default_prompt: Use merkle-tree-auditor for this task. Audit Merkle tree implementations
-  for second-preimage attacks, leaf-node domain separation, sparse tree edge cases,
-  and proof verification soundness.
+interface:
+  display_name: merkle-tree-auditor
+  short_description: Audit Merkle tree implementations for second-preimage attacks, leaf-node
+    domain separation, index and depth binding, sparse and indexed tree edge cases, non-membership
+    proofs, multiproofs, append-only frontiers, root history handling, and in-circuit versus
+    native hashing drift. Use when reviewing inclusion or exclusion proof verifiers, tree
+    update logic, prover-supplied sparse witnesses, or Merkle gadgets inside circuits.
+  default_prompt: Use merkle-tree-auditor for this task. Audit Merkle tree implementations
+    for second-preimage attacks, leaf-node domain separation, index and depth binding, sparse
+    and indexed tree edge cases, non-membership proofs, multiproofs, append-only frontiers,
+    root history handling, and in-circuit versus native hashing drift. Use when reviewing
+    inclusion or exclusion proof verifiers, tree update logic, prover-supplied sparse witnesses,
+    or Merkle gadgets inside circuits.

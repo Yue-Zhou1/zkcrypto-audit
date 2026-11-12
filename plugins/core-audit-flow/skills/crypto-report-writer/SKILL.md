@@ -1,54 +1,78 @@
 ---
 name: crypto-report-writer
 description: >
-  Write final audit findings for ZK and cryptographic reviews. Use when a
-  finding has survived verification and needs to be turned into clear report
-  prose with severity, impact, root cause, and test evidence.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
+  Write the audit report for ZK and cryptographic reviews. Use when findings
+  have passed verification and need report prose with severity, root cause,
+  impact, evidence, and remediation, for client, internal, or public
+  audiences.
+allowed-tools: Read Grep Glob Write Edit
 ---
 
 # crypto-report-writer
 
-Final reporting skill for the crypto audit framework.
+Turns verified candidates into a report. Adds no new claims.
+
+**Core principle:** the report states what verification established, at the
+severity verification assigned.
 
 ## When to Use
 
-- A finding has passed `crypto-fp-check` and needs report-ready prose
-- You need a consistent report section structure across multiple findings
-- You are summarizing severity and test evidence for an audit deliverable
-- You are drafting disclosed writeups that may later map into `zkbugs-index`
+- Candidates have passed `crypto-fp-check` and need report-ready prose
+- An audit is closing and needs its report, including one with no findings
+- A verified finding needs a public disclosure write-up
+- A `fix-verification` verdict needs to be added to an existing finding
 
 ## When NOT to Use
 
-- The finding is still hypothesis-shaped or missing verification evidence
-- You are still building protocol context or running domain-specific review
-- You need to decide severity before the evidence is assembled
+- The claim is still a hypothesis or lacks verification evidence ->
+  `crypto-fp-check`
+- Context building or domain review is still in progress ->
+  `crypto-audit-router`
+- Severity is undecided -> `crypto-fp-check` with `audit-common`
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "The PoC is implied by the code walkthrough" | A Critical or High without an executed PoC or an explicit `pending_poc` is not reportable at that severity |
+| "I'll round the severity up so the client takes it seriously" | Severity comes from verification; the report does not renegotiate it |
+| "No findings, so no report" | Scope, routes run and skipped, and what was ruled out are the deliverable of a clean audit |
+| "The false positives are not worth mentioning" | Recording what was ruled out, and why, saves the next reviewer from repeating it |
+| "Remediation: callers should validate the input" | State the enforcement change in the code, not the behaviour that would avoid the bug |
 
 ## Workflow
 
-Choose the report variant first, then fill it with verified evidence only:
-
-- [templates/client-report-template.md](templates/client-report-template.md) for client-facing delivery with concise executive and remediation language
-- [templates/internal-report-template.md](templates/internal-report-template.md) for engineering/internal circulation with investigation notes and rollout risk
-- [templates/public-disclosure-template.md](templates/public-disclosure-template.md) for external publication without private client context
-- [templates/report-template.md](templates/report-template.md) for generic/default findings when no specialized variant is required
-
-Do not write around missing proof or test gaps; state them explicitly.
+1. Read the verified candidates from `session.json` in the audit workspace, or
+   from the `crypto-fp-check` verdicts when run standalone. Use nothing else as
+   a source of claims.
+2. Pick the audience: client delivery, internal circulation, or public
+   disclosure. Default to the base report when none is stated.
+3. Fill [templates/report-template.md](templates/report-template.md): report
+   body, one section per verified finding, then the audience sections.
+4. List observations, residual risks, and anything left unverified with the
+   reason.
+5. Write the report under `reports/` in the audit workspace, set `report_ref`
+   on each reported candidate, and add the file to `artifacts.reports`.
+6. Compare the report with `session.json`: same findings, same severities,
+   same PoC status. State any proof or test gap explicitly.
 
 ## Reference Use
 
-- Use `audit-common` for shared severity and finding-structure rules
-- Use `crypto-fp-check` output as the source of truth for verified claims
-- Cite `zkbugs-index` only when the referenced entry is disclosed and citable
+- `audit-common` for severity definitions, finding structure, and evidence
+  categories
+- `crypto-fp-check` output as the source of truth for verified claims
+- Cite a `zkbugs-index` entry only when it is disclosed and citable
 
 ## Output Contract
 
-Produce a report-ready finding package that includes:
+Produce a report file and state:
 
-- Final severity and short title
-- Summary, root cause, impact, and remediation
-- Test evidence status, including PoC status where required
-- Whether the writeup is suitable for external citation or index ingestion
+- `report_path`
+- `audience` (base, client, internal, or public)
+- `findings_reported`: IDs with final severity
+- `omitted`: candidates not reported, with the reason for each
+- `suitable_for_external_citation`: yes or no, with the reason
+
+## Reference Index
+
+- [templates/report-template.md](templates/report-template.md)

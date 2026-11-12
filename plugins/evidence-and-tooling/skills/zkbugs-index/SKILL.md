@@ -1,178 +1,94 @@
 ---
 name: zkbugs-index
 description: >
-  Queryable index of real-world ZKP vulnerabilities. Use when a Phase 2 audit
-  skill identifies a suspicious pattern and needs to check whether a similar bug
-  has been documented before — or when a confirmed finding needs to be recorded.
-  Covers circom, noir, halo2, cairo, zkVM, and custom DSLs. Backed by upstream
-  community corpus (zksecurity/zkbugs) and configurable organization findings repo.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+  Queryable index of real-world ZK proof-system vulnerabilities. Use during a
+  ZK audit to check whether a suspicious pattern has documented precedent, to
+  cite prior art for a verified finding, or to record a verified, novel,
+  circuit-level finding. Covers circom, halo2, cairo, gnark, arkworks,
+  plonky3, zkVM, and other DSLs. Backed by the zksecurity/zkbugs corpus and
+  an optional organization findings repo.
+allowed-tools: Read Grep Glob Bash
 ---
 
 # zkbugs-index
 
-Queryable knowledge base of confirmed, peer-reviewed ZK vulnerabilities.
-
-Three read sources, with optional team write-through:
+Index of confirmed ZK vulnerabilities, shipped pre-built inside this skill.
 
 ```
-READ  ← upstream repo      (community corpus, pulled at rebuild time)
-READ  ← supplemental files (curated vendor findings: Trail of Bits, Zellic,
-                            audit contests — shipped in data/external_findings/)
-READ  ← org findings repo  (optional; your team's confirmed bugs)
-WRITE → local_findings/    (always, for under-embargo work)
-WRITE → org findings repo  (optional, for reported/fixed/disclosed findings)
+READ  <- upstream repo        community corpus, pulled at rebuild time
+READ  <- org findings repo    optional; your team's confirmed bugs
+WRITE -> local findings dir   always, for under-embargo work (outside the skill)
+WRITE -> org findings repo    optional, for reported/fixed/disclosed findings
 ```
 
-All three are merged into the same sharded output, so a single shard read covers
-every source. Each entry carries a `source` field — currently `upstream` (139),
-`trail-of-bits` (4), `zellic` (4), and `audit-contests` (4). Filter on it when
-provenance matters for citation.
+All read sources are merged into the same shards. Each entry carries a
+`source` field. The shipped index contains upstream entries only. The manifest
+lists the shards that exist; most entries are `under_constrained`.
 
-Both repos are **configurable** in `<plugin-root>/config/zkbugs-sources.json`.
-The org repo is optional.
+## When to Use
 
-## Locating the Index (do this first)
+- A domain auditor sees a suspicious pattern in ZK code and wants precedent
+- Checking whether the same root cause has appeared in another project
+- Citing prior art for a verified finding
+- Recording a verified finding that passes every write gate below
 
-This skill's own files live in `skills/zkbugs-index/`, but the index, scripts,
-and config live at the **plugin root — one level above `skills/`**. Looking only
-inside the skill directory will find only this file plus its `references/` and
-`workflows/` docs — no `index/`, no `scripts/`. That is expected and does not
-mean the install is broken.
+## When NOT to Use
 
-Resolve `<plugin-root>` once, then use it for every path below:
+- General Rust review without ZK context -> `rust-crypto-safety`
+- Smart-contract business logic: this index covers ZK circuit-level bugs
+- CVE lookup: use NVD or the vendor advisory; entries here may have no CVE
+- Deciding whether a candidate is real -> `crypto-fp-check`. A match here
+  supports plausibility and proves nothing about the target
 
-| Situation | `<plugin-root>` |
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
 |---|---|
-| Installed from the marketplace | `~/.claude/plugins/cache/<marketplace>/evidence-and-tooling/<version>/` |
-| Working inside a repo checkout | `<repo>/plugins/evidence-and-tooling/` |
-
-If neither is obvious, locate it directly. Note the `**` after
-`evidence-and-tooling` — the marketplace install inserts a version directory
-(e.g. `0.1.0/`), so a pattern without it matches only a repo checkout:
-
-```
-Glob: pattern="**/evidence-and-tooling/**/index/manifest.json"
-```
-
-`<plugin-root>` is the directory containing that `index/`.
-
-Confirm the resolution by reading `<plugin-root>/index/manifest.json` — it
-reports `count`, per-shard entry counts, and `built_at`.
-
-## Index Is Pre-Built — No Build Step Required to Query
-
-The sharded index ships **already built and committed**. To query it you need
-only `Read`/`Grep` — no Python, no network, no build step. Skip straight to
-[How to Query](#how-to-query).
-
-`scripts/build_index.py` is a **maintenance** tool, needed only when refreshing
-the index from upstream:
-
-```bash
-python3 <plugin-root>/scripts/build_index.py --rebuild
-```
-
-The script anchors its config, index, and data paths to the plugin root, so it
-works from any working directory and `--config` is only needed to point at a
-non-default config.
-
-It requires Python 3.10+ and network access to clone upstream. A weekly GitHub
-Action (`.github/workflows/zkbugs-rebuild.yml`) already runs this and opens a PR
-on upstream drift, so manual rebuilds are rarely necessary. **If Python or the
-network is unavailable, that blocks rebuilds only — querying still works.**
-
-## Configuration
-
-Configuration is only needed for rebuilds or org-repo write-through, not for
-querying. Edit `<plugin-root>/config/zkbugs-sources.json`:
-
-```json
-{
-  "upstream": {
-    "repo_url": "https://github.com/zksecurity/zkbugs",
-    "local_path": null,
-    "branch": "main"
-  },
-  "org": {
-    "repo_url": null,
-    "local_path": null,
-    "branch": "main"
-  }
-}
-```
-
-- `upstream.repo_url` — community corpus (default: zksecurity/zkbugs). Set to any
-  repo that follows the same entry schema, or set `local_path` to skip cloning.
-- `org.repo_url` / `org.local_path` — optional organization findings repo. If
-  unset, the skill stays in local-only mode and keeps promoted findings under
-  `index/local_findings/`.
-- `supplemental_files` — curated vendor finding sets under
-  `data/external_findings/`, merged in on every rebuild. Paths are resolved
-  relative to the plugin root.
-
-## When to Query
-
-Query this index when:
-- A Phase 2 skill identifies a suspicious pattern and needs variant precedent
-- You want to check if this exact root cause has appeared in a different project
-- You are writing up a finding and need to cite prior art for severity justification
+| "I must run `build_index.py` before I can query" | The index ships pre-built. Querying is reading JSON: no Python, no network |
+| "Python isn't available, so this skill is unusable" | That blocks rebuild and write-back only |
+| "No match found, so this is novel" | Search `root_cause` keywords across DSL shards first; the same cause is often described differently |
+| "There is a match, so the candidate is real" | Prior art is plausibility. The trigger path in the target still has to be proven |
+| "The upstream entry is old, probably fixed everywhere" | The same pattern recurs in new projects constantly |
+| "I found a real bug, so I should contribute it" | All four write gates must hold, circuit-level scope included |
 
 ## How to Query
 
-Read the index shard files directly — no script needed. The dataset is small
-(<200 entries) so the agent can filter and rank in-context.
+Paths are relative to this skill's directory.
 
-```
-# Check manifest first for available shards and entry counts
-Read: <plugin-root>/index/manifest.json
+1. Read `index/manifest.json` for entry counts, available shards, and
+   `built_at`.
+2. Read the shard for the target language, `index/by_dsl/<dsl>.json`, or for
+   the bug class, `index/by_vuln_type/<type>.json`. If the target's DSL has no
+   shard, use `by_vuln_type/`.
+3. Search `root_cause` text for keywords when the class is unclear:
 
-# By DSL — read the shard for the target language
-Read: <plugin-root>/index/by_dsl/circom.json
+   ```bash
+   grep -n -i "lookup table" index/by_dsl/halo2.json
+   ```
 
-# By vulnerability type
-Read: <plugin-root>/index/by_vuln_type/under_constrained.json
+4. Filter in context by `vuln_type`, `source`, and `disclosure_state`. Rank by
+   reproduced (PoC available), then Soundness impact, then severity.
 
-# Keyword search on root_cause across all entries in a DSL shard
-Grep: pattern="lookup table" path=<plugin-root>/index/by_dsl/halo2.json
-```
-
-Available DSL shards: `arkworks`, `bellperson`, `cairo`, `circom`, `gnark`,
-`halo2`, `noir`, `pil`, `plonky3`, `risc0`. If the target's DSL has no shard,
-query `by_vuln_type/` instead — the root-cause pattern often transfers across
-languages.
-
-After reading a shard, filter entries in-context by `vuln_type`, `source`,
-`disclosure_state`, or keyword match on `root_cause`. Rank by: reproduced
-(PoC available) > Soundness impact > severity (Critical > High > Medium > Low).
-
-Only cite entries with `"disclosure_state": "disclosed"` in client-facing reports.
-
-See `references/QUERY-PATTERNS.md` for common lookup patterns.
+Cite only entries with `"disclosure_state": "disclosed"` in client-facing
+reports. See `references/QUERY-PATTERNS.md` for common lookups and
+`references/VULN-TAXONOMY.md` for the type vocabulary.
 
 ## When to Write
 
-Write-back is the **exception, not the default close-out step**. Most audits
-query this index and write nothing. Write only when ALL four hold:
+Write only when all four hold:
 
-1. **In scope** — the finding is ZK **circuit-level** (constraint system, witness
-   generation, proof/verifier logic). Host-side Rust bugs, smart-contract
-   business logic, dependency/CVE issues, and config mistakes are out of scope
-   even when severe.
-2. **Verified** — it passed `crypto-fp-check` (Phase 4)
+1. **In scope:** the finding is ZK circuit-level (constraint system, witness
+   generation, proof or verifier logic). Host-side Rust bugs, contract business
+   logic, dependency issues, and configuration mistakes are out of scope
+2. **Verified:** it passed `crypto-fp-check`
 3. **Severity Medium or above**
-4. **Novel root cause** — no existing entry describes the same mechanism; a
-   known pattern recurring in a new project is *not* novel
+4. **Novel root cause:** no existing entry describes the same mechanism. A
+   known pattern recurring in a new project is not novel
 
-If any one fails, do not write. Querying without contributing is the normal,
-correct outcome — record the decision and move on.
+If any one fails, do not write. Record the decision and move on.
 
 ```bash
-python3 <plugin-root>/scripts/contribute_bug.py \
+python3 scripts/contribute_bug.py \
   --dsl circom \
   --vuln under_constrained \
   --impact Soundness \
@@ -189,39 +105,47 @@ See `workflows/disclosure-lifecycle.md` for state transitions and promotion.
 
 ## Storage Rules
 
-- `under_embargo` findings always start as `local/...` IDs and are stored in
-  `index/local_findings/findings.json`
-- If an org findings repo is configured, promotion to `reported` moves the
+- `under_embargo` findings get `local/...` IDs and are stored outside the
+  skill, in the local findings directory: `~/.zkcrypto-audit/zkbugs/local_findings/`
+  by default. Override with `--local-findings-dir`, the
+  `ZKBUGS_LOCAL_FINDINGS_DIR` environment variable, or `local_findings_dir` in
+  the config. They are not written into the index, and a rebuild excludes
+  them from the shards
+- With an org findings repo configured, promotion to `reported` moves the
   entry into that repo and rewrites the ID to `org/...`
-- If no org repo is configured, promoted findings keep their `local/...` ID and
-  remain in local storage
+- Without one, promoted findings keep their `local/...` ID and stay in the
+  local findings directory
 
-## Workflow Router
+## Maintenance
 
-```
-├─ Can't find index/ or scripts/? → It's at the plugin root, NOT in this skill
-│                                    dir. See "Locating the Index" above.
-├─ Need to query?                 → Read: references/QUERY-PATTERNS.md
-├─ Need vulnerability types?      → Read: references/VULN-TAXONOMY.md
-├─ Adding/promoting a finding?    → Read: workflows/disclosure-lifecycle.md
-└─ Configuring repos?             → Edit: <plugin-root>/config/zkbugs-sources.json
+Rebuild and write-back require Python 3.10+. Querying does not.
+
+```bash
+python3 scripts/build_index.py --rebuild
 ```
 
-## When NOT to Use
+The scripts resolve `config/` and `index/` relative to this skill's
+directory. `config/zkbugs-sources.json` sets the upstream repo and the
+optional org repo. `supplemental_files` lists extra JSON finding sets to merge
+on rebuild; every entry in such a set must cite a source that can be opened.
+In the source repository a weekly workflow rebuilds the index and opens a pull
+request when upstream drifts.
 
-- **General Rust review** without ZK context — use `rust-crypto-safety` instead
-- **Smart contract business logic** — this index covers ZK circuit-level bugs only
-- **Looking up CVEs** — use NVD/MITRE directly; this index tracks ZK-specific bugs
-  that may or may not have CVEs assigned
+## Output Contract
 
-## Rationalizations to Reject
+For a query, return:
 
-| Rationalization | Why it's wrong |
-|---|---|
-| "The skill dir has only a few docs, so the install is broken" | The index and scripts live at the **plugin root**, one level above `skills/`. Resolve it per "Locating the Index" before concluding anything is missing |
-| "I must run `build_index.py` before I can query" | The index ships pre-built and committed. Querying is `Read`/`Grep` only — no Python, no network |
-| "Python isn't available, so this skill is unusable" | That blocks rebuild and write-back only. Query still works |
-| "No match found, so this is novel" | Grep for root_cause keywords across DSL shards before concluding; root cause may be described differently |
-| "The upstream entry is old, probably fixed everywhere" | The same pattern recurs in new projects constantly |
-| "I found a real bug, so I should contribute it" | All four write gates must hold — circuit-level scope included. A verified host-side Rust bug does not belong here |
-| "I'll add it to the index later" | Findings lost between sessions are findings lost forever |
+- `matches`: entry IDs with `source`, `vuln_type`, `disclosure_state`, and the
+  one-line `root_cause`
+- `relevance`: why each match bears on the candidate, and what differs
+- `citable`: which matches may be cited externally
+- `next_route`
+
+For a write, return the entry ID, its state, and which of the four gates were
+checked and how.
+
+## Reference Index
+
+- [references/QUERY-PATTERNS.md](references/QUERY-PATTERNS.md)
+- [references/VULN-TAXONOMY.md](references/VULN-TAXONOMY.md)
+- [workflows/disclosure-lifecycle.md](workflows/disclosure-lifecycle.md)

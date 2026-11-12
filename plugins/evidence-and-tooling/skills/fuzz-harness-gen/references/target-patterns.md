@@ -30,7 +30,8 @@ fuzz_target!(|data: &[u8]| {
 #![no_main]
 use libfuzzer_sys::fuzz_target;
 
-fuzz_target!(|(seed_proof: Vec<u8>, mutator: Vec<u8>)| {
+fuzz_target!(|input: (Vec<u8>, Vec<u8>)| {
+    let (seed_proof, mutator) = input;
     // Prefer corpus-provided valid seeds so verifier paths are exercised often.
     if let Ok(mut proof) = Proof::decode(&seed_proof) {
         mutate_proof(&mut proof, &mutator); // mutated proof coverage
@@ -66,5 +67,5 @@ fuzz_target!(|witness: Vec<u8>| {
 
 ## Lightweight property fallback
 
-- Use `proptest` for fast deterministic checks in CI when full fuzzing budget is unavailable
+- Use `proptest` for fast bounded checks in CI when full fuzzing budget is unavailable
 - Promote failing property cases into fuzz corpus for deeper exploration

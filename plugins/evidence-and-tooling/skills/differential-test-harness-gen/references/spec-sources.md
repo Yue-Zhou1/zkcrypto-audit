@@ -8,7 +8,8 @@ vectors encode.
 
 - Project Wycheproof (C2SP/wycheproof, originally Google) — the primary
   corpus. Encodes known edge cases and historical CVEs for ECDSA, EdDSA,
-  DSA, RSA (PSS/PKCS1), AES-GCM/EAX, DH/ECDH, HKDF, ML-KEM, and more,
+  DSA, RSA (PSS/PKCS1), AES-GCM/EAX, ECDH/X25519/X448, HKDF, ML-KEM,
+  ML-DSA, and more,
   each case labeled valid/invalid/acceptable. The highest-value source
   for D1-class divergences.
 - NIST CAVP / ACVP — Cryptographic Algorithm Validation Program vectors
@@ -23,7 +24,8 @@ vectors encode.
 
 - McKeeman, "Differential Testing for Software" (Digital Technical
   Journal, 1998): the differential-testing method this skill applies.
-- Wycheproof project documentation: guidance on interpreting the
-  valid/invalid/acceptable labels and mapping them to verdicts.
+- Wycheproof project documentation (`doc/` and the JSON schemas in
+  `schemas/`): defines the valid/invalid/acceptable result values and the
+  per-case flags used to map them to verdicts.
 - The consuming skill `crypto-fp-check` adjudicates whether a captured
   divergence is a true finding.

@@ -1,7 +1,9 @@
-display_name: audit-common
-short_description: User-triggered only and never auto-invoked by the router. Provides
-  shared severity, testing-evidence, and finding-contract references for ZK and cryptographic
-  audit skills.
-default_prompt: Use audit-common for this task. User-triggered only and never auto-invoked
-  by the router. Provides shared severity, testing-evidence, and finding-contract
-  references for ZK and cryptographic audit skills.
+interface:
+  display_name: audit-common
+  short_description: Provides shared severity, testing-evidence, and finding-contract references
+    for ZK and cryptographic audit skills. Use when classifying findings, checking whether
+    test evidence is sufficient, or writing findings in a consistent structure.
+  default_prompt: Use audit-common for this task. Provides shared severity, testing-evidence,
+    and finding-contract references for ZK and cryptographic audit skills. Use when classifying
+    findings, checking whether test evidence is sufficient, or writing findings in a consistent
+    structure.

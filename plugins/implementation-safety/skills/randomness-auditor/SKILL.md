@@ -6,11 +6,7 @@ description: >
   deterministic nonce derivation (RFC 6979, EdDSA), and reuse across retries,
   crashes, persistence, and concurrent state. Use when any secret-dependent
   random value's generation or lifetime is in question.
-allowed-tools:
-  - Read
-  - Grep
-  - Glob
-  - Bash
+allowed-tools: Read Grep Glob Bash
 ---
 
 # randomness-auditor
@@ -41,6 +37,17 @@ concurrency.
   domain auditors
 - Threshold nonce-share binding (FROST/MuSig2) -> `dkg-threshold-auditor`;
   threshold-ECDSA presignatures -> `threshold-ecdsa-auditor`
+
+## Rationalizations to Reject
+
+| Rationalization | Why it is wrong |
+|---|---|
+| "It uses the OS CSPRNG, so randomness is fine" | The source is one link. Check seeding at first use (early boot, containers, embedded targets), duplication across fork, clone, and VM snapshot, userspace buffering, and what happens when the RNG call fails |
+| "Nonces are deterministic, so the RNG does not matter" | Deterministic derivation fails differently: a derivation that omits the message or the key, encodings that map two messages to one nonce input, and multi-party protocols where deterministic nonces are unsafe |
+| "A slightly biased nonce is harmless" | Lattice attacks recover ECDSA and Schnorr keys from a few bits of bias or leakage per signature, given enough signatures |
+| "The nonce counter is persisted" | Check the ordering: persist before use, a crash between use and persist, a restore from backup, and two instances sharing state all reuse a nonce |
+| "It is only a salt, an IV, or a test seed" | Trace where the value ends up. RNG instances and seeds get reused across purposes, and test RNGs behind feature flags reach production builds |
+| "A failed operation just retries" | A retry that keeps the nonce while the message or state changed is nonce reuse |
 
 ## Core Review Areas
 

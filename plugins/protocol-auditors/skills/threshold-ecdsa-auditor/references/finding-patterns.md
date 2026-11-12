@@ -4,19 +4,24 @@
 
 - **Pattern:** MtA implementation constructs range proofs but a counterparty
   skips verification, or the protocol config disables them ("fast mode").
-- **Root cause:** range proofs are the expensive part of GG18/GG20; they get
-  stubbed during development and never re-enabled.
+- **Root cause:** range proofs are the expensive part of GG18/GG20, and GG18
+  itself described a variant without them; they get dropped or stubbed
+  during development and never re-enabled.
 - **Impact:** full private-key extraction by a single malicious participant
-  after a small number of signing sessions (Alpha-Rays, Verichains
-  "TSSHOCK" reports against GG18/GG20 implementations).
-- **Where:** tss-lib forks, multi-party-ecdsa forks, "optimized" MtA paths.
+  after a small number of signing sessions (Alpha-Rays demonstrates eight
+  signatures against "fast" MtA). TSSHOCK (Verichains) reaches key
+  extraction by a different route: forging the proof of the auxiliary
+  parameters rather than skipping range proofs.
+- **Where:** GG18/GG20 implementations and forks with a "fast" or
+  "optimized" MtA path.
 
 ## P2: Paillier modulus without validity proof
 
 - **Pattern:** parties accept counterparty Paillier keys with no
   square-free/no-small-factor proof (Π^mod, Π^fac in CGGMP21).
 - **Impact:** a malicious modulus with small factors turns MtA responses
-  into a CRT-based leak of honest parties' secrets.
+  into a CRT-based leak of honest parties' secrets (BitForge,
+  CVE-2023-33241).
 
 ## P3: Presignature reuse / non-atomic consumption
 
@@ -42,7 +47,8 @@
 ## P6: Abort-path oracle
 
 - **Pattern:** identifiable-abort blame logic decrypts or reveals round
-  secrets to prove misbehavior; attacker triggers aborts repeatedly.
+  secrets that depend on the key share, or opens nonce material of a
+  session that is not then discarded; attacker triggers aborts repeatedly.
 - **Impact:** incremental leakage of honest key shares across aborts.
 
 ## P7: mod N / mod q confusion in share conversion

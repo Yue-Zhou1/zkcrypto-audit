@@ -24,8 +24,11 @@
 ## P4: BIP-340 even-Y or infinity check skipped
 
 - **Pattern:** verifier computes R = s·G - e·P and compares only R.x == r.
-- **Impact:** signatures with negated R accepted; batch contexts allow
-  forgeries composed from valid components.
+- **Impact:** signatures whose R has odd Y (which only the key holder can
+  produce) are accepted although BIP-340 rejects them — divergence from
+  conforming verifiers and from batch verification, which lifts r to the
+  even-Y point. With the infinity check skipped, the R.x comparison is
+  implementation-defined.
 
 ## P5: Lenient PKCS#1 v1.5 parsing (Bleichenbacher '06)
 
@@ -38,8 +41,9 @@
 
 - **Pattern:** verifier accepts any salt length while policy assumes
   sLen = hLen, or hard-codes a salt length the signer doesn't use.
-- **Impact:** interop failures at best; at worst a downgraded effective
-  security parameter accepted silently.
+- **Impact:** interop failures at best; at worst signatures outside the
+  policy are accepted silently (FIPS 186-5 §5.4 requires
+  0 <= sLen <= hLen and requires the verifier to check it).
 
 ## P7: Public key not validated
 
@@ -67,6 +71,7 @@
 
 - **Pattern:** deterministic-nonce signer (RFC 6979/EdDSA) on
   fault-susceptible hardware releases signatures unchecked.
-- **Impact:** a single glitched signing computation reveals the key
+- **Impact:** a single glitched signing computation, compared with a
+  correct signature on the same message, reveals the key
   (differential fault attacks on deterministic signatures); route the
   fault analysis to implementation-safety skills.

@@ -21,7 +21,7 @@ stops anyone else.
 | `source` | `signed` (by the affected party), `l1_committed` (in an accumulator or event the contract emitted), `oracle_threshold` (N-of-M signers), `prover_chosen`, `host_only` (never enters the proof) |
 | `binding` | the check that ties the value to its source: signature over which struct, accumulator leaf fields, state-root inclusion, threshold count, or `none` |
 | `omitted` | what the guest does if the item is absent or the list is shorter |
-| `duplicated` | what happens if the item appears twice or a nonce is reused |
+| `duplicated` | what happens if the item appears twice, an unexpected extra item is supplied, or a nonce is reused |
 | `reordered` | what happens if items are applied in a different order than they arrived |
 | `empty` | what the guest commits when the list has zero elements |
 | `identity` | what the guest commits when an accumulator starts from its identity element (`0`, `u64::MAX`, empty hash) and is never updated |

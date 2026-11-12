@@ -48,12 +48,18 @@ jobs:
             exit 1
           fi
 
+      - name: Check generated packaging and repository consistency
+        run: |
+          pip install -r scripts/requirements.txt
+          python3 scripts/sync.py --check
+
       - name: Verify Python sources compile
         run: |
           python3 -m py_compile \
-            plugins/evidence-and-tooling/scripts/_shared.py \
-            plugins/evidence-and-tooling/scripts/build_index.py \
-            plugins/evidence-and-tooling/scripts/contribute_bug.py
+            scripts/sync.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/_shared.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/build_index.py \
+            plugins/evidence-and-tooling/skills/zkbugs-index/scripts/contribute_bug.py
 
   publish:
     name: Publish GitHub release

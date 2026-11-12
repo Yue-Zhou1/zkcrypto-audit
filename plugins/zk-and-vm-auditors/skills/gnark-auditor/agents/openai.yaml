@@ -1,7 +1,14 @@
-display_name: gnark-auditor
-short_description: Audit gnark circuits and Go witness pipelines for frontend/backend
-  mismatch, public/private witness exposure, constraint API misuse, and serialization
-  boundary errors.
-default_prompt: Use gnark-auditor for this task. Audit gnark circuits and Go witness
-  pipelines for frontend/backend mismatch, public/private witness exposure, constraint
-  API misuse, and serialization boundary errors.
+interface:
+  display_name: gnark-auditor
+  short_description: Audit gnark circuits and their Go witness pipelines for values computed
+    but never asserted, unconstrained hint outputs, public/secret tag errors, frontend API
+    preconditions (division, comparison, bit decomposition), emulated-field range checks,
+    std gadget preconditions, Groth16/PLONK backend differences, and setup or curve misconfiguration.
+    Use when reviewing a circuit's `Define` method, hint functions, witness assignment and
+    serialization, or gnark setup and verifier-export code.
+  default_prompt: Use gnark-auditor for this task. Audit gnark circuits and their Go witness
+    pipelines for values computed but never asserted, unconstrained hint outputs, public/secret
+    tag errors, frontend API preconditions (division, comparison, bit decomposition), emulated-field
+    range checks, std gadget preconditions, Groth16/PLONK backend differences, and setup or
+    curve misconfiguration. Use when reviewing a circuit's `Define` method, hint functions,
+    witness assignment and serialization, or gnark setup and verifier-export code.

@@ -1,9 +1,13 @@
-display_name: dkg-threshold-auditor
-short_description: Audit DKG, threshold-signature, and FROST/MuSig-style code for
-  rogue-key, nonce-binding, share-verification, and session-isolation failures. Use
-  when reviewing key aggregation, VSS share checks, threshold reconstruction, or concurrent
-  signing state.
-default_prompt: Use dkg-threshold-auditor for this task. Audit DKG, threshold-signature,
-  and FROST/MuSig-style code for rogue-key, nonce-binding, share-verification, and
-  session-isolation failures. Use when reviewing key aggregation, VSS share checks,
-  threshold reconstruction, or concurrent signing state.
+interface:
+  display_name: dkg-threshold-auditor
+  short_description: Audit DKG, VSS, and threshold-signature code (Feldman/Pedersen VSS, Pedersen-style
+    DKG, FROST per RFC 9591, MuSig2, threshold BLS) for rogue-key, key-bias, nonce-binding,
+    share-verification, identifier/interpolation, resharing, and session-isolation failures.
+    Use when reviewing key aggregation, VSS share checks, complaint rounds, threshold reconstruction,
+    share refresh, or concurrent signing state.
+  default_prompt: Use dkg-threshold-auditor for this task. Audit DKG, VSS, and threshold-signature
+    code (Feldman/Pedersen VSS, Pedersen-style DKG, FROST per RFC 9591, MuSig2, threshold
+    BLS) for rogue-key, key-bias, nonce-binding, share-verification, identifier/interpolation,
+    resharing, and session-isolation failures. Use when reviewing key aggregation, VSS share
+    checks, complaint rounds, threshold reconstruction, share refresh, or concurrent signing
+    state.

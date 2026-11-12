@@ -1,9 +1,12 @@
-display_name: rust-crypto-safety
-short_description: Review Rust cryptographic code for implementation-level security
-  bugs. Use when auditing constant-time behavior, secret zeroization, panic and overflow
-  hazards, unsafe blocks, unchecked constructors, feature flags, or dependency hygiene
-  in crypto crates.
-default_prompt: Use rust-crypto-safety for this task. Review Rust cryptographic code
-  for implementation-level security bugs. Use when auditing constant-time behavior,
-  secret zeroization, panic and overflow hazards, unsafe blocks, unchecked constructors,
-  feature flags, or dependency hygiene in crypto crates.
+interface:
+  display_name: rust-crypto-safety
+  short_description: 'Review Rust cryptographic code for implementation-level security bugs:
+    unsafe blocks and FFI, panics and arithmetic overflow on untrusted input, secret zeroization
+    and lifetime, unchecked constructors, manual Send/Sync, numeric casts, and security-significant
+    cfg/feature gating. Use when auditing Rust crates that implement or wrap cryptography,
+    including zkVM guest binaries.'
+  default_prompt: 'Use rust-crypto-safety for this task. Review Rust cryptographic code for
+    implementation-level security bugs: unsafe blocks and FFI, panics and arithmetic overflow
+    on untrusted input, secret zeroization and lifetime, unchecked constructors, manual Send/Sync,
+    numeric casts, and security-significant cfg/feature gating. Use when auditing Rust crates
+    that implement or wrap cryptography, including zkVM guest binaries.'
