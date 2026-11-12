@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-11-12
+
 ### Added
 
 - `proven-state-transition-auditor`: statement completeness review. A new
