@@ -23,6 +23,7 @@ Never selected by the router. They run only when the user asks.
 | `fuzz-harness-gen` |
 | `formal-verification-bridge` |
 | `differential-test-harness-gen` |
+| `audit-dashboard` |
 | `audit-common` |
 | `crypto-audit-router` |
 

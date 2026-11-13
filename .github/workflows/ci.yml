@@ -42,6 +42,9 @@ jobs:
         run: |
           python3 -m py_compile \
             scripts/sync.py \
+            plugins/core-audit-flow/skills/audit-dashboard/scripts/serve.py \
+            plugins/core-audit-flow/skills/audit-dashboard/scripts/timeline.py \
+            plugins/core-audit-flow/skills/audit-dashboard/scripts/record.py \
             plugins/evidence-and-tooling/skills/zkbugs-index/scripts/_shared.py \
             plugins/evidence-and-tooling/skills/zkbugs-index/scripts/build_index.py \
             plugins/evidence-and-tooling/skills/zkbugs-index/scripts/contribute_bug.py

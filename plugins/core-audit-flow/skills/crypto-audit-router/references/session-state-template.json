@@ -2,6 +2,13 @@
   "schema_version": 3,
   "engagement_id": "<engagement-id>",
   "phase": "intake_pending",
+  "created_at": "<UTC ISO-8601 timestamp>",
+  "phase_history": [
+    {
+      "phase": "intake_pending",
+      "entered_at": "<UTC ISO-8601 timestamp>"
+    }
+  ],
   "targets": [],
   "trust_boundaries": [],
   "critical_paths": [],
@@ -15,6 +22,6 @@
   },
   "remediation_verifications": [],
   "next_steps": [],
-  "updated_at": "<ISO-8601 timestamp>",
+  "updated_at": "<UTC ISO-8601 timestamp>",
   "extensions": {}
 }

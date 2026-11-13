@@ -1,0 +1,10 @@
+interface:
+  display_name: audit-dashboard
+  short_description: 'Serve a local, read-only web dashboard for an audit workspace: an animated
+    view of the audit as it runs (review coverage per file, then candidate verification) that
+    ends with the verified findings. Use when the user asks to open, show, or watch the audit
+    dashboard or the audit''s progress in a browser.'
+  default_prompt: 'Use audit-dashboard for this task. Serve a local, read-only web dashboard
+    for an audit workspace: an animated view of the audit as it runs (review coverage per
+    file, then candidate verification) that ends with the verified findings. Use when the
+    user asks to open, show, or watch the audit dashboard or the audit''s progress in a browser.'

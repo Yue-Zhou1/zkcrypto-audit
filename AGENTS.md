@@ -13,6 +13,11 @@ Agent Skills format and are packaged as plugins for Claude Code and Codex.
   (`workflows/full-audit-flow.md`), the routing policy
   (`references/routing-matrix.md`), the state machine, and the session-state
   schema and template.
+- `plugins/core-audit-flow/skills/audit-dashboard/` holds the local read-only
+  dashboard: `scripts/serve.py`, the event recorder `scripts/record.py`, and
+  the static page under `assets/`.
+- `plugins/core-audit-flow/hooks/hooks.json` declares the Claude Code hooks
+  that run the event recorder.
 - `plugins/evidence-and-tooling/skills/zkbugs-index/` carries the zkbugs data
   plane inside the skill: the pre-built `index/`, plus `scripts/` and
   `config/`.
