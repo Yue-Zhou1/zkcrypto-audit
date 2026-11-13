@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Audit dashboard</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="page">
+  <header class="head">
+    <h1>Audit dashboard</h1>
+    <label class="pick">Engagement <select id="engagement"></select></label>
+    <span id="live" class="pill">connecting</span>
+  </header>
+  <p id="notice" class="notice" hidden></p>
+
+  <div class="stage" id="stage">
+    <canvas id="cv" aria-label="Animated drawing of review coverage and candidate verification"></canvas>
+    <div class="tip" id="tip" hidden></div>
+    <section class="findings" id="findings" aria-labelledby="find-title" hidden>
+      <div class="find-head"><h2 id="find-title">Findings</h2><span class="find-count" id="find-count"></span></div>
+      <p class="find-empty" id="find-empty">No verified findings.</p>
+      <div class="find-grid" id="find-list"></div>
+    </section>
+  </div>
+</div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

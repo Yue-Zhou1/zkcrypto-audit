@@ -7,6 +7,22 @@ Versioning.
 
 ## [Unreleased]
 
+### Added
+
+- `audit-dashboard` skill: `scripts/serve.py` serves a read-only view of a
+  `.zkcrypto-audit/` workspace on `127.0.0.1` and pushes updates when files
+  change. The page shows review coverage as a wall of files, then candidate
+  verification as one circuit per candidate, then the verified findings.
+- `core-audit-flow` plugin hooks for Claude Code (`hooks/hooks.json`): record
+  each tool call (tool name and project-relative paths), each change to
+  `session.json`, and turn, prompt, session, and waiting events in
+  `events.jsonl` of the active engagement, until its phase is `closed`.
+- Session schema: optional `created_at`, `phase_history`, `routes[].started_at`
+  and `completed_at`, `candidates[].raised_at` and `decided_at`,
+  `routes[].scope` and `reviewed`, `candidates[].gates`.
+- The flow writes the current engagement id to `.zkcrypto-audit/active` and
+  tells the user that the dashboard is available.
+
 ## [0.8.0] - 2026-11-12
 
 ### Added
