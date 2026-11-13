@@ -7,6 +7,8 @@ Versioning.
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-11-13
+
 ### Added
 
 - `audit-dashboard` skill: `scripts/serve.py` serves a read-only view of a
