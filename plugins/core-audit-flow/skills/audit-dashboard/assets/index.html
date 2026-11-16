@@ -11,6 +11,8 @@
   <header class="head">
     <h1>Audit dashboard</h1>
     <label class="pick">Engagement <select id="engagement"></select></label>
+    <label class="pick">Theme <select id="theme"><option value="wall">Wall</option><option value="skirmish">Skirmish</option></select></label>
+    <button id="replay" type="button" aria-pressed="false" disabled>Replay</button>
     <span id="live" class="pill">connecting</span>
   </header>
   <p id="notice" class="notice" hidden></p>
@@ -21,7 +23,7 @@
     <section class="findings" id="findings" aria-labelledby="find-title" hidden>
       <div class="find-head"><h2 id="find-title">Findings</h2><span class="find-count" id="find-count"></span></div>
       <p class="find-empty" id="find-empty">No verified findings.</p>
-      <div class="find-grid" id="find-list"></div>
+      <div id="find-list"></div>
     </section>
   </div>
 </div>

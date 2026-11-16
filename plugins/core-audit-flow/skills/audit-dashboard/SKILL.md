@@ -53,7 +53,7 @@ Requires Python 3.10 or later. No other dependencies.
 | Wall: one brick per file in scope, one cell per route that reviews it | `session.json`: `routes[].scope`, `routes[].reviewed`. A route without `scope` is one brick |
 | Hits and cracks on a cell | tool calls in `events.jsonl` |
 | Bench: one circuit per candidate, one switch per verification gate | `session.json`: `candidates[].gates`, `poc_status`, `status`, `severity` |
-| Findings: one card per `verified` candidate, ordered by severity | `session.json`: `candidates` |
+| Findings: the `verified` candidates, ordered by severity | `session.json`: `candidates` |
 | Pause mark beside the phase name, scene dimmed and still. Orange: the agent waits for the user. Grey: no session is running | `events.jsonl`: turn-end, waiting, and session-end records; or five minutes without a record while the engagement is not closed |
 
 The page is one stage. The wall fills it during domain review. When

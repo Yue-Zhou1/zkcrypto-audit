@@ -14,7 +14,9 @@ Versioning.
 - `audit-dashboard` skill: `scripts/serve.py` serves a read-only view of a
   `.zkcrypto-audit/` workspace on `127.0.0.1` and pushes updates when files
   change. The page shows review coverage as a wall of files, then candidate
-  verification as one circuit per candidate, then the verified findings.
+  verification as one circuit per candidate, then the verified findings. A
+  `Theme` menu selects a second drawing of the same records, and `Replay`
+  plays the recording again.
 - `core-audit-flow` plugin hooks for Claude Code (`hooks/hooks.json`): record
   each tool call (tool name and project-relative paths), each change to
   `session.json`, and turn, prompt, session, and waiting events in

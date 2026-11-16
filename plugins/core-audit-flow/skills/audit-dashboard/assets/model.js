@@ -8,6 +8,7 @@ const FLOW_SKILLS = new Set(["crypto-audit-router", "crypto-audit-context", "cry
 const GATES = ["claim", "trigger", "impact", "severity"];
 const STAGED = new Set(["cover", "end", "gate", "verdict", "report", "bench", "results", "phase"]);
 const GENERIC_STEMS = new Set(["mod", "lib", "main", "index", "__init__"]);
+export const FLOW_SIDE = -1, VERIFY_SIDE = -2;
 
 export function mulberry(seed) {
   return () => { seed |= 0; seed = seed + 0x6d2b79f5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
@@ -178,8 +179,8 @@ export function buildModel(session, log, state, hooked) {
   const merged = ev.map((e) => ({ t: e.t, o: e.o, e })).concat(toolRecords.map((r, i) => ({ t: rel(r), o: order + i, r })));
   merged.sort((x, y) => x.t - y.t || x.o - y.o);
   order += toolRecords.length;
-  const running = new Set(), covered = new Set(), affinity = new Map(), lastTap = new Map();
-  let held = false;
+  const running = new Set(), covered = new Set(), affinity = new Map(), lastTap = new Map(), calls = [];
+  let held = false, phaseNow = 0;
   for (const item of merged) {
     if (item.e) {
       const e = item.e;
@@ -187,6 +188,7 @@ export function buildModel(session, log, state, hooked) {
       else if (e.type === "end" || e.type === "skip") running.delete(e.a);
       else if (e.type === "cover") covered.add(e.a + ":" + e.u);
       else if (e.type === "reopen") covered.delete(e.a + ":" + e.u);
+      else if (e.type === "phase") phaseNow = e.phase;
       continue;
     }
     const r = item.r, t = item.t;
@@ -212,6 +214,10 @@ export function buildModel(session, log, state, hooked) {
       if (routes[a].pseudo >= 0 && !covered.has(a + ":" + routes[a].pseudo)) targets.push([a, routes[a].pseudo]);
     }
     if (r.agent && targets.length === 1) affinity.set(r.agent, targets[0][0]);
+    const own = r.agent && running.has(affinity.get(r.agent)) ? affinity.get(r.agent) : running.size === 1 ? [...running][0] : FLOW_SIDE;
+    const near = strings(r.paths).map(findUnit).find((u) => u >= 0);
+    calls.push({ t, failed: r.failed === true,
+      a: targets.length ? targets[0][0] : phaseNow === 2 ? VERIFY_SIDE : own, u: targets.length ? targets[0][1] : -1, near: near ?? -1 });
     for (const [a, u] of targets) {
       const key = a + ":" + u, last = lastTap.get(key);
       if (last && t - last.t < 1) { last.w++; continue; }
@@ -250,7 +256,7 @@ export function buildModel(session, log, state, hooked) {
   for (const e of ev) if (e.t < 0) { e.t = 0; e.pre = true; }
   ev.sort((x, y) => x.t - y.t || x.o - y.o);
 
-  const M = { session, routes, units, cands, EV: ev, timed, origin: timed ? origin : 0, end: 0, PHEV: [], PLAN: [], KEYS: [], cache: {},
+  const M = { session, routes, units, cands, EV: ev, CALLS: calls, timed, origin: timed ? origin : 0, end: 0, PHEV: [], PLAN: [], KEYS: [], cache: {},
     hooked: toolRecords.some((r) => r.kind === "tool"), lastActivity: Math.max(0, ...stateRecords.concat(toolRecords).map(rel)) };
   const S = initialState(M);
   const taps = new Map();
@@ -360,6 +366,13 @@ export function recent(M, t, span) {
   const out = [];
   for (let i = lo; i < ev.length && ev[i].t <= t; i++) out.push(ev[i]);
   return out;
+}
+
+export function callsBefore(M, t) {
+  const calls = M.CALLS;
+  let lo = 0, hi = calls.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (calls[m].t <= t) lo = m + 1; else hi = m; }
+  return lo;
 }
 
 export function activeCandidate(M, S) {

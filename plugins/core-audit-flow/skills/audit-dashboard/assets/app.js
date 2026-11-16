@@ -1,11 +1,16 @@
-import { LEAD, SEVERITIES, buildModel, stateAt, bare } from "./model.js";
-import * as scene from "./scene.js";
+import { LEAD, SEVERITIES, VERIFY_SIDE, buildModel, stateAt, callsBefore, bare } from "./model.js";
+import * as kit from "./kit.js";
+import * as wall from "./scene.js";
+import * as skirmish from "./skirmish.js";
 
 const BUFFER = 2.5;
+const QUIET = 4;
 const SVG = "http://www.w3.org/2000/svg";
 
-const state = { id: null, loaded: null, log: [], offset: 0, pending: [], hooked: false, model: null, open: null, loading: false, dirty: false, seen: new Set() };
+const state = { id: null, loaded: null, log: [], offset: 0, pending: [], hooked: false, model: null, open: null, loading: false, dirty: false, seen: new Set(), skew: null, replay: null };
 const cache = {};
+const THEMES = { wall, skirmish }, THEME_KEY = "audit-dashboard.theme", SINGLE = matchMedia("(max-width: 760px)");
+let scene = wall;
 
 const $ = (selector) => document.querySelector(selector);
 
@@ -26,12 +31,21 @@ function svg(tag, attrs = {}, children = []) {
   for (const child of [].concat(children)) if (child != null) node.append(child);
   return node;
 }
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 function setText(id, value) { if (cache[id] !== value) { cache[id] = value; document.getElementById(id).textContent = value; } }
 
 async function getJSON(url) {
   const response = await fetch(url);
   if (!response.ok) throw new Error(`${url}: ${response.status}`);
   return response.json();
+}
+
+// Records are stamped by the machine that runs the audit; the playhead must follow that clock, not the browser's.
+// A sample is low by the response delay, so the largest is the closest. A jump means one of the clocks was reset.
+function syncClock(serverNow) {
+  const sample = Date.parse(serverNow) - Date.now();
+  if (Number.isNaN(sample)) return;
+  state.skew = state.skew == null || Math.abs(sample - state.skew) > 1000 ? sample : Math.max(state.skew, sample);
 }
 
 async function loadEngagements() {
@@ -55,7 +69,8 @@ async function loadEngagement(reset) {
   if (!state.id) return;
   if (reset || state.loaded !== state.id) {
     Object.assign(state, { log: [], offset: 0, pending: [], model: null, open: null, seen: new Set() });
-    scene.setModel(null);
+    setModel(null);
+    setReplay(false);
   }
   const id = state.id, base = `/api/engagements/${encodeURIComponent(id)}`;
   const data = await getJSON(base);
@@ -63,6 +78,7 @@ async function loadEngagement(reset) {
   while (more) {
     const part = await getJSON(`${base}/timeline?offset=${state.offset}`);
     if (id !== state.id) return;
+    syncClock(part.now);
     more = part.log.length > 0 && part.offset > state.offset;
     if (part.offset < state.offset) state.log = [];
     state.log = state.log.concat(part.log);
@@ -73,7 +89,8 @@ async function loadEngagement(reset) {
   notice.hidden = !data.error;
   notice.textContent = data.error || "";
   state.model = session && typeof session === "object" ? buildModel(session, state.log, state.pending, state.hooked) : null;
-  scene.setModel(state.model);
+  setModel(state.model);
+  $("#replay").disabled = !(state.model && state.model.timed);
   cache.findings = null;
 }
 
@@ -91,10 +108,44 @@ async function refresh(reset) {
   }
 }
 
+function setModel(model) { for (const theme of Object.values(THEMES)) theme.setModel(model); }
+
+function setTheme(name, remember) {
+  const known = Object.hasOwn(THEMES, name) ? name : "wall";
+  scene = THEMES[known];
+  $("#theme").value = known;
+  cache.findings = null; cache.place = null;
+  if (remember) { try { localStorage.setItem(THEME_KEY, known); } catch { /* storage unavailable */ } }
+}
+
+function setReplay(on) {
+  state.replay = on ? performance.now() : null;
+  const button = $("#replay");
+  button.textContent = on ? "Stop replay" : "Replay";
+  button.setAttribute("aria-pressed", String(on));
+}
+
+// A replay runs at the recorded pace but keeps at most QUIET seconds of any stretch in which nothing was recorded.
+function replayTime(M, played) {
+  if (!M.cuts) {
+    const times = M.EV.map((e) => e.t).concat(M.CALLS.map((e) => e.t)).sort((a, b) => a - b);
+    let last = 0;
+    M.cuts = [];
+    for (const t of times) { if (t - last > QUIET) M.cuts.push({ at: last + QUIET / 2, skip: t - last - QUIET }); last = Math.max(last, t); }
+  }
+  let t = played;
+  for (const cut of M.cuts) { if (t <= cut.at) break; t += cut.skip; }
+  return t;
+}
+
 function playhead(M) {
   if (!M.timed) return M.end;
-  const now = Math.max(0, Date.now() / 1000 - M.origin + LEAD - BUFFER);
-  return M.session.phase === "closed" ? Math.min(M.end, now) : now;
+  const now = Math.max(0, (Date.now() + (state.skew || 0)) / 1000 - M.origin + LEAD - BUFFER), live = M.session.phase === "closed" ? Math.min(M.end, now) : now;
+  if (state.replay == null) return live;
+  const t = replayTime(M, (performance.now() - state.replay) / 1000);
+  if (t < live) return t;
+  setReplay(false);
+  return live;
 }
 
 function frame() {
@@ -106,16 +157,17 @@ function frame() {
     place(scene.draw(S, t));
   } catch (error) {
     state.model = null;
-    scene.setModel(null);
-    scene.resize();
+    setModel(null);
+    kit.resize();
     const notice = $("#notice");
     notice.hidden = false;
     notice.textContent = "This session could not be drawn: " + error.message;
     console.error(error);
     return;
   }
-  const key = (state.open || "") + "|" + S.cands.map((c) => (c.out === "verified" ? c.sev || "?" : "")).join(",");
-  if (cache.findings !== key) { cache.findings = key; renderFindings(M, S); }
+  let key = (state.open || "") + "|" + (SINGLE.matches ? "s" : "w") + "|" + S.cands.map((c) => (c.out === "verified" ? c.sev || "?" : "")).join(",");
+  if (scene === skirmish) key += "|" + S.phase + "|" + callsBefore(M, t) + "|" + S.units.reduce((n, u) => n + u.cov.size, 0) + "|" + S.cands.map((c) => (c.raised < 0 ? "" : c.out || "-")).join(",");
+  if (cache.findings !== key) { cache.findings = key; renderFindings(M, S, t); }
 }
 
 function place(layout) {
@@ -129,58 +181,162 @@ function place(layout) {
   panel.style.opacity = String(layout.p2);
 }
 
-function bulbIcon() {
-  const rays = [0, 45, 90, 135, 225, 270, 315].map((d) => {
-    const a = d * Math.PI / 180;
-    return svg("path", { d: `M${(16 + Math.cos(a) * 11).toFixed(1)} ${(15 + Math.sin(a) * 11).toFixed(1)}L${(16 + Math.cos(a) * 14).toFixed(1)} ${(15 + Math.sin(a) * 14).toFixed(1)}` });
-  });
-  return svg("svg", { class: "ico", viewBox: "0 0 32 30", "aria-hidden": "true" }, [
-    svg("g", { stroke: "var(--c)" }, [svg("circle", { cx: 16, cy: 15, r: 8 }), svg("path", { d: "M8 15h4l2-3.4 2.4 6.4 2.2-6.4 1.8 3.4" }), ...rays]),
-    svg("path", { stroke: "var(--ink)", d: "M3 11.6h5v6.8H3zM5.6 11.6v6.8" }),
+function detail(term, value) { return typeof value === "string" && value ? [el("dt", { text: term }), el("dd", { text: value })] : []; }
+
+function findingBack(M, cand, withLocation) {
+  const raw = cand.raw;
+  return el("div", { class: "spec-back" }, [
+    el("dl", {}, [
+      ...(withLocation ? detail("Location", typeof raw.location === "string" ? raw.location : "") : []),
+      ...detail("Summary", raw.summary),
+      ...detail("Found by", cand.owner >= 0 ? bare(M.routes[cand.owner].skill) : raw.owner_skill),
+      ...detail("PoC", raw.poc_status === "executed" ? "executed" + (typeof raw.poc_ref === "string" && raw.poc_ref ? " · " + raw.poc_ref : "") : raw.poc_status === "pending_poc" ? "pending" : ""),
+      ...detail("Report", raw.report_ref),
+    ]),
+    cand.unit >= 0 ? el("div", { class: "spec-act" }, el("button", { type: "button", text: scene === skirmish ? "Locate on field" : "Locate on wall", onclick: () => scene.locateUnit(cand.unit) })) : null,
   ]);
 }
 
-function detail(term, value) { return typeof value === "string" && value ? [el("dt", { text: term }), el("dd", { text: value })] : []; }
+// The gates a finding went through, drawn the way its theme drew them. Wall: the circuit that lit its bulb, with a
+// closed switch per passed gate and a pressed button for an executed PoC. Skirmish: the gate lines its hero crossed
+// on the way into the far base. The bulb or the beacon at the end is in the severity colour.
+function gates(M, S, found) {
+  const lane = scene === skirmish, cand = found.cand, done = S.cands[cand.i].els, y = 16, x0 = 8, x1 = 404, span = (x1 - 40 - x0) / cand.els.length;
+  const wire = cand.owner >= 0 && M.routes[cand.owner].color >= 0 ? `var(--r${M.routes[cand.owner].color})` : "var(--ink)", parts = [], stops = [x0 + 3];
+  cand.els.forEach((e, k) => {
+    const x = x0 + 16 + span * (k + 0.5), ok = Boolean(done[k] && done[k].pass === true), lift = ok ? 0 : 5;
+    if (lane) {
+      parts.push(svg("path", { d: `M${x} ${y - 8}V${y + 7}`, stroke: "var(--muted)", "stroke-dasharray": "2 3" }));
+      parts.push(ok ? svg("path", { d: `M${x - 3.6} ${y - 12.5}l2.6 2.6 4.6 -5.2`, stroke: wire }) : svg("text", { x, y: y - 10, "text-anchor": "middle" }, "?"));
+    } else {
+      stops.push(x - 6, x + 6);
+      if (e.kind === "poc") parts.push(svg("path", { d: `M${x - 7.5} ${y - lift}h15M${x} ${y - lift}v-6M${x - 3.5} ${y - lift - 6}h7`, stroke: "var(--ink)" }));
+      else parts.push(svg("path", { d: ok ? `M${x - 6} ${y}H${x + 6}` : `M${x - 6} ${y}L${x + 4.4} ${y - 7}`, stroke: ok ? wire : "var(--muted)" }));
+      for (const side of [-6, 6]) parts.push(svg("circle", { cx: x + side, cy: y, r: 1.9, fill: "var(--bg)", stroke: ok ? wire : "var(--muted)" }));
+    }
+    parts.push(svg("text", { x, y: y + 17, "text-anchor": "middle" }, e.label + (ok || lane ? "" : " ?")));
+  });
+  stops.push(x1 - (lane ? 10 : 13));
+  const wires = [];
+  for (let i = 0; i < stops.length; i += 2) wires.push(`M${stops[i]} ${y}H${stops[i + 1]}`);
+  const rays = (lane ? [0, 45, 90, 135, 180, 225, 270, 315] : [0, 45, 90, 135, 225, 270, 315]).map((deg) => { const a = deg * Math.PI / 180, at = (r) => (x1 + Math.cos(a) * r).toFixed(1) + " " + (y + Math.sin(a) * r).toFixed(1); return `M${at(lane ? 9.5 : 11)}L${at(lane ? 13 : 14)}`; });
+  return svg("svg", { class: "circuit", viewBox: "0 0 420 40", role: "img", "aria-label": "Gates: " + cand.els.map((e, k) => e.label + (done[k] && done[k].pass === true ? " passed" : " not recorded")).join(", ") }, [
+    svg("path", lane ? { d: wires.join(""), stroke: wire, "stroke-width": 1.4, "stroke-dasharray": "1 5" } : { d: wires.join(""), stroke: wire, "stroke-width": 1.5 }),
+    svg("circle", { cx: x0, cy: y, r: 3.2, stroke: wire }), svg("circle", { cx: x0, cy: y, r: 1.2, fill: wire, stroke: "none" }),
+    ...parts,
+    lane ? svg("circle", { cx: x1, cy: y, r: 1.6, fill: "var(--c)", stroke: "none" }) : svg("path", { d: `M${x1 - 13} ${y - 3.4}h5v6.8h-5z`, stroke: "var(--ink)" }),
+    svg("path", { d: (lane ? `M${x1 + 6.5} ${y}a6.5 6.5 0 1 1 -13 0a6.5 6.5 0 1 1 13 0` : `M${x1 + 8} ${y}a8 8 0 1 1 -16 0a8 8 0 1 1 16 0M${x1 - 8} ${y}h3.4l2 -3.4 2.4 6.4 2.2 -6.4 2 3.4h4`) + rays.join(""), stroke: "var(--c)" }),
+  ]);
+}
 
-function renderFindings(M, S) {
-  const cards = [], seen = new Set(), counts = {};
+// The picked finding in full, shown beside the list in both themes.
+function dossier(M, S, found) {
+  const cand = found.cand, page = el("article", { class: "dossier" }, [
+    el("div", { class: "dossier-top" }, [el("b", { text: found.severity }), el("i", { text: cand.id })]),
+    el("h3", { text: cand.title }),
+    cand.location ? el("p", { class: "dossier-at", text: cand.location }) : null,
+    gates(M, S, found),
+    findingBack(M, cand, false),
+  ]);
+  page.style.setProperty("--c", found.tone);
+  return page;
+}
+
+// One finding as a row that can be picked: severity, id, title. `more` is what opens under it, if anything.
+function findRow(found, open, more, mark, pick) {
+  const cand = found.cand;
+  const box = el("div", { class: "find-box" + (open ? " open" : "") + (found.fresh ? " in" : "") }, [
+    el("button", { class: "find", type: "button", [more === undefined ? "aria-pressed" : "aria-expanded"]: String(open), onclick: pick },
+      [el("b", { text: found.severity }), el("i", { text: cand.id }), el("span", { class: "t", text: cand.title }), el("span", { class: "at", text: cand.location }), el("span", { class: "go", "aria-hidden": "true", text: mark })]),
+    more ? el("div", { class: "find-more" }, more) : null,
+  ]);
+  box.style.setProperty("--c", found.tone);
+  return box;
+}
+
+// Both themes end the same way: findings on the left, the picked one in full on the right, the most severe picked
+// to begin with. On a narrow page there is one column and a finding opens in place. This builds one row.
+function pickRow(M, S, found, chosen, single) {
+  const id = found.cand.id, open = single ? state.open === id : found === chosen;
+  return findRow(found, open, single ? (open ? [gates(M, S, found), findingBack(M, found.cand, true)] : null) : undefined, single && open ? "▾" : "▸", () => { state.open = single && open ? null : id; });
+}
+
+// The skirmish theme ends on a scoreboard, read top down: one block per domain auditor with its findings as rows
+// that open in place, then the fp-check side. Every number is counted
+// from the records up to the playhead.
+function scoreboard(M, S, t, found, chosen, single) {
+  const blank = (route, name) => ({ route, name, calls: 0, files: 0, done: 0, raised: 0, fp: 0, noted: 0, found: [] });
+  const rows = M.routes.filter((r) => r.wall).map((r) => blank(r, bare(r.skill))), byRoute = new Map(rows.map((row) => [row.route.i, row]));
+  let other = null, beams = 0, decided = 0;
+  for (let i = callsBefore(M, t) - 1; i >= 0; i--) { const a = M.CALLS[i].a; if (a === VERIFY_SIDE) beams++; else if (byRoute.has(a)) byRoute.get(a).calls++; }
+  M.units.forEach((U) => U.req.forEach((a) => { const row = byRoute.get(a); if (row) { row.files++; if (S.units[U.i].cov.has(a)) row.done++; } }));
+  const rowOf = (cand) => byRoute.get(cand.owner) || (other ||= blank(null, "unattributed"));
+  M.cands.forEach((cand, ci) => {
+    const cs = S.cands[ci];
+    if (cs.raised < 0) return;
+    const row = rowOf(cand);
+    row.raised++;
+    if (cs.verdict >= 0) decided++;
+    if (cs.out === "false_positive") row.fp++; else if (cs.out === "observation" || cs.out === "residual_risk") row.noted++;
+  });
+  for (const f of found) rowOf(f.cand).found.push(f);
+  if (other) rows.push(other);
+  const sum = (key) => rows.reduce((n, row) => n + row[key], 0);
+  const icon = (path) => svg("svg", { viewBox: "-8 -7 18 14", "aria-hidden": "true" }, svg("path", { d: path }));
+  const squad = (tone, mark, key, name, score, scoreKey, meta, finds) => {
+    const node = el("section", { class: "squad" + (finds.length ? "" : " idle") }, [
+      el("div", { class: "squad-head" }, [
+        el("span", { class: "crest" }, mark),
+        el("span", { class: "who" }, [key ? el("b", { text: key }) : null, el("span", { text: name })]),
+        el("span", { class: "meta", text: meta }),
+        el("span", { class: "kda" }, [el("b", { text: String(score[0]) }), el("i", { text: "/" }), el("span", { text: String(score[1]) }), el("i", { text: "/" }), el("span", { text: String(score[2]) })]),
+        el("span", { class: "kda-key", text: scoreKey }),
+      ]),
+      ...finds,
+    ]);
+    node.style.setProperty("--c", tone);
+    return node;
+  };
+  const finding = (f) => pickRow(M, S, f, chosen, single);
+  const out = [];
+  out.push(el("h3", { class: "side", text: "Auditors" }));
+  rows.sort((x, y) => (y.found.length > 0) - (x.found.length > 0));
+  for (const row of rows) {
+    out.push(squad(row.route && row.route.color >= 0 ? `var(--r${row.route.color})` : "var(--muted)", row.route ? icon(skirmish.laneIcon(row.route.i)) : null, row.route && row.route.key, row.name,
+      [row.found.length, row.fp, row.noted], "verified / false pos / noted", row.calls + " calls · " + row.done + "/" + row.files + " towers · " + row.raised + " raised", row.found.map(finding)));
+  }
+  out.push(el("h3", { class: "side", text: "FP-check" }));
+  out.push(squad("var(--ink)", icon("M0 -6L4 0L0 6L-4 0ZM-4 0H4"), null, "crypto-fp-check", [found.length, sum("fp"), sum("noted")], "passed / destroyed / noted", beams + " beams · " + decided + "/" + sum("raised") + " decided", []));
+  return out;
+}
+
+function renderFindings(M, S, t) {
+  const found = [], seen = new Set(), counts = {};
   M.cands.forEach((cand, ci) => {
     const cs = S.cands[ci];
     if (cs.out !== "verified") return;
-    const raw = cand.raw, open = state.open === cand.id, rank = SEVERITIES.indexOf(cs.sev), severity = rank < 0 ? "Unrated" : cs.sev;
+    const rank = SEVERITIES.indexOf(cs.sev), severity = rank < 0 ? "Unrated" : cs.sev;
     counts[severity] = (counts[severity] || 0) + 1;
     seen.add(cand.id);
-    const card = el("article", { class: "spec" + (open ? " open" : "") + (!state.seen.has(cand.id) ? " in" : "") });
-    card.dataset.rank = String(rank < 0 ? SEVERITIES.length : rank);
-    card.style.setProperty("--c", `var(--s-${rank >= 0 && rank < 4 ? cs.sev.toLowerCase() : "note"})`);
-    card.append(el("button", { class: "spec-face", type: "button", "aria-expanded": String(open), onclick: () => { state.open = open ? null : cand.id; } }, [
-      bulbIcon(),
-      el("span", { class: "spec-top" }, [el("b", { text: severity }), el("i", { text: cand.id })]),
-      el("span", { class: "spec-title", text: cand.title }),
-      cand.location ? el("span", { class: "spec-meta", text: cand.location }) : null,
-    ]));
-    if (open) {
-      card.append(el("div", { class: "spec-back" }, [
-        el("dl", {}, [
-          ...detail("Location", typeof raw.location === "string" ? raw.location : ""),
-          ...detail("Summary", raw.summary),
-          ...detail("Found by", cand.owner >= 0 ? bare(M.routes[cand.owner].skill) : raw.owner_skill),
-          ...detail("PoC", raw.poc_status === "executed" ? "executed" + (typeof raw.poc_ref === "string" && raw.poc_ref ? " · " + raw.poc_ref : "") : raw.poc_status === "pending_poc" ? "pending" : ""),
-          ...detail("Report", raw.report_ref),
-        ]),
-        cand.unit >= 0 ? el("div", { class: "spec-act" }, el("button", { type: "button", text: "Locate on wall", onclick: () => scene.locateUnit(cand.unit) })) : null,
-      ]));
-    }
-    cards.push(card);
+    found.push({ cand, severity, rank: rank < 0 ? SEVERITIES.length : rank, tone: `var(--s-${rank >= 0 && rank < 4 ? cs.sev.toLowerCase() : "note"})`, fresh: !state.seen.has(cand.id) });
   });
+  found.sort((x, y) => x.rank - y.rank);
   state.seen = seen;
-  const listNode = $("#find-list");
-  listNode.className = "find-grid" + (cards.length > 24 ? " list" : cards.length > 8 ? " dense" : "");
-  cards.sort((x, y) => Number(x.dataset.rank) - Number(y.dataset.rank));
-  cards.forEach((card, i) => { card.style.animationDelay = Math.round(i * Math.min(90, 900 / cards.length)) + "ms"; });
-  listNode.replaceChildren(...cards);
-  $("#find-empty").hidden = cards.length > 0;
-  setText("find-count", cards.length ? cards.length + " verified · " + SEVERITIES.concat("Unrated").filter((s) => counts[s]).map((s) => counts[s] + " " + s.toLowerCase()).join(" · ") : "");
+  const board = scene === skirmish, listNode = $("#find-list"), single = SINGLE.matches, chosen = single ? null : found.find((f) => f.cand.id === state.open) || found[0];
+  let summary = found.length ? found.length + " verified · " + SEVERITIES.concat("Unrated").filter((s) => counts[s]).map((s) => counts[s] + " " + s.toLowerCase()).join(" · ") : "";
+  let left;
+  if (board) {
+    const spent = Math.round(clamp(t, LEAD, Math.max(LEAD, M.lastActivity)) - LEAD), two = (n) => String(n).padStart(2, "0");
+    summary = (summary || "no verified findings") + " · " + callsBefore(M, t) + " calls · " + (spent >= 3600 ? Math.floor(spent / 3600) + ":" : "") + two(Math.floor(spent / 60) % 60) + ":" + two(spent % 60);
+    left = el("div", { class: "squads" }, scoreboard(M, S, t, found, chosen, single));
+  } else if (found.length) {
+    left = el("div", { class: "cases" }, found.map((f, i) => { const row = pickRow(M, S, f, chosen, single); row.style.animationDelay = Math.round(i * Math.min(90, 900 / found.length)) + "ms"; return row; }));
+  }
+  listNode.className = "finds " + (single ? "single" : "split");
+  listNode.replaceChildren(...[left, chosen ? dossier(M, S, chosen) : null].filter(Boolean));
+  setText("find-title", board ? (S.phase >= 5 ? "Audit complete" : "Scoreboard") : "Findings");
+  $("#find-empty").hidden = board || found.length > 0;
+  setText("find-count", summary);
 }
 
 function connect() {
@@ -191,16 +347,23 @@ function connect() {
 }
 
 $("#engagement").addEventListener("change", (event) => { state.id = event.target.value; refresh(true); });
+$("#theme").addEventListener("change", (event) => setTheme(event.target.value, true));
+$("#replay").addEventListener("click", () => setReplay(state.replay == null));
 const canvas = $("#cv"), tip = $("#tip");
 canvas.addEventListener("pointermove", (event) => {
-  const box = canvas.getBoundingClientRect(), found = scene.tipAt(event.clientX - box.left, event.clientY - box.top);
+  const box = canvas.getBoundingClientRect(), found = kit.tipAt(event.clientX - box.left, event.clientY - box.top);
   tip.hidden = !found;
   if (found) { tip.textContent = found.text; tip.style.left = found.x + "px"; tip.style.top = found.y + "px"; }
 });
 canvas.addEventListener("pointerleave", () => { tip.hidden = true; });
-new ResizeObserver(() => scene.resize()).observe($("#stage"));
-matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => scene.refreshTokens());
+new ResizeObserver(() => kit.resize()).observe($("#stage"));
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => kit.refreshTokens());
 
-scene.init(canvas, $("#stage"));
-scene.setEffects(!matchMedia("(prefers-reduced-motion: reduce)").matches);
+kit.init(canvas, $("#stage"));
+kit.setEffects(!matchMedia("(prefers-reduced-motion: reduce)").matches);
+{
+  let saved = null;
+  try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
+  setTheme(new URLSearchParams(location.search).get("theme") || saved || "wall", false);
+}
 refresh(true).then(() => { connect(); requestAnimationFrame(frame); });
