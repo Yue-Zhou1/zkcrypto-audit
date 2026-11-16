@@ -1,0 +1,44 @@
+name: Release on merge
+
+# When main moves and its version has no tag yet, start the Release workflow for that version.
+# The Release workflow verifies the tree, creates the tag at the commit it ran on, and publishes.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  actions: write
+
+concurrency:
+  group: release-on-merge
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release the version on main if it is new
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Start the Release workflow for an untagged version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="$(python3 -c "import json; print(json.load(open('.claude-plugin/marketplace.json'))['metadata']['version'])")"
+          if ! [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "ERROR: metadata.version is not MAJOR.MINOR.PATCH: $version"
+            exit 1
+          fi
+          tag="v${version}"
+
+          if [ -n "$(git ls-remote --tags origin "refs/tags/${tag}")" ]; then
+            echo "Tag ${tag} already exists. Nothing to release."
+            exit 0
+          fi
+
+          echo "Version ${version} has no tag. Starting the Release workflow for ${tag}."
+          gh workflow run release.yml --ref main -f version="${tag}" -f draft=false -f prerelease=false
