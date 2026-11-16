@@ -12,6 +12,12 @@ export const elastic = (k) => (k <= 0 ? 0 : k >= 1 ? 1 : Math.pow(2, -10 * k) * 
 export const clock = (s) => String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(Math.floor(s % 60)).padStart(2, "0");
 
 export let ctx = null, C = {}, W = 0, H = 0;
+// Every viewing is a little different. SALT is drawn when the page opens and again at each replay, and `vary` folds
+// it into a seed: whatever a theme chooses from such a seed (where things stand, what they look like, which way a
+// ball goes round) holds for one viewing and changes with the next. What happened never depends on it.
+export let SALT = (Math.random() * 0x7fffffff) | 0;
+export function reroll() { SALT = (Math.random() * 0x7fffffff) | 0; }
+export const vary = (seed) => (Math.imul(seed | 0, 0x9e3779b1) ^ SALT) >>> 0;
 export const hits = [];
 let cv, stage, LW = 1, fx = true;
 
@@ -101,6 +107,30 @@ export function streaks(x, y, age, color, seed, n, life, speed, grav = 220) {
     const px = x + Math.cos(ang) * d, py = y + Math.sin(ang) * d + grav * age * age * 0.5;
     ctx.globalAlpha = (1 - k) * (0.5 + rnd() * 0.5);
     line(px, py, px - Math.cos(ang) * len, py - Math.sin(ang) * len - grav * age * 0.03);
+  }
+  ctx.globalAlpha = 1;
+}
+// The same moment can be marked in several ways: flying streaks, a star of spokes, tumbling squares, or ripples.
+// Which one is drawn, for this viewing, from the seed of the event; the arguments are those of `streaks`.
+export function burst(x, y, age, color, seed, n, life, speed, grav = 220) {
+  const kind = vary(seed * 13 + 7) % 4;
+  if (kind === 0) { streaks(x, y, age, color, seed, n, life, speed, grav); return; }
+  if (!FX() || age < 0 || age > life) return;
+  const rnd = mulberry(seed * 7919 + 3), k = age / life, out = 1 - (1 - k) * (1 - k), reach = speed * life * 0.42;
+  if (kind === 1) {
+    const m = Math.max(6, Math.round(n * 0.6)), turn = rnd() * Math.PI * 2;
+    pen(color, 1.3, 1 - k);
+    for (let i = 0; i < m; i++) { const a = turn + i * Math.PI * 2 / m, r0 = reach * out * 0.5, r1 = reach * out * (i % 2 ? 0.78 : 1); line(x + Math.cos(a) * r0, y + Math.sin(a) * r0, x + Math.cos(a) * r1, y + Math.sin(a) * r1); }
+  } else if (kind === 2) {
+    pen(color, 1.1, 1 - k);
+    for (let i = 0; i < Math.max(5, n * 0.7); i++) {
+      const a = rnd() * Math.PI * 2, d = reach * out * (0.35 + rnd() * 0.65), s = 1.4 + rnd() * 2, rot = (rnd() - 0.5) * 9 * age;
+      ctx.save(); ctx.translate(x + Math.cos(a) * d, y + Math.sin(a) * d + grav * age * age * 0.35); ctx.rotate(rot); ctx.strokeRect(-s, -s, 2 * s, 2 * s); ctx.restore();
+    }
+  } else for (let j = 0; j < 3; j++) {
+    const kk = (age - j * life * 0.18) / (life * 0.64);
+    if (kk <= 0 || kk >= 1) continue;
+    pen(color, 1.2, 1 - kk); ctx.beginPath(); ctx.arc(x, y, Math.max(1, reach * 0.75 * (1 - (1 - kk) * (1 - kk))), 0, Math.PI * 2); ctx.stroke();
   }
   ctx.globalAlpha = 1;
 }

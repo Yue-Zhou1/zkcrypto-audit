@@ -1,5 +1,5 @@
 import { PHASE_LABEL, OUT_LABEL, VERIFY_SIDE, mulberry, recent, segmentAt, activeCandidate, callsBefore, bare } from "./model.js";
-import { ctx, C, W, H, DISP, TOP_H, NARROW, STALE, lerp, clamp, backOut, progress, FX, setLineScale, hits, text, fit, pen, line, brackets, streaks, ring, echo, lineShards, rectEdges, floatText, shakeAt, drawBanner } from "./kit.js";
+import { ctx, C, W, H, DISP, TOP_H, NARROW, STALE, lerp, clamp, backOut, progress, FX, setLineScale, hits, text, fit, pen, line, brackets, streaks, ring, echo, lineShards, rectEdges, floatText, shakeAt, drawBanner, vary } from "./kit.js";
 
 // Two bases and one lane per domain auditor. What happens is fixed by the record: a unit exists because a tool call
 // was logged, and a tower falls, a hero dies or a finding enters the far base only when session.json says so. How
@@ -34,7 +34,10 @@ export function setModel(model) {
     if (e.type === "end") routeEnd[e.a] = Math.max(routeEnd[e.a], e.t);
     else if ((e.type === "tap" || e.type === "cover") && !contact.has(e.a + ":" + e.u)) contact.set(e.a + ":" + e.u, e.t);
   }
-  lanes = M.routes.filter((r) => r.wall).map((r) => r.i);
+  // By the draw of this viewing: which auditor takes which lane, and which kind of unit each lane sends.
+  const deal = (list, seed) => { const rng = mulberry(vary(seed)), out = list.slice(); for (let i = out.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; } return out; };
+  lanes = deal(M.routes.filter((r) => r.wall).map((r) => r.i), 4241);
+  kinds = deal(KINDS.map((k, i) => i), 911);
   laneOf = new Map(lanes.map((a, k) => [a, k]));
   laneUnits = new Map(); slotOf = new Map();
   for (const a of lanes) {
@@ -46,7 +49,9 @@ export function setModel(model) {
 }
 export function locateUnit(u) { locate = { id: M.units[u].id, at: performance.now() }; }
 // The outline of the unit that the route's lane sends, as an SVG path, for the scoreboard.
-export function laneIcon(a) { const k = laneOf.get(a); return k == null ? "" : KINDS[k % KINDS.length].icon; }
+let kinds = KINDS.map((k, i) => i);
+const kindOf = (k) => KINDS[kinds[k % KINDS.length]];
+export function laneIcon(a) { const k = laneOf.get(a); return k == null ? "" : kindOf(k).icon; }
 
 const routeColor = (a) => (a >= 0 && M.routes[a].color >= 0 ? C.route[M.routes[a].color] : C.ink);
 const shortName = (skill) => bare(skill).replace(/-(auditor|checker)$/, "");
@@ -73,8 +78,9 @@ const crystal = () => { const b = at(F.turret); return { x: b.x, y: b.y - 27 * t
 function tower(a, id) {
   const s = slotOf.get(a + ":" + id), k = laneOf.get(a);
   if (!s || k == null) return null;
-  const pitch = (F.t1 - F.t0) / s.m, w = clamp(pitch * 0.46, 5, 22 * F.ls);
-  return { x: F.t0 + (s.i + 0.5) * pitch, y: F.laneY(k), w, h: Math.min(w * 1.4, 30 * F.ls), pitch };
+  // A tower stands near its mark, not on it: a little along the lane, to one side of it or the other, taller or shorter.
+  const pitch = (F.t1 - F.t0) / s.m, w = clamp(pitch * 0.46, 5, 22 * F.ls), h = vary((unitIndex.get(id) || 0) * 61 + a * 17), loose = w >= 9;
+  return { x: F.t0 + (s.i + 0.5) * pitch + (loose ? ((h % 100) / 100 - 0.5) * pitch * 0.34 : 0), y: F.laneY(k) + (loose ? (s.i % 2 ? 1 : -1) * F.laneH * (0.04 + ((h >> 8) % 100) / 100 * 0.09) : 0), w, h: Math.min(w * 1.4, 30 * F.ls) * (loose ? 0.85 + ((h >> 16) % 100) / 100 * 0.35 : 1), pitch };
 }
 function frontX(a) {
   for (const U of laneUnits.get(a) || []) if (!NOW.units[U.i].cov.has(a)) { const T = tower(a, U.id); return T.x - T.w / 2; }
@@ -99,8 +105,8 @@ function spawn(e, t) {
     return;
   }
   if (!laneOf.has(e.a)) return;
-  const k = laneOf.get(e.a), kind = KINDS[k % KINDS.length];
-  sim.units.push({ side: e.a, k, kind, failed: e.failed, et: e.t, uid: e.u >= 0 ? M.units[e.u].id : null, mode: "march", born: t, speed: 0,
+  const k = laneOf.get(e.a), kind = kindOf(k);
+  sim.units.push({ side: e.a, k, kind, size: 0.8 + rnd() * 0.45, failed: e.failed, et: e.t, uid: e.u >= 0 ? M.units[e.u].id : null, mode: "march", born: t, speed: 0,
     x: F.x0 - 8, y: F.laneY(k) + (rnd() - 0.5) * F.laneH * 0.3, vx: 110, vy: (rnd() - 0.5) * 90, hd: 0,
     off: (rnd() - 0.5) * F.laneH * 0.38, ang: Math.PI + (rnd() - 0.5) * 2.5, reach: lerp(kind.reach[0], kind.reach[1], rnd()) * F.ls, failAt: 34 + rnd() * 50, wa: rnd() * TAU, wr: 0.5 + rnd(), sx: 0, sy: 0,
     struckAt: -1, landAt: Infinity, boltAt: Infinity, dieAt: Infinity, bolted: false, endAt: -1, seed });
@@ -236,7 +242,22 @@ function drawGround(pulse) {
   pen(C.muted, 1); ctx.beginPath();
   for (let x = x0; x <= x1 + 0.5; x += 14) { ctx.moveTo(x, y0 - 6); ctx.lineTo(x, y0 - 6 - (Math.round((x - x0) / 14) % 4 === 0 ? 6 : 3)); }
   ctx.stroke();
-  if (!lanes.length) text("No review routes recorded yet", (x0 + x1) / 2, (y0 + y1) / 2, { align: "center", size: 11 });
+  if (!lanes.length) { text("No review routes recorded yet", (x0 + x1) / 2, (y0 + y1) / 2, { align: "center", size: 11 }); return; }
+  // Scenery, set out afresh for every viewing along the edges of the lanes, where nothing marches: bushes, rocks,
+  // tufts of grass, trees.
+  const rng = mulberry(vary(5501)), s = F.ls * G.q, per = clamp(Math.round(F.VW / 190), 3, 9);
+  pen(C.hair, 1);
+  for (let edge = 0; edge <= F.n; edge++) for (let i = 0; i < per; i++) {
+    const kind = Math.floor(rng() * 4), vx = lerp(F.x0 + 20, F.x1 - 20, (i + rng()) / per), vy = F.top + edge * F.laneH + (rng() - 0.5) * F.laneH * 0.16, big = 0.8 + rng() * 0.6;
+    if (rng() < 0.25 || vy < 6 || vy > F.VH - 6) continue;
+    const x = G.x(vx), y = G.y(vy), u = s * big;
+    ctx.beginPath();
+    if (kind === 0) { ctx.arc(x - 3.2 * u, y, 2.6 * u, Math.PI, 0); ctx.arc(x, y - 1.2 * u, 3.2 * u, Math.PI, 0); ctx.arc(x + 3.4 * u, y, 2.6 * u, Math.PI, 0); ctx.moveTo(x - 6 * u, y); ctx.lineTo(x + 6 * u, y); }
+    else if (kind === 1) { ctx.moveTo(x - 4 * u, y + 2 * u); ctx.lineTo(x - 2.6 * u, y - 2 * u); ctx.lineTo(x + 1.6 * u, y - 2.8 * u); ctx.lineTo(x + 4.2 * u, y + 2 * u); ctx.closePath(); ctx.moveTo(x - 0.6 * u, y - 2.4 * u); ctx.lineTo(x + 0.4 * u, y + 2 * u); }
+    else if (kind === 2) for (const o of [-2.4, 0, 2.4]) { ctx.moveTo(x + o * u, y + 2 * u); ctx.lineTo(x + o * 1.7 * u, y - 2.4 * u); }
+    else { ctx.moveTo(x, y + 4 * u); ctx.lineTo(x, y - 1 * u); ctx.moveTo(x + 3.6 * u, y - 3.4 * u); ctx.arc(x, y - 3.4 * u, 3.6 * u, 0, TAU); }
+    ctx.stroke();
+  }
 }
 function drawWall(vx, facing, col, label) {
   const x = G.x(vx), top = G.y(F.top), bot = G.y(F.top + F.laneH * F.n), gap = 11 * F.ls * G.q;
@@ -293,9 +314,16 @@ function drawTurret(S, t) {
   shape([[-14, 44], [14, 44], [14, 51], [9.5, 51], [9.5, 47.5], [4.5, 47.5], [4.5, 51], [-4.5, 51], [-4.5, 47.5], [-9.5, 47.5], [-9.5, 51], [-14, 51]]);
   pen(col, 1); line(x - 10.7 * s, foot - 20 * s, x + 10.7 * s, foot - 20 * s); line(x - 9.4 * s, foot - 32 * s, x + 9.4 * s, foot - 32 * s);
   const cy = c.y + (live ? Math.sin(t * 2.4) * 1.6 * s : 0), w = 8.5 * s, h = 13 * s;
-  ctx.beginPath(); ctx.moveTo(x, cy - h); ctx.lineTo(x + w, cy); ctx.lineTo(x, cy + h); ctx.lineTo(x - w, cy); ctx.closePath(); ctx.fillStyle = C.bg; ctx.fill(); pen(col, 1.8); ctx.stroke();
-  pen(col, 1); line(x - w, cy, x + w, cy);
-  for (const side of [-1, 1]) { line(x, cy - h, x + side * w * 0.42, cy); line(x, cy + h, x + side * w * 0.42, cy); }
+  // The crystal, in the cut drawn for this viewing: a diamond, a hexagon or an orb.
+  const cut = vary(77) % 3;
+  ctx.beginPath();
+  if (cut === 1) for (let i = 0; i < 6; i++) ctx[i ? "lineTo" : "moveTo"](x + Math.sin(i * Math.PI / 3) * w * 1.05, cy - Math.cos(i * Math.PI / 3) * h * 0.92);
+  else if (cut === 2) ctx.arc(x, cy, w * 1.15, 0, TAU);
+  else { ctx.moveTo(x, cy - h); ctx.lineTo(x + w, cy); ctx.lineTo(x, cy + h); ctx.lineTo(x - w, cy); }
+  ctx.closePath(); ctx.fillStyle = C.bg; ctx.fill(); pen(col, 1.8); ctx.stroke();
+  pen(col, 1);
+  if (cut === 2) { ctx.beginPath(); ctx.arc(x, cy, w * 0.6, -2.4, -0.6); ctx.stroke(); ctx.beginPath(); ctx.arc(x, cy, w * 0.6, 0.9, 2.2); ctx.stroke(); }
+  else { line(x - w * (cut ? 0.9 : 1), cy, x + w * (cut ? 0.9 : 1), cy); for (const side of [-1, 1]) { line(x, cy - h * (cut ? 0.92 : 1), x + side * w * 0.42, cy); line(x, cy + h * (cut ? 0.92 : 1), x + side * w * 0.42, cy); } }
   if (on) {
     pen(col, 1.2); ctx.beginPath(); ctx.ellipse(x, cy, 15 * s, 4.6 * s, live ? Math.sin(t * 0.9) * 0.4 : 0.25, 0, TAU); ctx.stroke();
     for (let i = 0; i < 6; i++) { const a = i * TAU / 6 + (live ? t * 0.8 : 0.3), r0 = 19 * s, l = (3.5 + (live ? 1.6 * Math.sin(t * 5 + i * 1.9) : 0)) * s; line(x + Math.cos(a) * r0, cy + Math.sin(a) * r0 * 0.9, x + Math.cos(a) * (r0 + l), cy + Math.sin(a) * (r0 + l) * 0.9); }
@@ -321,10 +349,17 @@ function drawTower(a, U, s, t) {
   if (FX() && tap && t - tap.t < 0.2) { const k = t - tap.t; dx = Math.sin(k * 70) * 2.2 * (1 - k / 0.2); }
   const m = Math.min(4 * sc, h * 0.22), b = w / 5, edge = s.reopen >= 0 ? C.sev.High : C.ink;
   ctx.save(); ctx.translate(dx, 0);
-  ctx.beginPath(); ctx.moveTo(x, y + h); ctx.lineTo(x, y);
-  if (w >= 9) for (let j = 0; j < 2; j++) { ctx.lineTo(x + b * (2 * j + 1), y); ctx.lineTo(x + b * (2 * j + 1), y + m); ctx.lineTo(x + b * (2 * j + 2), y + m); ctx.lineTo(x + b * (2 * j + 2), y); }
-  ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + h); ctx.closePath();
+  // Towers come in five builds: battlements, a pointed roof, a round top, a flat top with a flag, a stepped keep.
+  const build = w >= 9 ? vary(U.i * 97 + a * 13) % 5 : 0;
+  ctx.beginPath(); ctx.moveTo(x, y + h);
+  if (build === 1) { ctx.lineTo(x, y + m * 1.3); ctx.lineTo(x + w / 2, y - m * 0.9); ctx.lineTo(x + w, y + m * 1.3); }
+  else if (build === 2) { ctx.lineTo(x, y + w / 2); ctx.arc(x + w / 2, y + w / 2, w / 2, Math.PI, 0); }
+  else if (build === 3) { ctx.lineTo(x, y); ctx.lineTo(x + w, y); }
+  else if (build === 4) { ctx.lineTo(x, y + h * 0.45); ctx.lineTo(x + w * 0.2, y + h * 0.45); ctx.lineTo(x + w * 0.2, y); ctx.lineTo(x + w * 0.8, y); ctx.lineTo(x + w * 0.8, y + h * 0.45); ctx.lineTo(x + w, y + h * 0.45); }
+  else { ctx.lineTo(x, y); if (w >= 9) for (let j = 0; j < 2; j++) { ctx.lineTo(x + b * (2 * j + 1), y); ctx.lineTo(x + b * (2 * j + 1), y + m); ctx.lineTo(x + b * (2 * j + 2), y + m); ctx.lineTo(x + b * (2 * j + 2), y); } ctx.lineTo(x + w, y); }
+  ctx.lineTo(x + w, y + h); ctx.closePath();
   ctx.fillStyle = C.bg; ctx.fill(); pen(edge, hot ? 1.8 : 1.3); ctx.stroke();
+  if (build === 3) { pen(col, 1.2); line(x + w * 0.5, y, x + w * 0.5, y - m * 2.2); ctx.beginPath(); ctx.moveTo(x + w * 0.5, y - m * 2.2); ctx.lineTo(x + w * 0.5 + m * 1.5, y - m * 1.6); ctx.lineTo(x + w * 0.5, y - m); ctx.stroke(); }
   if (taken > 0) {
     const rng = mulberry((U.i * 64 + a) * 131 + 17), n = Math.ceil((1 - Math.exp(-taken / 5)) * 7);
     pen(C.ink, 1.1); ctx.beginPath();
@@ -431,7 +466,7 @@ function unitPath(strike, s) {
   else { ctx.moveTo(6 * s, 0); ctx.lineTo(-4 * s, 3.8 * s); ctx.lineTo(-1.8 * s, 0); ctx.lineTo(-4 * s, -3.8 * s); ctx.closePath(); }
 }
 function drawUnit(u, t) {
-  const p = at(u), col = routeColor(u.side), s = 1.5 * F.ls * G.q, strike = u.kind.strike;
+  const p = at(u), col = routeColor(u.side), s = 1.5 * F.ls * G.q * u.size, strike = u.kind.strike;
   if (u.mode === "dead") { const age = t - u.endAt; lineShards(rectEdges({ x: p.x - 5 * s, y: p.y - 5 * s, w: 10 * s, h: 10 * s }), p.x, p.y, age, col, u.seed, 0.75); ring(p.x, p.y, age, 0.3, 2, 16 * G.q, col, 1.1); return; }
   const a = clamp((t - u.born) / 0.2, 0, 1) * (u.mode === "fade" ? 1 - clamp((t - u.endAt) / 0.45, 0, 1) : 1), v = Math.hypot(u.vx, u.vy);
   // The two melee kinds throw themselves at the tower when they strike.
@@ -447,6 +482,12 @@ function heroTip(c, cs, S, active) {
 }
 function drawHero(c, cs, h, S, t, active) {
   const p = at(h), q = F.ls * G.q * h.fit, col = routeColor(c.owner), decided = cs.verdict >= 0, age = t - cs.verdict, born = t - cs.raised, R = 8.5 * q * (FX() ? backOut(clamp(born / 0.3, 0, 1)) : 1);
+  // A beam that lands is felt: the hero is knocked back from the turret and shudders, its outline and the gate it is
+  // being tried on flare, a guard flashes up on the side the beam came from, and sparks fly back along it.
+  let hurt = 0;
+  if (FX() && !decided) for (const b of sim.beams) if (b.cid === c.raw.id && !b.failed) { const a = t - b.fire; if (a >= 0 && a < 0.42) hurt = Math.max(hurt, 1 - a / 0.42); }
+  const src = crystal(), away = Math.atan2(p.y - src.y, p.x - src.x), next = cs.els.findIndex((x) => !x);
+  if (hurt) { const kick = 8 * q * hurt * hurt, jolt = Math.sin(t * 95) * 1.8 * q * hurt; p.x += Math.cos(away) * kick - Math.sin(away) * jolt; p.y += Math.sin(away) * kick + Math.cos(away) * jolt; }
   hits.push({ rect: { x: p.x - 16, y: p.y - 16, w: 32, h: 32 }, r: 14, tip: heroTip(c, cs, S, active) });
   const circle = (r) => { ctx.beginPath(); ctx.arc(p.x, p.y, r, 0, TAU); };
   if (decided && cs.out === "false_positive") {
@@ -460,15 +501,23 @@ function drawHero(c, cs, h, S, t, active) {
   const noted = decided && (cs.out === "observation" || cs.out === "residual_risk"), lit = decided && cs.out === "verified", vcol = lit ? C.sev[cs.sev] || C.ink : noted ? C.sev.note : C.ink;
   if (active && !decided) { pen(col, 1.4); brackets(p.x - 17 * q, p.y - 17 * q, 34 * q, 34 * q, 5); }
   ctx.fillStyle = C.bg; circle(noted ? R * 0.6 : R); ctx.fill();
-  pen(vcol, lit ? 1.8 : 1.5); if (decided && cs.out === "open") ctx.setLineDash([3, 3]);
+  pen(vcol, (lit ? 1.8 : 1.5) + hurt * 1.8); if (decided && cs.out === "open") ctx.setLineDash([3, 3]);
   ctx.stroke(); ctx.setLineDash([]);
-  ctx.fillStyle = lit || noted ? vcol : col; circle(2.2 * q); ctx.fill();
+  // The mark at the hero's centre is its own: a dot, a triangle, a square or a cross.
+  const mark = vary(c.i * 37 + 1) % 4, mq = 2.6 * q;
+  ctx.fillStyle = lit || noted ? vcol : col; ctx.beginPath();
+  if (mark === 1) { ctx.moveTo(p.x, p.y - mq * 1.2); ctx.lineTo(p.x + mq * 1.1, p.y + mq * 0.8); ctx.lineTo(p.x - mq * 1.1, p.y + mq * 0.8); ctx.closePath(); }
+  else if (mark === 2) ctx.rect(p.x - mq * 0.85, p.y - mq * 0.85, mq * 1.7, mq * 1.7);
+  else if (mark === 3) { ctx.rect(p.x - mq * 1.2, p.y - mq * 0.4, mq * 2.4, mq * 0.8); ctx.rect(p.x - mq * 0.4, p.y - mq * 1.2, mq * 0.8, mq * 2.4); }
+  else ctx.arc(p.x, p.y, 2.2 * q, 0, TAU);
+  ctx.fill();
   if (lit) { pen(vcol, 1.4); for (let i = 0; i < 8; i++) { const a = i * Math.PI / 4, r0 = R + 3 * h.fit, l = (3.5 + (FX() ? 1.6 * Math.sin(t * 5 + i * 1.7) : 0)) * h.fit; line(p.x + Math.cos(a) * r0, p.y + Math.sin(a) * r0, p.x + Math.cos(a) * (r0 + l), p.y + Math.sin(a) * (r0 + l)); } }
   else if (!noted) {
     const n = c.els.length, span = TAU / n, rr = R + 4.5 * q;
     c.els.forEach((el, k) => {
       const s = cs.els[k], a0 = -Math.PI / 2 + k * span + 0.2, a1 = a0 + span - 0.4;
-      pen(!s ? C.hair : s.pass === true ? col : s.pass === false ? C.sev.Critical : C.muted, s ? 2 : 1.2); if (!s || s.pass === null) ctx.setLineDash([1.5, 2.5]);
+      const struck = hurt > 0 && k === next;
+      pen(struck ? col : !s ? C.hair : s.pass === true ? col : s.pass === false ? C.sev.Critical : C.muted, struck ? 1.4 + 2.2 * hurt : s ? 2 : 1.2); if (!struck && (!s || s.pass === null)) ctx.setLineDash([1.5, 2.5]);
       ctx.beginPath(); ctx.arc(p.x, p.y, rr, a0, a1); ctx.stroke(); ctx.setLineDash([]);
       if (!s) return;
       const ga = t - s.t, mx = p.x + Math.cos((a0 + a1) / 2) * rr, my = p.y + Math.sin((a0 + a1) / 2) * rr;
@@ -476,6 +525,13 @@ function drawHero(c, cs, h, S, t, active) {
       if (s.pass !== null) { ring(p.x, p.y, ga, 0.5, rr, rr + 36 * q, s.pass ? col : C.sev.Critical, 1.5); floatText(el.label + (s.pass ? " ✓" : " ✗"), p.x, p.y - rr - 14, ga, 0.9, s.pass ? col : C.sev.Critical, 10); }
     });
     if (decided) text("?", p.x + R + 9 * q, p.y, { align: "center", size: 10, color: C.ink });
+  }
+  if (hurt) {
+    const face = away + Math.PI, guard = R + (5 + 5 * (1 - hurt)) * q, ix = p.x + Math.cos(face) * (R + 2 * q), iy = p.y + Math.sin(face) * (R + 2 * q);
+    pen(C.ink, 1.2 + 1.6 * hurt, hurt); ctx.beginPath(); ctx.arc(p.x, p.y, guard, face - 1.05, face + 1.05); ctx.stroke();
+    pen(C.ink, 1, hurt * 0.7); ctx.beginPath(); ctx.arc(p.x, p.y, guard + 3.5 * q, face - 0.6, face + 0.6); ctx.stroke();
+    pen(col, 1.3, hurt); for (const o of [-0.75, -0.25, 0.25, 0.75]) { const len = (5 + 7 * (1 - hurt)) * q; line(ix + Math.cos(face + o) * 2 * q, iy + Math.sin(face + o) * 2 * q, ix + Math.cos(face + o) * (2 * q + len), iy + Math.sin(face + o) * (2 * q + len)); }
+    ctx.globalAlpha = 1;
   }
   ring(p.x, p.y, born, 0.4, 3, 30 * q, col, 1.3);
   floatText(fit(c.id, 90, { size: 10.5 }) + " raised", p.x, p.y - R - 14, born, 1.1, col, 10.5);

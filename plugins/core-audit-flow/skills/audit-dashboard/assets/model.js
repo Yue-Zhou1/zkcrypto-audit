@@ -6,7 +6,7 @@ export const SEVERITIES = ["Critical", "High", "Medium", "Low", "Informational"]
 
 const FLOW_SKILLS = new Set(["crypto-audit-router", "crypto-audit-context", "crypto-fp-check", "crypto-report-writer", "fix-verification", "audit-dashboard", "audit-common"]);
 const GATES = ["claim", "trigger", "impact", "severity"];
-const STAGED = new Set(["cover", "end", "gate", "verdict", "report", "bench", "results", "phase"]);
+const STAGED = new Set(["tap", "vtap", "cover", "end", "gate", "verdict", "report", "bench", "results", "phase"]);
 const GENERIC_STEMS = new Set(["mod", "lib", "main", "index", "__init__"]);
 export const FLOW_SIDE = -1, VERIFY_SIDE = -2;
 
@@ -26,6 +26,7 @@ function unique(items, key) {
   const seen = new Set();
   return (Array.isArray(items) ? items : []).filter((item) => item && typeof item === "object" && typeof item[key] === "string" && item[key] && !seen.has(item[key]) && seen.add(item[key]));
 }
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const strings = (value) => (Array.isArray(value) ? value.filter((x) => typeof x === "string" && x) : []);
 const norm = (path) => String(path).replace(/\\/g, "/").replace(/^\.\//, "").replace(/\/+$/, "");
 export const bare = (skill) => String(skill).split(":").pop();
@@ -48,7 +49,11 @@ function seconds(value) {
   return Number.isNaN(ms) ? null : ms / 1000;
 }
 
-export function buildModel(session, log, state, hooked) {
+// `pace` is how a theme keeps its movement believable. Its actors, one per route and one for verification, need time
+// to get from one place to the next: `pace.route(a, fromUnit, toUnit)` and `pace.verify(from, to)` say how many
+// seconds (`from` is -1 or null for an actor that has not been anywhere yet). Whatever an actor does is then shown
+// no earlier than it can be there, so the drawing may run behind the record but nothing has to jump. An actor that has fallen behind hurries, up to two and a half times its pace.
+export function buildModel(session, log, state, hooked, pace) {
   const routesRaw = unique(session.routes, "skill");
   const keys = routeKeys(routesRaw.map((r) => r.skill));
   let slots = 0;
@@ -111,6 +116,7 @@ export function buildModel(session, log, state, hooked) {
     return { i, id: clip(c.id, 40), title: clip(text(c.title) || text(c.summary) || c.id, 140), location: clip(location, 160), owner, unit: u, els, hasGates, raw: c };
   });
   const candIdx = new Map(cands.map((c) => [c.raw.id, c.i]));
+  if (pace && pace.begin) pace.begin({ routes, units, cands });
 
   const stateRecords = (hooked ? log.filter((r) => r && r.kind === "state") : []).concat(state || []);
   const toolRecords = log.filter((r) => r && (r.kind === "tool" || r.kind === "wait" || r.kind === "session"));
@@ -218,6 +224,8 @@ export function buildModel(session, log, state, hooked) {
     const near = strings(r.paths).map(findUnit).find((u) => u >= 0);
     calls.push({ t, failed: r.failed === true,
       a: targets.length ? targets[0][0] : phaseNow === 2 ? VERIFY_SIDE : own, u: targets.length ? targets[0][1] : -1, near: near ?? -1 });
+    // A verification call is one stroke of the verification actor; which candidate it lands on is settled below.
+    if (!targets.length && phaseNow === 2) ev.push({ t, o: order++, type: "vtap", c: -1, k: 0 });
     for (const [a, u] of targets) {
       const key = a + ":" + u, last = lastTap.get(key);
       if (last && t - last.t < 1) { last.w++; continue; }
@@ -232,22 +240,51 @@ export function buildModel(session, log, state, hooked) {
   const resultsAt = ev.find((e) => e.type === "phase" && e.phase >= 3);
   if (resultsAt) ev.push({ t: resultsAt.t, o: Number.MAX_SAFE_INTEGER, type: "results" });
   ev.sort((x, y) => x.t - y.t || x.o - y.o);
-  const lastCover = new Map(), lastCand = new Map();
-  let lastCell = -Infinity, lastWall = -Infinity, benchT = -Infinity, lastDecision = -Infinity, latest = -Infinity, lastHold = -Infinity;
+  const lastCover = new Map(), lastCand = new Map(), seat = new Map(), work = cands.map(() => ({ raised: false, decided: false, last: -1, done: new Set() }));
+  let lastCell = -Infinity, lastWall = -Infinity, benchT = -Infinity, lastDecision = -Infinity, latest = -Infinity, lastHold = -Infinity, stage = 0, hand = null;
+  // The earliest an actor that was last busy at `from` can be busy again, given that it needs `need` seconds to get
+  // there and hurries by as much as it would otherwise be late.
+  const after = (from, need, t) => (from == null || !(need > 0) ? t : Math.max(t, from + need / clamp(1 + (from + need - t) / 5, 1, 2.5)));
+  // `pace.settle` is how long a theme takes to draw the ground its actors move on: `map` seconds after the last file
+  // came into scope, `level` seconds after verification opened. An actor's first move waits for that and for the way in.
+  const routeStep = (e) => {
+    const was = seat.get(e.a), need = pace && pace.route ? pace.route(e.a, was ? was.u : -1, e.u) : 0, t = was ? after(was.t, need, e.t) : pace && pace.settle ? Math.max(e.t, lastCell + pace.settle.map + need) : e.t;
+    seat.set(e.a, { t, u: e.u });
+    return t;
+  };
+  const handStep = (e, c, k) => {
+    const need = pace && pace.verify ? pace.verify(hand, { c, k }) : 0, t = hand ? after(hand.t, need, e.t) : pace && pace.settle ? Math.max(e.t, benchT + pace.settle.level + need) : e.t;
+    hand = { t, c, k };
+    return t;
+  };
   for (const e of ev) {
     if (e.t < 0) continue;
     if (e.type === "hold") { e.t = Math.max(e.t, latest + 0.8); lastHold = e.t; }
     else if (e.type === "resume") e.t = Math.max(e.t, lastHold + 0.05);
     else if (e.type === "cell") { e.t = Math.max(e.t, lastCell + 0.07); lastCell = e.t; }
-    else if (e.type === "cover") { e.t = Math.max(e.t, (lastCover.get(e.a) ?? -Infinity) + 0.45); lastCover.set(e.a, e.t); lastWall = Math.max(lastWall, e.t); }
-    else if (e.type === "end") { e.t = Math.max(e.t, (lastCover.get(e.a) ?? -Infinity) + 0.6); lastWall = Math.max(lastWall, e.t); }
-    else if (e.type === "raise") lastCand.set(e.c, e.t + 0.9);
+    else if (e.type === "tap") e.t = routeStep(e);
+    else if (e.type === "cover") { e.t = Math.max(e.t, (lastCover.get(e.a) ?? -Infinity) + 0.45); e.t = routeStep(e); lastCover.set(e.a, e.t); lastWall = Math.max(lastWall, e.t); }
+    else if (e.type === "end") { e.t = Math.max(e.t, (lastCover.get(e.a) ?? -Infinity) + 0.6, (seat.has(e.a) ? seat.get(e.a).t : -Infinity) + 0.3); lastWall = Math.max(lastWall, e.t); }
+    else if (e.type === "raise") {
+      // A candidate shows once the route that raised it has got as far as the record had when it raised it.
+      const owner = cands[e.c].owner;
+      if (seat.has(owner)) e.t = Math.max(e.t, seat.get(owner).t + 0.3);
+      lastCand.set(e.c, e.t + 0.9); work[e.c].raised = true; work[e.c].last = e.t;
+    }
     else if (e.type === "bench") { e.t = Math.max(e.t, lastWall + 0.8); benchT = e.t; }
     else if (e.type === "results") e.t = Math.max(e.t, lastDecision + 1.8);
-    else if (e.type === "gate") { e.t = Math.max(e.t, (lastCand.get(e.c) ?? -Infinity) + 0.9, benchT + 3.6); lastCand.set(e.c, e.t); lastDecision = Math.max(lastDecision, e.t); }
-    else if (e.type === "verdict") { e.t = Math.max(e.t, (lastCand.get(e.c) ?? -Infinity) + 1, benchT + 3.6); lastCand.set(e.c, e.t); lastDecision = Math.max(lastDecision, e.t); }
+    else if (e.type === "vtap") {
+      // The stroke lands on the candidate under verification, on the first gate it has no record for yet.
+      let c = -1;
+      if (stage === 2) work.forEach((w, i) => { if (w.raised && !w.decided && (c < 0 || w.last > work[c].last + 1e-9)) c = i; });
+      if (c < 0) continue;
+      let k = 0; while (work[c].done.has(k)) k++;
+      e.c = c; e.k = Math.min(k, cands[c].els.length); e.t = handStep(e, c, e.k); e.t = Math.max(e.t, benchT + 3.3); hand.t = e.t;
+    }
+    else if (e.type === "gate") { e.t = Math.max(e.t, (lastCand.get(e.c) ?? -Infinity) + 0.9, benchT + 3.6); e.t = handStep(e, e.c, e.k); lastCand.set(e.c, e.t); lastDecision = Math.max(lastDecision, e.t); work[e.c].done.add(e.k); work[e.c].last = e.t; }
+    else if (e.type === "verdict") { e.t = Math.max(e.t, (lastCand.get(e.c) ?? -Infinity) + 1, benchT + 3.6); e.t = handStep(e, e.c, cands[e.c].els.length); lastCand.set(e.c, e.t); lastDecision = Math.max(lastDecision, e.t); work[e.c].decided = true; work[e.c].last = e.t; }
     else if (e.type === "report") { e.t = Math.max(e.t, (lastCand.get(e.c) ?? -Infinity) + 0.6); lastCand.set(e.c, e.t); }
-    else if (e.type === "phase" && e.phase >= 2) e.t = Math.max(e.t, lastWall + 0.8);
+    else if (e.type === "phase") { if (e.phase >= 2) e.t = Math.max(e.t, lastWall + 0.8); if (e.phase >= 3) e.t = Math.max(e.t, lastDecision + 0.6); stage = e.phase; }
     if (STAGED.has(e.type)) latest = Math.max(latest, e.t);
   }
   const firstContact = new Map();
@@ -278,7 +315,7 @@ function initialState(M) {
   return {
     t: -Infinity, idx: 0, phase: 0, regress: false, hold: null, holdAt: -1,
     units: M.units.map(() => ({ shown: -1, cells: new Set(), cov: new Map(), taps: new Map(), broken: -1, hit: -1, hitK: 1, reopen: -1 })),
-    cands: M.cands.map((c) => ({ raised: -1, els: c.els.map(() => null), verdict: -1, out: null, sev: null, reported: -1, last: -1 })),
+    cands: M.cands.map((c) => ({ raised: -1, els: c.els.map(() => null), hits: new Map(), verdict: -1, out: null, sev: null, reported: -1, last: -1 })),
   };
 }
 
@@ -297,6 +334,7 @@ function apply(M, S, e, annotate) {
   else if (e.type === "cover") { const u = S.units[e.u]; if (u.shown < 0) u.shown = e.t; u.cells.add(e.a); u.cov.set(e.a, e.t); u.hit = e.t; u.hitK = 1; settle(u, e, annotate); }
   else if (e.type === "reopen") { const u = S.units[e.u]; u.cov.delete(e.a); u.taps.delete(e.a); settle(u, e, annotate); u.reopen = e.t; }
   else if (e.type === "raise") { const c = S.cands[e.c]; c.raised = e.t; c.last = e.t; }
+  else if (e.type === "vtap") { if (e.c >= 0) { const hits = S.cands[e.c].hits, was = hits.get(e.k); hits.set(e.k, { n: (was ? was.n : 0) + 1, t: e.t }); } }
   else if (e.type === "gate") { const c = S.cands[e.c]; if (c.raised < 0) c.raised = e.t - 2; c.els[e.k] = { t: e.t, pass: e.pass }; c.last = e.t; }
   else if (e.type === "verdict") { const c = S.cands[e.c]; if (c.raised < 0) c.raised = e.t - 2; c.verdict = e.t; c.out = e.out; c.sev = e.sev; c.last = e.t; }
   else if (e.type === "report") S.cands[e.c].reported = e.t;

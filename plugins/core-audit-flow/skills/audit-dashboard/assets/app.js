@@ -1,15 +1,17 @@
-import { LEAD, SEVERITIES, VERIFY_SIDE, buildModel, stateAt, callsBefore, bare } from "./model.js";
+import { LEAD, SEVERITIES, VERIFY_SIDE, buildModel, stateAt, callsBefore, bare, mulberry } from "./model.js";
 import * as kit from "./kit.js";
 import * as wall from "./scene.js";
 import * as skirmish from "./skirmish.js";
+import * as factory from "./factory.js";
+import * as dungeon from "./dungeon.js";
 
 const BUFFER = 2.5;
 const QUIET = 4;
 const SVG = "http://www.w3.org/2000/svg";
 
-const state = { id: null, loaded: null, log: [], offset: 0, pending: [], hooked: false, model: null, open: null, loading: false, dirty: false, seen: new Set(), skew: null, replay: null };
+const state = { id: null, loaded: null, notes: {}, log: [], offset: 0, pending: [], hooked: false, model: null, models: {}, theme: "wall", open: null, loading: false, dirty: false, seen: new Set(), skew: null, replay: null };
 const cache = {};
-const THEMES = { wall, skirmish }, THEME_KEY = "audit-dashboard.theme", SINGLE = matchMedia("(max-width: 760px)");
+const THEMES = { wall, skirmish, factory, dungeon }, SINGLE = matchMedia("(max-width: 760px)");
 let scene = wall;
 
 const $ = (selector) => document.querySelector(selector);
@@ -32,6 +34,14 @@ function svg(tag, attrs = {}, children = []) {
   return node;
 }
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+// One line above the stage, for what the drawing cannot say: nothing to show, a session that cannot be read or drawn,
+// a lost connection. The first that applies is shown.
+function note(kind, text) {
+  state.notes[kind] = text || "";
+  const shown = ["load", "draw", "link"].map((k) => state.notes[k]).find(Boolean) || "", node = $("#notice");
+  node.hidden = !shown;
+  node.textContent = shown;
+}
 function setText(id, value) { if (cache[id] !== value) { cache[id] = value; document.getElementById(id).textContent = value; } }
 
 async function getJSON(url) {
@@ -48,28 +58,22 @@ function syncClock(serverNow) {
   state.skew = state.skew == null || Math.abs(sample - state.skew) > 1000 ? sample : Math.max(state.skew, sample);
 }
 
+// The page shows the active engagement and follows it when another becomes active. With none active it stays on the
+// one it shows, or takes the first in the list.
 async function loadEngagements() {
-  const index = await getJSON("/api/engagements");
-  const select = $("#engagement"), previous = state.id;
-  const options = index.engagements.map((e) => [e.id, e.id + (e.has_session ? "" : " (no session)") + (e.id === index.active ? " · active" : "")]);
-  if (cache.options !== JSON.stringify(options)) {
-    cache.options = JSON.stringify(options);
-    select.replaceChildren(...options.map(([value, label]) => el("option", { value, text: label })));
-  }
-  const ids = index.engagements.map((e) => e.id);
-  state.id = ids.includes(previous) ? previous : (index.active || ids[0] || null);
-  if (state.id) select.value = state.id;
-  const notice = $("#notice");
-  notice.hidden = ids.length > 0;
-  notice.textContent = ids.length ? "" : `No engagements found in ${index.root}`;
+  const index = await getJSON("/api/engagements"), ids = index.engagements.map((e) => e.id), previous = state.id;
+  state.id = index.active || (ids.includes(previous) ? previous : ids[0] || null);
+  document.title = state.id ? state.id + " · Audit dashboard" : "Audit dashboard";
+  note("load", ids.length ? "" : `No engagements found in ${index.root}`);
+  if (state.id !== previous) setTheme(themeFor(state.id));
   return state.id !== previous;
 }
 
 async function loadEngagement(reset) {
   if (!state.id) return;
   if (reset || state.loaded !== state.id) {
-    Object.assign(state, { log: [], offset: 0, pending: [], model: null, open: null, seen: new Set() });
-    setModel(null);
+    Object.assign(state, { log: [], offset: 0, pending: [], open: null, seen: new Set() });
+    setModels(null);
     setReplay(false);
   }
   const id = state.id, base = `/api/engagements/${encodeURIComponent(id)}`;
@@ -85,11 +89,10 @@ async function loadEngagement(reset) {
     state.offset = part.offset; state.pending = part.state; state.hooked = part.hooked;
   }
   state.loaded = id;
-  const session = data.session, notice = $("#notice");
-  notice.hidden = !data.error;
-  notice.textContent = data.error || "";
-  state.model = session && typeof session === "object" ? buildModel(session, state.log, state.pending, state.hooked) : null;
-  setModel(state.model);
+  const session = data.session;
+  note("load", data.error);
+  note("draw", "");
+  setModels(session && typeof session === "object" ? session : null);
   $("#replay").disabled = !(state.model && state.model.timed);
   cache.findings = null;
 }
@@ -108,17 +111,36 @@ async function refresh(reset) {
   }
 }
 
-function setModel(model) { for (const theme of Object.values(THEMES)) theme.setModel(model); }
+// Every theme gets its own model of the same records: the facts are identical, but each theme paces them by how long
+// its own actors need to get about, so the times at which things are shown differ.
+function deal(count, seed) { const rnd = mulberry(kit.vary(seed)), out = Array.from({ length: count }, (v, i) => i); for (let i = count - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [out[i], out[j]] = [out[j], out[i]]; } return out; }
+function setModels(session) {
+  state.session = session;
+  const hues = deal(8, 31), fills = deal(6, 57);
+  for (const [name, theme] of Object.entries(THEMES)) {
+    state.models[name] = session ? buildModel(session, state.log, state.pending, state.hooked, theme.pace) : null;
+    // Which colour and which hatching a route has is dealt afresh for every viewing, the same in every theme.
+    if (state.models[name]) for (const route of state.models[name].routes) if (route.color >= 0) { route.color = hues[route.color]; route.pattern = fills[route.pattern]; }
+    theme.setModel(state.models[name]);
+  }
+  state.model = state.models[state.theme] || null;
+}
 
-function setTheme(name, remember) {
-  const known = Object.hasOwn(THEMES, name) ? name : "wall";
-  scene = THEMES[known];
-  $("#theme").value = known;
+// Each engagement is drawn in one theme, picked by its id: the same audit always looks the same, another may not.
+function themeFor(id) {
+  let h = 2166136261;
+  for (const ch of String(id)) h = Math.imul(h ^ ch.codePointAt(0), 16777619);
+  const names = Object.keys(THEMES);
+  return names[Math.floor(mulberry(h >>> 0)() * names.length)];
+}
+function setTheme(name) {
+  scene = THEMES[name];
+  state.theme = name; state.model = state.models[name] || null;
   cache.findings = null; cache.place = null;
-  if (remember) { try { localStorage.setItem(THEME_KEY, known); } catch { /* storage unavailable */ } }
 }
 
 function setReplay(on) {
+  if (on) { kit.reroll(); if (state.session) setModels(state.session); }
   state.replay = on ? performance.now() : null;
   const button = $("#replay");
   button.textContent = on ? "Stop replay" : "Replay";
@@ -156,12 +178,9 @@ function frame() {
   try {
     place(scene.draw(S, t));
   } catch (error) {
-    state.model = null;
-    setModel(null);
+    setModels(null);
     kit.resize();
-    const notice = $("#notice");
-    notice.hidden = false;
-    notice.textContent = "This session could not be drawn: " + error.message;
+    note("draw", "This session could not be drawn: " + error.message);
     console.error(error);
     return;
   }
@@ -193,39 +212,45 @@ function findingBack(M, cand, withLocation) {
       ...detail("PoC", raw.poc_status === "executed" ? "executed" + (typeof raw.poc_ref === "string" && raw.poc_ref ? " · " + raw.poc_ref : "") : raw.poc_status === "pending_poc" ? "pending" : ""),
       ...detail("Report", raw.report_ref),
     ]),
-    cand.unit >= 0 ? el("div", { class: "spec-act" }, el("button", { type: "button", text: scene === skirmish ? "Locate on field" : "Locate on wall", onclick: () => scene.locateUnit(cand.unit) })) : null,
+    cand.unit >= 0 ? el("div", { class: "spec-act" }, el("button", { type: "button", text: scene === skirmish ? "Locate on field" : scene === factory ? "Locate on line" : scene === dungeon ? "Locate on map" : "Locate on wall", onclick: () => scene.locateUnit(cand.unit) })) : null,
   ]);
 }
 
-// The gates a finding went through, drawn the way its theme drew them. Wall: the circuit that lit its bulb, with a
-// closed switch per passed gate and a pressed button for an executed PoC. Skirmish: the gate lines its hero crossed
-// on the way into the far base. The bulb or the beacon at the end is in the severity colour.
+// The gates a finding went through, drawn the way its theme drew them. Wall: the path of the ball through the shells
+// of the brick, each one broken open once its gate passed and riveted if it is the PoC, to the gem at the core.
+// Skirmish: the gate lines its hero crossed on the way into the far base. Factory: the stations along the line, to
+// the crate at its end. Dungeon: the doors along the passage, to the chest at its end. The gem, the beacon, the crate
+// or the chest is in the severity colour.
 function gates(M, S, found) {
-  const lane = scene === skirmish, cand = found.cand, done = S.cands[cand.i].els, y = 16, x0 = 8, x1 = 404, span = (x1 - 40 - x0) / cand.els.length;
-  const wire = cand.owner >= 0 && M.routes[cand.owner].color >= 0 ? `var(--r${M.routes[cand.owner].color})` : "var(--ink)", parts = [], stops = [x0 + 3];
+  const style = scene === skirmish ? "lane" : scene === factory ? "belt" : scene === dungeon ? "door" : "brick", cand = found.cand, done = S.cands[cand.i].els, y = 16, x0 = 8, x1 = 404, span = (x1 - 40 - x0) / cand.els.length;
+  const tone = cand.owner >= 0 && M.routes[cand.owner].color >= 0 ? `var(--r${M.routes[cand.owner].color})` : "var(--ink)", parts = [];
   cand.els.forEach((e, k) => {
-    const x = x0 + 16 + span * (k + 0.5), ok = Boolean(done[k] && done[k].pass === true), lift = ok ? 0 : 5;
-    if (lane) {
+    const x = x0 + 16 + span * (k + 0.5), ok = Boolean(done[k] && done[k].pass === true), tick = (cy) => svg("path", { d: `M${x - 3.4} ${cy}l2.4 2.5 4.4 -5`, stroke: tone });
+    if (style === "belt") {
+      parts.push(svg("path", { d: `M${x - 7} ${y}V${y - 13}H${x + 7}V${y}`, stroke: ok ? tone : "var(--muted)" }));
+      parts.push(ok ? tick(y - 6.5) : svg("text", { x, y: y - 4, "text-anchor": "middle" }, "?"));
+    } else if (style === "door") {
+      parts.push(svg("path", { d: ok ? `M${x} ${y - 9}V${y - 6}M${x} ${y + 6}V${y + 9}M${x} ${y - 6}L${x + 9} ${y - 2.5}` : `M${x - 1.8} ${y - 8}H${x + 1.8}V${y + 8}H${x - 1.8}Z`, stroke: ok ? tone : "var(--muted)", fill: ok ? "none" : "var(--bg)" }));
+    } else if (style === "lane") {
       parts.push(svg("path", { d: `M${x} ${y - 8}V${y + 7}`, stroke: "var(--muted)", "stroke-dasharray": "2 3" }));
-      parts.push(ok ? svg("path", { d: `M${x - 3.6} ${y - 12.5}l2.6 2.6 4.6 -5.2`, stroke: wire }) : svg("text", { x, y: y - 10, "text-anchor": "middle" }, "?"));
+      parts.push(ok ? svg("path", { d: `M${x - 3.6} ${y - 12.5}l2.6 2.6 4.6 -5.2`, stroke: tone }) : svg("text", { x, y: y - 10, "text-anchor": "middle" }, "?"));
     } else {
-      stops.push(x - 6, x + 6);
-      if (e.kind === "poc") parts.push(svg("path", { d: `M${x - 7.5} ${y - lift}h15M${x} ${y - lift}v-6M${x - 3.5} ${y - lift - 6}h7`, stroke: "var(--ink)" }));
-      else parts.push(svg("path", { d: ok ? `M${x - 6} ${y}H${x + 6}` : `M${x - 6} ${y}L${x + 4.4} ${y - 7}`, stroke: ok ? wire : "var(--muted)" }));
-      for (const side of [-6, 6]) parts.push(svg("circle", { cx: x + side, cy: y, r: 1.9, fill: "var(--bg)", stroke: ok ? wire : "var(--muted)" }));
+      parts.push(svg("path", { d: ok ? `M${x - 7} ${y - 4}V${y - 8}H${x - 3}M${x + 3} ${y - 8}H${x + 7}V${y - 4}M${x + 7} ${y + 4}V${y + 8}H${x + 3}M${x - 3} ${y + 8}H${x - 7}V${y + 4}` : `M${x - 7} ${y - 8}H${x + 7}V${y + 8}H${x - 7}Z`, stroke: ok ? tone : "var(--muted)", fill: ok ? "none" : "var(--bg)" }));
+      if (e.kind === "poc") for (const [dx, dy] of [[-4.6, -5.6], [4.6, -5.6], [-4.6, 5.6], [4.6, 5.6]]) parts.push(svg("circle", { cx: x + dx, cy: y + dy, r: 0.9, stroke: ok ? tone : "var(--muted)" }));
     }
-    parts.push(svg("text", { x, y: y + 17, "text-anchor": "middle" }, e.label + (ok || lane ? "" : " ?")));
+    parts.push(svg("text", { x, y: y + 17, "text-anchor": "middle" }, e.label + (ok || (style !== "brick" && style !== "door") ? "" : " ?")));
   });
-  stops.push(x1 - (lane ? 10 : 13));
-  const wires = [];
-  for (let i = 0; i < stops.length; i += 2) wires.push(`M${stops[i]} ${y}H${stops[i + 1]}`);
-  const rays = (lane ? [0, 45, 90, 135, 180, 225, 270, 315] : [0, 45, 90, 135, 225, 270, 315]).map((deg) => { const a = deg * Math.PI / 180, at = (r) => (x1 + Math.cos(a) * r).toFixed(1) + " " + (y + Math.sin(a) * r).toFixed(1); return `M${at(lane ? 9.5 : 11)}L${at(lane ? 13 : 14)}`; });
-  return svg("svg", { class: "circuit", viewBox: "0 0 420 40", role: "img", "aria-label": "Gates: " + cand.els.map((e, k) => e.label + (done[k] && done[k].pass === true ? " passed" : " not recorded")).join(", ") }, [
-    svg("path", lane ? { d: wires.join(""), stroke: wire, "stroke-width": 1.4, "stroke-dasharray": "1 5" } : { d: wires.join(""), stroke: wire, "stroke-width": 1.5 }),
-    svg("circle", { cx: x0, cy: y, r: 3.2, stroke: wire }), svg("circle", { cx: x0, cy: y, r: 1.2, fill: wire, stroke: "none" }),
+  const track = `M${x0 + 3} ${y}H${x1 - 10}`, rays = [0, 45, 90, 135, 180, 225, 270, 315].map((deg) => { const a = (deg + (style === "brick" ? 22.5 : 0)) * Math.PI / 180, at = (r) => (x1 + Math.cos(a) * r).toFixed(1) + " " + (y + Math.sin(a) * r).toFixed(1); return `M${at(style === "lane" ? 9.5 : 11.5)}L${at(style === "lane" ? 13 : 15)}`; });
+  const walls = style === "door" ? svg("path", { d: `M${x0 + 3} ${y - 6}H${x1 - 12}M${x0 + 3} ${y + 6}H${x1 - 12}`, stroke: "var(--muted)" }) : null;
+  const end = style === "door" ? `M${x1 - 7} ${y - 1}h14v7.5h-14zM${x1 - 7} ${y - 1}l-1.6 -6h13.2l2.4 6M${x1} ${y - 9}l2.6 2.2 -2.6 3.4 -2.6 -3.4z` : style === "belt" ? `M${x1 - 6.5} ${y - 6.5}h13v13h-13zM${x1} ${y - 3}v3.6M${x1} ${y + 2.6}v0.4` : style === "lane" ? `M${x1 + 6.5} ${y}a6.5 6.5 0 1 1 -13 0a6.5 6.5 0 1 1 13 0` : `M${x1} ${y - 8.5}L${x1 + 7} ${y - 2.5}L${x1} ${y + 8.5}L${x1 - 7} ${y - 2.5}ZM${x1 - 7} ${y - 2.5}H${x1 + 7}`;
+  return svg("svg", { class: "gates", viewBox: "0 0 420 40", role: "img", "aria-label": "Gates: " + cand.els.map((e, k) => e.label + (done[k] && done[k].pass === true ? " passed" : " not recorded")).join(", ") }, [
+    walls,
+    svg("path", style === "belt" ? { d: track, stroke: tone, "stroke-width": 1.5 } : { d: track, stroke: tone, "stroke-width": 1.4, "stroke-dasharray": style === "lane" ? "1 5" : style === "door" ? "1 4" : "2 4" }),
+    style === "belt" ? svg("path", { d: `M${x0 + 3} ${y + 4}H${x1 - 10}`, stroke: "var(--muted)", "stroke-dasharray": "1 4" }) : null,
+    svg("circle", { cx: x0, cy: y, r: 3.2, stroke: tone }), svg("circle", { cx: x0, cy: y, r: 1.2, fill: tone, stroke: "none" }),
     ...parts,
-    lane ? svg("circle", { cx: x1, cy: y, r: 1.6, fill: "var(--c)", stroke: "none" }) : svg("path", { d: `M${x1 - 13} ${y - 3.4}h5v6.8h-5z`, stroke: "var(--ink)" }),
-    svg("path", { d: (lane ? `M${x1 + 6.5} ${y}a6.5 6.5 0 1 1 -13 0a6.5 6.5 0 1 1 13 0` : `M${x1 + 8} ${y}a8 8 0 1 1 -16 0a8 8 0 1 1 16 0M${x1 - 8} ${y}h3.4l2 -3.4 2.4 6.4 2.2 -6.4 2 3.4h4`) + rays.join(""), stroke: "var(--c)" }),
+    style === "lane" ? svg("circle", { cx: x1, cy: y, r: 1.6, fill: "var(--c)", stroke: "none" }) : null,
+    svg("path", { d: end + rays.join(""), stroke: "var(--c)" }),
   ]);
 }
 
@@ -340,14 +365,12 @@ function renderFindings(M, S, t) {
 }
 
 function connect() {
-  const live = $("#live"), stream = new EventSource("/api/stream");
-  stream.addEventListener("open", () => { live.textContent = "connected"; live.className = "pill on"; });
-  stream.addEventListener("error", () => { live.textContent = "disconnected"; live.className = "pill off"; });
+  const stream = new EventSource("/api/stream");
+  stream.addEventListener("open", () => note("link", ""));
+  stream.addEventListener("error", () => note("link", "Disconnected from the dashboard server."));
   stream.addEventListener("change", () => refresh(false));
 }
 
-$("#engagement").addEventListener("change", (event) => { state.id = event.target.value; refresh(true); });
-$("#theme").addEventListener("change", (event) => setTheme(event.target.value, true));
 $("#replay").addEventListener("click", () => setReplay(state.replay == null));
 const canvas = $("#cv"), tip = $("#tip");
 canvas.addEventListener("pointermove", (event) => {
@@ -361,9 +384,4 @@ matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => kit.
 
 kit.init(canvas, $("#stage"));
 kit.setEffects(!matchMedia("(prefers-reduced-motion: reduce)").matches);
-{
-  let saved = null;
-  try { saved = localStorage.getItem(THEME_KEY); } catch { /* storage unavailable */ }
-  setTheme(new URLSearchParams(location.search).get("theme") || saved || "wall", false);
-}
 refresh(true).then(() => { connect(); requestAnimationFrame(frame); });
