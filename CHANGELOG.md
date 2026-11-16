@@ -7,6 +7,21 @@ Versioning.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-11-16
+
+### Added
+
+- `audit-dashboard`: `factory` and `dungeon` themes.
+- `audit-dashboard`: each page load and each `Replay` deals new shapes, colours, and paths to the drawing. The recorded facts shown do not change.
+
+### Changed
+
+- `audit-dashboard`: each engagement is drawn in one theme, fixed by its id.
+- `audit-dashboard`: the page shows the engagement named in `.zkcrypto-audit/active` and changes when that file names another.
+- `audit-dashboard`: the wall theme shows candidate verification as one armoured brick per candidate, one shell per verification gate.
+- `audit-dashboard`: a change is shown when the moving part that causes it has had time to get there. The live view runs at least 2.5 seconds behind the workspace and falls further behind while calls come quickly.
+- `audit-dashboard`: in the skirmish theme a hero reacts when a verification call lands on it.
+
 ## [0.9.0] - 2026-11-13
 
 ### Added

@@ -50,21 +50,23 @@ Requires Python 3.10 or later. No other dependencies.
 
 | View | Source |
 |---|---|
-| Wall: one brick per file in scope, one cell per route that reviews it | `session.json`: `routes[].scope`, `routes[].reviewed`. A route without `scope` is one brick |
-| Hits and cracks on a cell | tool calls in `events.jsonl` |
-| Bench: one circuit per candidate, one switch per verification gate | `session.json`: `candidates[].gates`, `poc_status`, `status`, `severity` |
+| Coverage: one mark per file in scope, one part per route that reviews it | `session.json`: `routes[].scope`, `routes[].reviewed`. A route without `scope` is one mark |
+| Activity on a part | tool calls in `events.jsonl` |
+| Verification: one mark per candidate, one step per verification gate | `session.json`: `candidates[].gates`, `poc_status`, `status`, `severity` |
 | Findings: the `verified` candidates, ordered by severity | `session.json`: `candidates` |
 | Pause mark beside the phase name, scene dimmed and still. Orange: the agent waits for the user. Grey: no session is running | `events.jsonl`: turn-end, waiting, and session-end records; or five minutes without a record while the engagement is not closed |
 
-The page is one stage. The wall fills it during domain review. When
-verification starts, the wall shrinks to the left and the bench appears on the
-right. When reporting starts, both shrink to the top and the findings appear
-below.
+The page is one stage. Coverage fills it during domain review. When
+verification starts, coverage shrinks to the left and verification appears on
+the right. When reporting starts, both shrink to the top and the findings
+appear below.
 
-The engagement named in `.zkcrypto-audit/active` is selected by default. A
-cell breaks when its route records the file in `reviewed`, or completes
-without a `reviewed` list. A candidate without `gates` is drawn with a single
-switch. A closed engagement is shown in its final state.
+The page shows the engagement named in `.zkcrypto-audit/active` and changes
+when that file names another.
+
+A part is marked reviewed when its route records the file in `reviewed`, or
+completes without a `reviewed` list. A candidate without `gates` is drawn with
+a single step. A closed engagement is shown in its final state.
 
 ## Event Log
 
@@ -97,7 +99,7 @@ A `scope` path matches a recorded path when they are equal or one ends with
 the other. Paths outside the project directory are not recorded.
 
 Without the log, the dashboard animates the changes it observes while it is
-running. Hits on cells are not shown.
+running. Tool calls are not shown.
 
 ## Limits
 
@@ -108,9 +110,13 @@ running. Hits on cells are not shown.
 - Serves session state and the event log only. It does not serve report or
   PoC files.
 - Read-only: it has no endpoint that changes a file.
-- The live view runs about 2.5 seconds behind the workspace.
-- The bench and the findings list become denser as their counts grow. Bench
-  lanes that do not fit are counted as "+N more"; the findings list scrolls.
+- The live view runs at least 2.5 seconds behind the workspace. Each change is
+  shown when the moving part that causes it has had time to get there, so the
+  view falls further behind while calls come quickly and catches up when they
+  pause.
+- Verification and the findings list become denser as their counts grow.
+  Candidates that do not fit are drawn smaller or counted as "+N more"; the
+  findings list scrolls.
 
 ## Output Contract
 
