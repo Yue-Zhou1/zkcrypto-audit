@@ -68,10 +68,13 @@ The final deliverable for each TRUE POSITIVE finding is **two artifacts**, not o
 **The report is incomplete until both artifacts exist for every High/Critical finding.**
 
 When run inside the staged flow, record each verdict on the candidate in
-`session.json`: `status`, `severity`, `verdict_rationale`, `poc_status`
-(`executed`, `pending_poc`, or `not_required`), and `poc_ref`. Copy each PoC
-and its runner output into `pocs/` in the audit workspace. A rejected candidate
-stays in the list as `false_positive`; it is never deleted.
+`session.json`: `status`, `severity`, `verdict_rationale`, `gates`,
+`poc_status` (`executed`, `pending_poc`, or `not_required`), and `poc_ref`.
+`gates` has one entry per gate evaluated, in order: `claim` (Phase 1),
+`trigger` (Phase 2), `impact` (Phase 3), `severity` (Phase 4), each with the
+result `pass`, `fail`, or `inconclusive`. Copy each PoC and its runner output
+into `pocs/` in the audit workspace. A rejected candidate stays in the list as
+`false_positive`; it is never deleted.
 
 ## Reference Index
 

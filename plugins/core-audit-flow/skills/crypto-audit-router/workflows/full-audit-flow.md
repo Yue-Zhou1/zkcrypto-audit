@@ -13,6 +13,8 @@ All engagement output goes in one directory:
   session.json   session state, schema v3
   reports/       report and supporting write-ups
   pocs/          copies of PoC tests plus their runner output
+  events.jsonl   events recorded by plugin hooks, where the agent supports
+                 them; events.state.json holds the hooks' last-seen session
 ```
 
 - Create `.zkcrypto-audit/` in the directory the audit is run from, unless the
@@ -23,6 +25,12 @@ All engagement output goes in one directory:
   `.git/info/exclude`. Never commit the workspace into the target.
 - PoC tests are written in the target's own test tree. Copy each one into
   `pocs/` with the command and output that confirmed it.
+- Write the engagement id to `.zkcrypto-audit/active` when creating or
+  resuming an engagement.
+- The `audit-dashboard` skill serves a read-only view of this directory. When
+  creating or resuming an engagement, tell the user in one sentence that
+  asking for the audit dashboard shows the audit live in a browser. Start it
+  only when the user asks.
 
 ## Session state
 
@@ -42,8 +50,16 @@ All engagement output goes in one directory:
   - `residual_risk`: accepted or out-of-scope exposure worth recording
 - `routes` holds one entry per skill the routing matrix matched: `pending`,
   `completed` with a summary, or `skipped` with a reason.
+- Each domain route lists the files it reviews in `scope`, as paths relative
+  to the target root. `reviewed` lists the entries of `scope` whose review is
+  finished.
 - Paths in `session.json` are relative to the engagement directory unless they
   point into the target.
+- Timestamps are UTC ISO-8601. Take each one from the system clock when the
+  event happens (`date -u +%Y-%m-%dT%H:%M:%SZ`); never estimate or backfill.
+  Set `created_at` once. Append to `phase_history` on every phase change. Set
+  `started_at` and `completed_at` on each route, and `raised_at` and
+  `decided_at` on each candidate.
 
 ## Phase 1: Intake
 
@@ -61,7 +77,8 @@ All engagement output goes in one directory:
   makes claims the code should enforce. Skip it only when neither exists, and
   record the skip with that reason
 - Select every route in `references/routing-matrix.md` whose situation matches
-  the target. Add a `routes` entry for each before running any of them
+  the target. Add a `routes` entry for each, with its `scope`, before running
+  any of them
 - A matched route may be skipped only with a recorded reason. If a matched
   skill is not installed, record the route as `skipped` with the reason "skill
   not installed" and tell the user which plugin provides it. Do not perform
@@ -76,8 +93,8 @@ All engagement output goes in one directory:
 - For ZK targets, `zkbugs-index` may be queried for prior art at any point in
   this phase. A match does not verify a candidate
 - After each auditor, add its candidates to `candidates`, set the route to
-  `completed` with a summary and `candidate_ids`, and append new unresolved
-  assumptions
+  `completed` with a summary, `candidate_ids`, and `reviewed`, and append new
+  unresolved assumptions
 - **Stop condition:** every matched route is `completed` or `skipped`
 - **Escalation:** if an assumption stays unresolved, route the auditor that can
   resolve it before leaving this phase
@@ -86,7 +103,7 @@ All engagement output goes in one directory:
 
 - Send every `unverified` candidate to `crypto-fp-check`
 - Record the verdict, the gate that decided it, and the evidence in
-  `verdict_rationale`
+  `verdict_rationale`, and the outcome of each gate evaluated in `gates`
 - Critical and High require an executed PoC, or `pending_poc` under the
   build-blocker rule in `crypto-fp-check`. Without either, lower the severity
   ceiling to Medium or leave the candidate `unverified`

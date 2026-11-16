@@ -3,7 +3,7 @@
 ![zkcrypto-audit banner](assets/banner.png)
 
 ![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F43_skills-0f766e)
+![Plugins](https://img.shields.io/badge/plugins-7_categories%2F44_skills-0f766e)
 ![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
 ![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
 
@@ -37,7 +37,7 @@ report-ready evidence.
 
 | Plugin | Covers |
 |---|---|
-| `core-audit-flow` | Router, context, spec comparison, verification, reporting, fix verification |
+| `core-audit-flow` | Router, context, spec comparison, verification, reporting, fix verification, local dashboard |
 | `zk-and-vm-auditors` | Circuits and proof systems, Cairo, Noir, gnark, folding schemes, zkVMs, on-chain verifiers, proven state transitions |
 | `crypto-primitive-auditors` | Curves and pairings, hashes, commitments, Merkle trees, Fiat-Shamir, encryption, signatures, Ethereum cryptography |
 | `protocol-auditors` | DKG and threshold signatures, threshold ECDSA, MPC, privacy protocols, VRFs, VDFs |
@@ -66,6 +66,9 @@ Then start an audit:
 ```text
 Use crypto-audit-router to run a complete staged crypto/ZK security audit on <target directories>. Do not stop after the first issue; finish with session state, candidate dispositions, PoCs, a report, and reasons for any skipped stage or route.
 ```
+
+To watch an audit in a browser while it runs, ask the agent to open the audit
+dashboard.
 
 ## More
 

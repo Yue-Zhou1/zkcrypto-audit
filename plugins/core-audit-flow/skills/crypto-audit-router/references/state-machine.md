@@ -34,17 +34,21 @@ Any transition not listed is invalid.
 
 - **Intake:** `engagement_id`, `targets`, `trust_boundaries`, `critical_paths`,
   `unresolved_assumptions`, `next_steps`.
-- **Domain:** add `routes` entries and move them to `completed` or `skipped`;
-  add `candidates` with `owner_skill`, `location`, `summary`, `evidence_refs`.
-  A domain auditor may set `false_positive`, `observation`, or `residual_risk`
-  with a code pointer. It never sets `verified` or a final severity.
+- **Domain:** add `routes` entries with `scope`, fill `reviewed`, and move
+  them to `completed` or `skipped`; add `candidates` with `owner_skill`,
+  `location`, `summary`, `evidence_refs`. A domain auditor may set
+  `false_positive`, `observation`, or `residual_risk` with a code pointer. It
+  never sets `verified` or a final severity.
 - **Verification:** set candidate `status`, `severity`, `verdict_rationale`,
-  `poc_status`, `poc_ref`. Candidates are never deleted; a rejected one stays
-  as `false_positive` with the gate that failed.
+  `gates`, `poc_status`, `poc_ref`. Candidates are never deleted; a rejected
+  one stays as `false_positive` with the gate that failed.
 - **Reporting:** set `report_ref`; fill `artifacts`; refresh `next_steps`. The
   claim, status, and severity of a candidate do not change here.
 - **Remediation:** append `remediation_verifications`. The original candidate
   is not rewritten.
+
+Every phase change appends `{phase, entered_at}` to `phase_history`. Route and
+candidate timestamps are set in the phase that changes their status.
 
 Engagement-specific material with no core field goes under `extensions`.
 

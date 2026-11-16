@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://zkcrypto-audit.local/session-state-schema.json",
   "title": "zkcrypto-audit session state (v3)",
-  "description": "Engagement session handoff. One candidate list carries every suspected issue through its whole life; one route list records which skills ran, which were skipped, and why. Paths are relative to the engagement directory unless they point into the audited target.",
+  "description": "Engagement session handoff. One candidate list carries every suspected issue through its whole life; one route list records which skills ran, which were skipped, and why. Paths are relative to the engagement directory unless they point into the audited target. Timestamps are UTC ISO-8601 strings and are optional.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -41,6 +41,39 @@
         "closed"
       ]
     },
+    "created_at": {
+      "type": "string",
+      "description": "UTC ISO-8601 timestamp of the start of the engagement."
+    },
+    "phase_history": {
+      "type": "array",
+      "description": "One entry each time a phase is entered, oldest first.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "phase",
+          "entered_at"
+        ],
+        "properties": {
+          "phase": {
+            "type": "string",
+            "enum": [
+              "intake_pending",
+              "domain_in_progress",
+              "verification_in_progress",
+              "reporting_in_progress",
+              "remediation_in_progress",
+              "closed"
+            ]
+          },
+          "entered_at": {
+            "type": "string",
+            "description": "UTC ISO-8601 timestamp."
+          }
+        }
+      }
+    },
     "targets": {
       "type": "array",
       "description": "Codebases, modules, revisions, or protocols under review.",
@@ -54,7 +87,10 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name", "assumption"],
+        "required": [
+          "name",
+          "assumption"
+        ],
         "properties": {
           "name": {
             "type": "string",
@@ -75,7 +111,9 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
           "id": {
             "type": "string"
@@ -106,7 +144,10 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["skill", "status"],
+        "required": [
+          "skill",
+          "status"
+        ],
         "properties": {
           "skill": {
             "type": "string",
@@ -114,7 +155,11 @@
           },
           "status": {
             "type": "string",
-            "enum": ["pending", "completed", "skipped"]
+            "enum": [
+              "pending",
+              "completed",
+              "skipped"
+            ]
           },
           "reason": {
             "type": "string",
@@ -123,6 +168,22 @@
           "summary": {
             "type": "string",
             "description": "What the route covered and concluded."
+          },
+          "scope": {
+            "type": "array",
+            "description": "Files in the audited target that this route reviews, as paths relative to the target root.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reviewed": {
+            "type": "array",
+            "description": "Entries of `scope` whose review is finished.",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
           },
           "candidate_ids": {
             "type": "array",
@@ -135,6 +196,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "started_at": {
+            "type": "string",
+            "description": "UTC ISO-8601 timestamp."
+          },
+          "completed_at": {
+            "type": "string",
+            "description": "UTC ISO-8601 timestamp."
           }
         },
         "allOf": [
@@ -147,7 +216,9 @@
               }
             },
             "then": {
-              "required": ["reason"],
+              "required": [
+                "reason"
+              ],
               "properties": {
                 "reason": {
                   "minLength": 1
@@ -164,7 +235,9 @@
               }
             },
             "then": {
-              "required": ["summary"],
+              "required": [
+                "summary"
+              ],
               "properties": {
                 "summary": {
                   "minLength": 1
@@ -181,7 +254,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "status", "summary"],
+        "required": [
+          "id",
+          "status",
+          "summary"
+        ],
         "properties": {
           "id": {
             "type": "string",
@@ -203,7 +280,13 @@
           },
           "severity": {
             "type": "string",
-            "enum": ["Critical", "High", "Medium", "Low", "Informational"]
+            "enum": [
+              "Critical",
+              "High",
+              "Medium",
+              "Low",
+              "Informational"
+            ]
           },
           "owner_skill": {
             "type": "string"
@@ -226,9 +309,48 @@
             "type": "string",
             "description": "Which gate failed, or the evidence that satisfied each gate."
           },
+          "gates": {
+            "type": "array",
+            "description": "Outcome of each crypto-fp-check gate, in the order evaluated.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "gate",
+                "result"
+              ],
+              "properties": {
+                "gate": {
+                  "type": "string",
+                  "enum": [
+                    "claim",
+                    "trigger",
+                    "impact",
+                    "severity"
+                  ]
+                },
+                "result": {
+                  "type": "string",
+                  "enum": [
+                    "pass",
+                    "fail",
+                    "inconclusive"
+                  ]
+                },
+                "at": {
+                  "type": "string",
+                  "description": "UTC ISO-8601 timestamp."
+                }
+              }
+            }
+          },
           "poc_status": {
             "type": "string",
-            "enum": ["executed", "pending_poc", "not_required"]
+            "enum": [
+              "executed",
+              "pending_poc",
+              "not_required"
+            ]
           },
           "poc_ref": {
             "type": "string"
@@ -241,6 +363,14 @@
             "items": {
               "type": "string"
             }
+          },
+          "raised_at": {
+            "type": "string",
+            "description": "UTC ISO-8601 timestamp."
+          },
+          "decided_at": {
+            "type": "string",
+            "description": "UTC ISO-8601 timestamp."
           }
         },
         "allOf": [
@@ -253,7 +383,10 @@
               }
             },
             "then": {
-              "required": ["severity", "poc_status"]
+              "required": [
+                "severity",
+                "poc_status"
+              ]
             }
           }
         ]
@@ -262,7 +395,11 @@
     "artifacts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["reports", "pocs", "index_refs"],
+      "required": [
+        "reports",
+        "pocs",
+        "index_refs"
+      ],
       "properties": {
         "reports": {
           "type": "array",
@@ -307,7 +444,12 @@
           },
           "verdict": {
             "type": "string",
-            "enum": ["fixed", "partially_fixed", "not_fixed", "regressed"]
+            "enum": [
+              "fixed",
+              "partially_fixed",
+              "not_fixed",
+              "regressed"
+            ]
           },
           "regression_evidence_refs": {
             "type": "array",
