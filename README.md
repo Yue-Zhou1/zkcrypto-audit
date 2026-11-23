@@ -1,12 +1,5 @@
 # zkcrypto-audit
 
-![zkcrypto-audit banner](assets/banner.png)
-
-![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_collection-111827)
-![Plugins](https://img.shields.io/badge/plugins-7_categories%2F44_skills-0f766e)
-![Focus](https://img.shields.io/badge/focus-ZK_%2B_crypto-1d4ed8)
-![Method](https://img.shields.io/badge/method-evidence_driven-b45309)
-
 A guided audit toolkit, plugin collection, and staged security review workflow
 for zero-knowledge systems and cryptographic protocols.
 
