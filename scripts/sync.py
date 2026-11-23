@@ -16,7 +16,6 @@ ROUTER = ROOT / "plugins" / "core-audit-flow" / "skills" / "crypto-audit-router"
 ROUTING_MATRIX = ROUTER / "references" / "routing-matrix.md"
 SESSION_SCHEMA = ROUTER / "references" / "session-state-schema.json"
 SESSION_TEMPLATE = ROUTER / "references" / "session-state-template.json"
-README = ROOT / "README.md"
 
 SPEC_KEYS = {"name", "description", "license", "compatibility", "metadata", "allowed-tools"}
 NAME_RE = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -128,13 +127,6 @@ def expected_files(market, plugins) -> dict[pathlib.Path, str]:
         "plugins": codex_plugins,
     })
 
-    count = sum(len(p["skills"]) for p in plugins)
-    readme = README.read_text()
-    out[README] = re.sub(
-        r"plugins-\d+_categories%2F\d+_skills",
-        f"plugins-{len(plugins)}_categories%2F{count}_skills",
-        readme,
-    )
     for entry in market["plugins"]:
         entry["version"] = version
     out[MARKETPLACE] = dump_json(market)
